@@ -38,7 +38,7 @@
 		<item name="preferenceTheme">@style/BaseStyle.PreferenceThemeOverlay</item>
 	</style>
 
-	<style name="BaseStyle.PreferenceThemeOverlay" parent="PreferenceThemeOverlay">
+	<style name="BaseStyle.PreferenceThemeOverlay">
 		<item name="preferenceFragmentListStyle">@style/BaseStyle.PreferenceThemeOverlay.FragmentList</item>
 		<item name="preferenceStyle">@style/BaseStyle.PreferenceThemeOverlay.Preference</item>
 	</style>
