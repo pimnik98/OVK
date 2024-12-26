@@ -20,11 +20,12 @@
 package uk.openvk.android.legacy.core.fragments.base;
 
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceFragmentCompat;
 
-import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 
-public class ActivePreferenceFragment extends PreferenceFragmentCompatDividers {
+public class ActivePreferenceFragment extends PreferenceFragmentCompat {
     private boolean isActivated;
 
     public boolean isActivated() {
@@ -43,12 +44,12 @@ public class ActivePreferenceFragment extends PreferenceFragmentCompatDividers {
         onDeactivated();
     }
 
-    public  void onDeactivated() {
+    public void onDeactivated() {
         isActivated = false;
     }
 
     @Override
-    public void onCreatePreferencesFix(Bundle bundle, String s) {
+    public void onCreatePreferences(Bundle bundle, String s) {
 
     }
 }

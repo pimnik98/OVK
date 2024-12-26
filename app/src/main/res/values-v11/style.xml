@@ -36,9 +36,10 @@
         <item name="android:homeAsUpIndicator">@drawable/ic_ab_back_holo_dark</item>
 		<item name="android:actionDropDownStyle">@style/ActionBarSpinner</item>
 		<item name="preferenceTheme">@style/BaseStyle.PreferenceThemeOverlay</item>
+		<item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
 	</style>
 
-	<style name="BaseStyle.PreferenceThemeOverlay" parent="PreferenceThemeOverlay">
+	<style name="BaseStyle.PreferenceThemeOverlay">
 		<item name="preferenceFragmentListStyle">@style/BaseStyle.PreferenceThemeOverlay.FragmentList</item>
 		<item name="preferenceStyle">@style/BaseStyle.PreferenceThemeOverlay.Preference</item>
 	</style>

@@ -27,7 +27,8 @@
         android:theme="@style/BaseStyleNoTitle"
         android:largeHeap="true"
         tools:ignore="UnusedAttribute"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:installLocation="auto">
 
         <activity android:name=".core.activities.MainActivity"
             android:label="@string/app_name"
@@ -305,15 +306,6 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mcc|mnc|uiMode"
             android:resizeableActivity="false"
         />
-
-        <activity
-            android:name=".core.activities.settings.ExperimentalFeaturesActivity"
-            android:label="@string/experimental_features"
-            android:theme="@style/BaseStyle"
-            android:exported="true"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mcc|mnc|uiMode"
-            android:resizeableActivity="false"
-            />
 
         <activity android:name=".core.activities.QuickSearchActivity"
             android:label="@string/search_global"

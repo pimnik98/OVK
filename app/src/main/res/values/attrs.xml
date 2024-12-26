@@ -113,5 +113,4 @@
     <declare-styleable name="FragmentMaster">
         <attr name="masterFragmentTheme" format="reference"/>
     </declare-styleable>
-
 </resources>
