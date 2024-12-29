@@ -45,7 +45,8 @@
     ]]></string>
     <string name="app_disclaimer_title">Disclaimer</string>
     <string name="app_disclaimer"><![CDATA[
-        OpenVK is not affiliated with or endorsed by VK LLC. The application is intended
-        to work with OpenVK instances <b>only</b>, <a href="%s/topic181_1">see the FAQ</a>.
+        The OpenVK Legacy application and the OpenVK network are amateur development and not affiliated in any way
+        with the VK LLC and VKontakte.
+        The application is intended to work with OpenVK instances <b>only</b>, <a href="%s/topic181_1">see the FAQ</a>.
     ]]></string>
 </resources>

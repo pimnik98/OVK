@@ -49,7 +49,8 @@
     ]]></string>
     <string name="app_disclaimer_title">Дисклеймер</string>
     <string name="app_disclaimer"><![CDATA[
-        OpenVK никак не связан с компанией ООО \"ВК\" или не одобрен ею.
+        Приложение OpenVK Legacy и сеть OpenVK являются любительской разработкой и никак не
+        связаны с компанией ООО \"ВК\" и ВКонтакте.
         Приложение предназначено для работы <b>только</b> с инстанциями OpenVK,
         <a href="%s/topic181_1">см. в FAQ</a>.
     ]]></string>

@@ -21,7 +21,7 @@
     ТІЛЬКИ з інстанціями <a href="https://github.com/openvk/openvk">OpenVK</a> - мережі з
     відкритим вихідним кодом, несумісною з ВКонтакте.<br><br>Будь ласка, авторизуйтеся ТІЛЬКИ
     до зареєстрованого облікового запису OpenVK в одній з існуючих інстанцій.
-    <br><br>OpenVK ніяк не пов\'язаний з компанією ТОВ \"ВК\" або не схвалений нею.]]></string>
+    <br><br>Додаток OpenVK Legacy та мережа OpenVK є аматорською розробкою і жодним чином не пов\'язані з компанією ТОВ \"ВК\" та ВКонтакте.]]></string>
     <string name="dont_show_warn">Більше не показувати</string>
     <string name="full_app_name">OpenVK Legacy для Android</string>
     <string name="creating_account">Створення облікового запису…</string>

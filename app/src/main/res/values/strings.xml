@@ -21,7 +21,8 @@
 		<![CDATA[You have launched a OpenVK Legacy FOSS client that ONLY works with
 	    <a href="https://github.com/openvk/openvk">OpenVK</a> instances, an open source network that is not compatible with VKontakte / VK.
 	    <br><br>Please log in ONLY to the registered OpenVK account in one of the existing instances.
-	    <br><br>OpenVK is not affiliated with or endorsed by VK LLC.]]>
+	    <br><br>The OpenVK Legacy application and the OpenVK network are amateur development and not affiliated in any way
+        with the VK LLC and VKontakte.]]>
 	</string>
 	<string name="dont_show_warn">Don\'t show again</string>
 	<string name="app_name" translatable="false">OpenVK</string>
