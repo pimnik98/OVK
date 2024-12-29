@@ -9,6 +9,11 @@ _Powered by OpenVK API._
 
 We will be happy to accept your bugreports [in our bug-tracker](https://github.com/openvk/mobile-android-legacy/projects/1).
 
+OpenVK it is fan project, not affiliated in any way with VKontakte and it's company VK Ltd. Below is the same message in Russian.
+
+OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "VK"
+
+
 ![featureGraphic](fastlane/metadata/android/en-US/images/featureGraphic.png)
 
 ## Download APK

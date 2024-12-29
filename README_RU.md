@@ -7,6 +7,8 @@ _[English](README.md)_
 **OpenVK Legacy** - мобильный клиент для ретро-устройств, работающие на Android 2.1 Eclair и выше.\
 _Работает на OpenVK API._
 
+OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "VK"
+
 Мы будем рады принять ваши сообщения об ошибках [в нашем баг-трекере](https://github.com/openvk/mobile-android-legacy/projects/1).
 
 ![featureGraphic](fastlane/metadata/android/en-US/images/featureGraphic.png)
