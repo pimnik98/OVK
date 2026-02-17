@@ -4,18 +4,16 @@ _[Русский](README_RU.md)_
 
 Author: [Dmitry Tretyakov (Tinelix)](https://github.com/tretdm)
 
-> [!WARNING]
-> _Development of OpenVK Legacy for Android has been suspended indefinitely. Find out [why](https://github.com/OpenVK/mobile-android-legacy/issues/192)._
-
 **OpenVK Legacy** is mobile client for retro devices running Android 2.1 Eclair and higher.\
 _Powered by OpenVK API._
 
 We will be happy to accept your bugreports [in our bug-tracker](https://github.com/openvk/mobile-android-legacy/projects/1).
 
-OpenVK it is fan project, not affiliated in any way with VKontakte and it's company VK Ltd. Below is the same message in Russian.
-
-OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "VK"
-
+> [!WARNING]
+> _Development of OpenVK Legacy for Android has been suspended indefinitely. Find out [why](https://github.com/OpenVK/mobile-android-legacy/issues/192)._ 
+> 
+> OpenVK it is fan project, not affiliated in any way with VKontakte and it's company VK LLC. Below is the same message in Russian. \
+> OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "ВК".
 
 ![featureGraphic](fastlane/metadata/android/en-US/images/featureGraphic.png)
 
@@ -87,4 +85,5 @@ To compile them you need:
 <a href="https://codeberg.org/OpenVK/mobile-android-legacy">
     <img alt="Get it on Codeberg" src="https://codeberg.org/Codeberg/GetItOnCodeberg/media/branch/main/get-it-on-blue-on-white.png" height="60">
 </a>
+
 
