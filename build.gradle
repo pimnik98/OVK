@@ -23,12 +23,5 @@ allprojects {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url "https://maven.aliyun.com/repository/jcenter" }
         google()
-        maven {
-            url "https://maven.vriska.ru/"
-            credentials {
-                username "gradle"
-                password "gradle"
-            }
-        }
     }
 }
