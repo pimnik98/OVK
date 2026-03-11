@@ -19,14 +19,18 @@
     <!--
         About OpenVK open source network: https://github.com/openvk/openvk#readme
         Current list of instances: https://github.com/openvk/openvk/wiki/Instances
+
+        Instance list format: address|protocol|restricted in countries
     !-->
+    <string name="default_instance" translatable="false">api.openvk.org</string>
+    <string name="default_instance_no_https" translatable="false">openvk.org</string>
+
     <string-array name="official_instances_list" translable="false">
-        <item>ovk.to|HTTPS</item>
+        <item>api.openvk.org|HTTPS</item>
         <item>openvk.xyz|HTTP</item>
     </string-array>
     <string-array name="instances_list" translable="false">
-        <item>social.fetbuk.ru|HTTPS</item>
-        <item>vepurovk.xyz|HTTPS</item>
-        <item>vepurovk.fun|HTTP</item>
+        <item>vepurovk.xyz|HTTPS|RUS</item>
+        <item>api.vepurovk.fun|HTTPS</item>
     </string-array>
 </resources>

@@ -279,12 +279,12 @@ public class OvkAPIWrapper {
             url = String.format("https://%s/token?username=%s&password=%s&grant_type=password" +
                     "&client_name=%s&2fa_supported=1", server, URLEncoder.encode(username),
                     URLEncoder.encode(password), client_name);
-            if(logging_enabled) Log.d(OpenVKAPI.TAG, String.format("Connecting to %s... (Secured)", server));
+            if(logging_enabled) Log.d(OpenVKAPI.TAG, String.format("Authorizing with %s... (Secured)", server));
         } else {
             url = String.format("http://%s/token?username=%s&password=%s&grant_type=password" +
                     "&client_name=%s&2fa_supported=1", server, URLEncoder.encode(username),
                     URLEncoder.encode(password), client_name);
-            if(logging_enabled) Log.d(OpenVKAPI.TAG, String.format("Connecting to %s...", server));
+            if(logging_enabled) Log.d(OpenVKAPI.TAG, String.format("Authorizing with %s...", server));
         }
         final String fUrl = url;
         Runnable httpRunnable = new Runnable() {
@@ -341,40 +341,51 @@ public class OvkAPIWrapper {
                         if (response_body.length() > 0) {
                             if (logging_enabled)
                                 Log.d(OpenVKAPI.TAG, String.format("Connected (%d)", response_code));
-                            if (response_code == 400) {
-                                sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
-                                Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", response_code));
-                            } else if (response_code == 401) {
-                                sendMessage(HandlerMessages.TWOFACTOR_CODE_REQUIRED, response_body);
-                                Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", 401));
-                            } else if (response_code == 404) {
-                                sendMessage(HandlerMessages.NOT_OPENVK_INSTANCE, response_body);
-                                Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", response_code));
-                            } else if (response_code == 200) {
-                                if(!(response_body.startsWith("{") && response_body.endsWith("}"))) {
-                                    if(response_body.length() > 16) {
-                                        throw new java.text.ParseException(String.format("Response data " +
-                                                "must be in JSON format only. Start of response: [%s...]",
-                                                response_body.replace("\r", "").replace("\n", "").substring(0, 16)), 0);
-                                    } else {
-                                        throw new java.text.ParseException(String.format("Response data " +
-                                                        "must be in JSON format only. Start of response: [%s]",
-                                                response_body.replace("\r", "").replace("\n", "")), 0);
+                            switch(response_code) {
+                                case 400:
+                                    sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
+                                    Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", response_code));
+                                    break;
+                                case 401:
+                                    sendMessage(HandlerMessages.TWOFACTOR_CODE_REQUIRED, response_body);
+                                    Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", 401));
+                                    break;
+                                case 404:
+                                    sendMessage(HandlerMessages.NOT_OPENVK_INSTANCE, response_body);
+                                    Log.e(OpenVKAPI.TAG, String.format("Authorization error (%d)", response_code));
+                                    break;
+                                case 200:
+                                    if(!(response_body.startsWith("{") && response_body.endsWith("}"))) {
+                                        if(response_body.length() > 48) {
+                                            throw new java.text.ParseException(String.format("Response data " +
+                                                    "must be in JSON format only. Start of response: [%s...]",
+                                                    response_body.replace("\r", "").replace("\n", "").substring(0, 48)), 0);
+                                        } else {
+                                            throw new java.text.ParseException(String.format("Response data " +
+                                                            "must be in JSON format only. Start of response: [%s]",
+                                                    response_body.replace("\r", "").replace("\n", "")), 0);
+                                        }
+                                    } else if(response_body.contains("\"error_msg\"")) {
+                                            throw new IllegalAccessError("Instance returns HTTP 200 code, but authorization could be completed");
                                     }
-                                }
-                                Log.d(OpenVKAPI.TAG, String.format("Connected (%d)", response_code));
-                                sendMessage(HandlerMessages.AUTHORIZED, response_body);
-                            } else if (response_code == 502) {
-                                sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
-                            } else if (response_code == 503) {
-                                sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
-                            } else {
-                                sendMessage(HandlerMessages.UNKNOWN_ERROR, response_body);
+                                    Log.d(OpenVKAPI.TAG, String.format("Authorized (%d)", response_code));
+                                    sendMessage(HandlerMessages.AUTHORIZED, response_body);
+                                    break;
+                                case 502:
+                                    sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
+                                    break;
+                                case 503:
+                                    sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
+                                    break;
+                                case 301:
+                                case 302:
+                                    if(!use_https)
+                                        sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
+                                    break;
+                                default:
+                                    sendMessage(HandlerMessages.UNKNOWN_ERROR, response_body);
+                                    break;
                             }
-                        } else if (response_code == 301 && !use_https) {
-                            sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
-                        } else if (response_code == 302 && !use_https) {
-                            sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
                         }
                     } catch (ProtocolException | UnknownHostException | ConnectException e) {
                         if (logging_enabled) {
@@ -395,7 +406,7 @@ public class OvkAPIWrapper {
                     } catch (ParseException e) {
                         e.printStackTrace();
                         sendMessage(HandlerMessages.NOT_OPENVK_INSTANCE, "");
-                    } catch (HttpClientException | IOException ex) {
+                    } catch (HttpClientException | IOException | IllegalAccessError ex) {
                         if (ex.getMessage().startsWith("Authorization required")) {
                             response_code = 401;
                             sendMessage(HandlerMessages.TWOFACTOR_CODE_REQUIRED, response_body);
@@ -406,6 +417,8 @@ public class OvkAPIWrapper {
                             if(response_code == 400) {
                                 sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
                             }
+                        } else if(ex.getMessage().startsWith("Instance returns HTTP 200 code")) {
+                            sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -492,33 +505,41 @@ public class OvkAPIWrapper {
                         if (response_body.length() > 0) {
                             if (logging_enabled)
                                 Log.d(OpenVKAPI.TAG, String.format("Connected (%d)", response_code));
-                            if (response_code == 400) {
-                                sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
-                            } else if (response_code == 401) {
-                                sendMessage(HandlerMessages.TWOFACTOR_CODE_REQUIRED, response_body);
-                            } else if (response_code == 404) {
-                                sendMessage(HandlerMessages.NOT_OPENVK_INSTANCE, response_body);
-                            } else if (response_code == 200) {
-                                if(!(response_body.startsWith("{") && response_body.endsWith("}"))) {
-                                    if(response_body.length() > 16) {
-                                        throw new java.text.ParseException(String.format("Response data " +
-                                                        "must be in JSON format only. Start of response: [%s...]",
-                                                response_body.substring(0, 16)), 0);
-                                    } else {
-                                        throw new java.text.ParseException(String.format("Response data " +
-                                                        "must be in JSON format only. Start of response: [%s]",
-                                                response_body), 0);
+                            switch(response_code) {
+                                case 400:
+                                    sendMessage(HandlerMessages.INVALID_USERNAME_OR_PASSWORD, response_body);
+                                    break;
+                                case 401:
+                                    sendMessage(HandlerMessages.TWOFACTOR_CODE_REQUIRED, response_body);
+                                    break;
+                                case 404:
+                                    sendMessage(HandlerMessages.NOT_OPENVK_INSTANCE, response_body);
+                                    break;
+                                case 200:
+                                    if (!(response_body.startsWith("{") && response_body.endsWith("}"))) {
+                                        if (response_body.length() > 16) {
+                                            throw new java.text.ParseException(String.format("Response data " +
+                                                            "must be in JSON format only. Start of response: [%s...]",
+                                                    response_body.substring(0, 16)), 0);
+                                        } else {
+                                            throw new java.text.ParseException(String.format("Response data " +
+                                                            "must be in JSON format only. Start of response: [%s]",
+                                                    response_body), 0);
+                                        }
                                     }
-                                }
-                                sendMessage(HandlerMessages.AUTHORIZED, response_body);
-                            } else if (response_code == 301 && !use_https) {
-                                sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
-                            } else if (response_code == 302 && !use_https) {
-                                sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
-                            } else if (response_code == 503) {
-                                sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
-                            } else {
-                                sendMessage(HandlerMessages.UNKNOWN_ERROR, response_body);
+                                    sendMessage(HandlerMessages.AUTHORIZED, response_body);
+                                    break;
+                                case 503:
+                                    sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, response_body);
+                                    break;
+                                case 301:
+                                case 302:
+                                    if(!use_https)
+                                        sendMessage(HandlerMessages.INTERNAL_ERROR, response_body);
+                                    break;
+                                default:
+                                    sendMessage(HandlerMessages.UNKNOWN_ERROR, response_body);
+                                    break;
                             }
                         }
                     } catch (ProtocolException | ConnectException |
@@ -817,41 +838,54 @@ public class OvkAPIWrapper {
                 response_code = response.code();
             }
             if (response_body.length() > 0) {
-                if(response_code == 200) {
-                    if(logging_enabled) Log.d(OpenVKAPI.TAG,
-                            String.format("Getting response from %s (%s, %s):\r\n[%s]",
-                                    server, method, response_code, response_body));
-                    sendMessage(HandlerMessages.PARSE_JSON, method, args, where, response_body);
-                } else if(response_code == 400) {
-                    error = new Error();
-                    error.parse(response_body);
-                    if(logging_enabled) Log.e(OpenVKAPI.TAG,
-                            String.format("Getting response from %s (%s, %s): [%s / Error code: %d]",
-                                    server, method, response_code, error.description, error.code));
-                    if(error.code == 3) {
-                        sendMessage(HandlerMessages.METHOD_NOT_FOUND, method, args, where, error.description);
-                    } else if(error.code == 5) {
-                        sendMessage(HandlerMessages.INVALID_TOKEN, method, args, where, error.description);
-                    } else if (error.code == 15) {
-                        sendMessage(HandlerMessages.ACCESS_DENIED, method, args, where, error.description);
-                    } else if (error.code == 18) {
-                        sendMessage(HandlerMessages.BANNED_ACCOUNT, method, args, where, error.description);
-                    } else if (error.code == 10 || error.code == 100) {
-                        sendMessage(HandlerMessages.INVALID_USAGE, method, args, where, error.description);
-                    } else if(error.code == 945) {
-                        sendMessage(HandlerMessages.CHAT_DISABLED, method, args, where, error.description);
-                    }
-                } else if (response_code == 301 && !use_https) {
-                    sendMessage(HandlerMessages.INTERNAL_ERROR, method, response_body);
-                } else if (response_code == 302 && !use_https) {
-                    sendMessage(HandlerMessages.INTERNAL_ERROR, method, args, where, response_body);
-                } else if (response_code == 503) {
-                    sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, method, args, where, response_body);
-                } else if (response_code >= 500 && response_code <= 526) {
-                    Log.e(OpenVKAPI.TAG,
+                switch(response_code) {
+                    case 200:
+                        if(logging_enabled) Log.d(OpenVKAPI.TAG,
+                                String.format("Getting response from %s (%s, %s):\r\n[%s]",
+                                        server, method, response_code, response_body));
+                        sendMessage(HandlerMessages.PARSE_JSON, method, args, where, response_body);
+                        break;
+                    case 400:
+                        error = new Error();
+                        error.parse(response_body);
+                        if(logging_enabled) Log.e(OpenVKAPI.TAG,
+                                String.format("Getting response from %s (%s, %s): [%s / Error code: %d]",
+                                        server, method, response_code, error.description, error.code));
+                        switch(error.code) {
+                            case 3:
+                                sendMessage(HandlerMessages.METHOD_NOT_FOUND, method, args, where, error.description);
+                                break;
+                            case 5:
+                                sendMessage(HandlerMessages.INVALID_TOKEN, method, args, where, error.description);
+                                break;
+                            case 15:
+                                sendMessage(HandlerMessages.ACCESS_DENIED, method, args, where, error.description);
+                                break;
+                            case 18:
+                                sendMessage(HandlerMessages.BANNED_ACCOUNT, method, args, where, error.description);
+                                break;
+                            case 10:
+                            case 100:
+                                sendMessage(HandlerMessages.INVALID_USAGE, method, args, where, error.description);
+                                break;
+                            case 945:
+                                sendMessage(HandlerMessages.CHAT_DISABLED, method, args, where, error.description);
+                                break;
+                        }
+                        break;
+                    case 301:
+                    case 302:
+                        if(!use_https)
+                            sendMessage(HandlerMessages.INTERNAL_ERROR, method, response_body);
+                            break;
+                    case 503:
+                        sendMessage(HandlerMessages.INSTANCE_UNAVAILABLE, method, args, where, response_body);
+                        break;
+                    default:
+                        Log.e(OpenVKAPI.TAG,
                             String.format("Getting response from %s (%s, %s)", server,
                                     method, response_code));
-                    sendMessage(HandlerMessages.INTERNAL_ERROR, method, args, where, "");
+                        sendMessage(HandlerMessages.INTERNAL_ERROR, method, args, where, "");
                 }
             }
         } catch (ConnectException | ProtocolException e) {
@@ -905,21 +939,29 @@ public class OvkAPIWrapper {
                 String code_str = ex.getMessage().substring
                         (ex.getMessage().length() - 3);
                 response_code = Integer.parseInt(code_str);
-                if (response_code == 400) {
-                    error = new Error();
-                    error.parse(response_body);
-                    if(logging_enabled) Log.e(OpenVKAPI.TAG,
-                            String.format("Getting response from %s (%s, %s): [%s / Error code: %d]",
-                                    server, method, response_code, error.description, error.code));
-                    if (error.code == 3) {
-                        sendMessage(HandlerMessages.METHOD_NOT_FOUND, method, args, where, error.description);
-                    } else if (error.code == 5) {
-                        sendMessage(HandlerMessages.INVALID_TOKEN, method, args, where,  error.description);
-                    } else if (error.code == 15) {
-                        sendMessage(HandlerMessages.ACCESS_DENIED, method, args, where, error.description);
-                    } else if (error.code == 10 || error.code == 100) {
-                        sendMessage(HandlerMessages.INVALID_USAGE, method, args, where, error.description);
-                    }
+                switch (response_code) {
+                    case 400:
+                        error = new Error();
+                        error.parse(response_body);
+                        if(logging_enabled) Log.e(OpenVKAPI.TAG,
+                                String.format("Getting response from %s (%s, %s): [%s / Error code: %d]",
+                                        server, method, response_code, error.description, error.code));
+                        switch(error.code) {
+                            case 3:
+                                sendMessage(HandlerMessages.METHOD_NOT_FOUND, method, args, where, error.description);
+                                break;
+                            case 5:
+                                sendMessage(HandlerMessages.INVALID_TOKEN, method, args, where,  error.description);
+                                break;
+                            case 15:
+                                sendMessage(HandlerMessages.ACCESS_DENIED, method, args, where, error.description);
+                                break;
+                            case 10:
+                            case 100:
+                                sendMessage(HandlerMessages.INVALID_USAGE, method, args, where, error.description);
+                                break;
+                        }
+                        break;
                 }
             }
         } catch (Exception e) {
@@ -1046,10 +1088,13 @@ public class OvkAPIWrapper {
                         response_body = response.body().string();
                         response_code = response.code();
                     }
-                    if(response_code == 200) {
-                        sendMessage(HandlerMessages.OVK_CHECK_HTTP, response_body);
-                    } else if(response_code == 301) {
-                        sendMessage(HandlerMessages.OVK_CHECK_HTTPS, response_body);
+                    switch(response_code) {
+                        case 200:
+                            sendMessage(HandlerMessages.OVK_CHECK_HTTP, response_body);
+                            break;
+                        case 301:
+                            sendMessage(HandlerMessages.OVK_CHECK_HTTPS, response_body);
+                            break;
                     }
                 } catch (SocketTimeoutException e) {
                     if(logging_enabled) Log.e(OpenVKAPI.TAG, String.format("Connection error: %s", e.getMessage()));

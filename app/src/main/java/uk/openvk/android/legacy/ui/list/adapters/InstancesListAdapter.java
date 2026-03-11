@@ -28,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import uk.openvk.android.legacy.R;
@@ -74,16 +76,15 @@ public class InstancesListAdapter extends BaseAdapter {
             item_name.setText(item.server);
             ImageView item_official = (ImageView) view.findViewById(R.id.official_state);
             TextView https_chip = (TextView) view.findViewById(R.id.https_chip);
-            if(item.official) {
-                item_official.setVisibility(View.VISIBLE);
-            } else {
-                item_official.setVisibility(View.GONE);
+            item_official.setVisibility(item.official ? View.VISIBLE : View.GONE);
+            https_chip.setVisibility(item.secured ? View.VISIBLE : View.GONE);
+
+            if(item.restricted) {
+                TextView note_text = (TextView) view.findViewById(R.id.note_text);
+                note_text.setText(ctx.getResources().getString(R.string.maybe_restricted_on_your_country));
+                note_text.setVisibility(View.VISIBLE);
             }
-            if(item.secured) {
-                https_chip.setVisibility(View.VISIBLE);
-            } else {
-                https_chip.setVisibility(View.GONE);
-            }
+
         }
 
         InstancesListItem item = getListItem(position);

@@ -150,7 +150,7 @@ public class OvkApplication extends Application {
                 global_prefs_editor.putString("proxy_address", DEFAULT_RELAY_SERVER);
                 global_prefs_editor.putString("proxy_type", "selfeco-relay");
                 global_prefs_editor.putBoolean("useHTTPS", false);
-                global_prefs_editor.putBoolean("useProxy", true);
+                global_prefs_editor.putBoolean("useProxy", false);
             }
         }
 

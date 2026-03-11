@@ -38,6 +38,7 @@
     <string name="menu_settings">Налаштуваня</string>
     <string name="menu_about">Про додаток</string>
     <string name="instances_list_title">Список інстанцій</string>
+    <string name="maybe_restricted_on_your_country">Можливi обмеження у вашiй країни</string>
 
     <string name="invalid_password">Невірний пароль</string>
 
