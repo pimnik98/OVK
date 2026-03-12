@@ -124,7 +124,8 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
         public void afterTextChanged(Editable editable) {
             if(editable.length() > 2) {
                 search_results = audiosAdapter.findItems(audios, editable.toString());
-                createSearchResultsAdapter(search_results);
+                if(search_results != null)
+                    createSearchResultsAdapter(search_results);
             }
         }
     };
@@ -217,7 +218,8 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
                             public boolean onQueryTextChange(String newText) {
                                 if(newText.length() > 2) {
                                     search_results = audiosAdapter.findItems(audios, newText);
-                                    createSearchResultsAdapter(search_results);
+                                    if(search_results != null)
+                                        createSearchResultsAdapter(search_results);
                                 }
                                 return true;
                             }
