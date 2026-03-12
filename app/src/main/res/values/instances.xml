@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyleft © 2022, 2023 OpenVK Team
-    Copyleft © 2022, 2023 Dmitry Tretyakov (aka. Tinelix)
+    Copyleft © 2022-24, 2026 OpenVK Team
+    Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
 
     This program is free software: you can redistribute it and/or modify it under the terms of
     the GNU Affero General Public License as published by the Free Software Foundation, either
@@ -19,14 +19,18 @@
     <!--
         About OpenVK open source network: https://github.com/openvk/openvk#readme
         Current list of instances: https://github.com/openvk/openvk/wiki/Instances
+
+        Instance list format: address|protocol|restricted in countries
     !-->
+    <string name="default_instance" translatable="false">api.openvk.org</string>
+    <string name="default_instance_no_https" translatable="false">openvk.org</string>
+
     <string-array name="official_instances_list" translable="false">
-        <item>ovk.to|HTTPS</item>
-        <item>openvk.xyz|HTTP</item>
+        <item>api.openvk.org|HTTPS</item>
+        <item>openvk.xyz|HTTP|RUS</item>
     </string-array>
     <string-array name="instances_list" translable="false">
-        <item>social.fetbuk.ru|HTTPS</item>
-        <item>vepurovk.xyz|HTTPS</item>
-        <item>vepurovk.fun|HTTP</item>
+        <item>vepurovk.xyz|HTTPS|RUS</item>
+        <item>api.vepurovk.fun|HTTPS</item>
     </string-array>
 </resources>

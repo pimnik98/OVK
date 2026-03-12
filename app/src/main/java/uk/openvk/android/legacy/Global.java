@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -179,10 +179,16 @@ public class Global {
         md.update(text.getBytes());
         byte[] digest = md.digest();
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-            return Base64.encodeToString(digest, Base64.DEFAULT);
+            return Base64.encodeToString(digest, Base64.DEFAULT)
+                    .replace("\\r", "")
+                    .replace("\\n", "")
+                    .replace(" ", "");
         } else {
             try {
-                return bytesToHex(digest);
+                return bytesToHex(digest)
+                            .replace("\\r", "")
+                            .replace("\\n", "")
+                            .replace(" ", "");
             } catch(Exception ex) {
                 return "";
             }

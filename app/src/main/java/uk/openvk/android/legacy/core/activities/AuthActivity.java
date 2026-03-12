@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -40,8 +40,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +99,7 @@ public class AuthActivity extends NetworkAuthActivity {
             });
         }
         final EditTextAction instance_edit = (EditTextAction) findViewById(R.id.instance_name);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             instance_edit.setText(getResources().getText(R.string.default_instance));
         } else {
             instance_edit.setText(getResources().getText(R.string.default_instance_no_https));
@@ -179,21 +177,28 @@ public class AuthActivity extends NetworkAuthActivity {
 
     private void loadInstances() {
         instances_list = new ArrayList<>();
+        String regexp = Pattern.quote("|");
+        boolean secured, restricted = false;
+
+        String countryCode = Locale.getDefault().getISO3Country();
+
         for(int instances_index = 0; instances_index < getResources().getStringArray(
                 R.array.official_instances_list).length; instances_index++) {
             String instance = getResources().getStringArray(R.array.official_instances_list)[instances_index];
-            boolean secured;
-            String regexp = Pattern.quote("|");
-            secured = instance.split(regexp)[1].equals("HTTPS");
-            instances_list.add(new InstancesListItem(instance.split(regexp)[0], true, secured));
+            String[] instance_array = instance.split(regexp);
+            secured = instance_array[1].equals("HTTPS");
+
+            restricted = instance_array.length >= 3 ? instance_array[2].contains(countryCode) : false;
+            instances_list.add(new InstancesListItem(instance.split(regexp)[0], true, secured, restricted));
         }
         for(int instances_index = 0; instances_index < getResources().getStringArray(
                 R.array.instances_list).length; instances_index++) {
             String instance = getResources().getStringArray(R.array.instances_list)[instances_index];
-            boolean secured;
-            String regexp = Pattern.quote("|");
-            secured = instance.split(regexp)[1].equals("HTTPS");
-            instances_list.add(new InstancesListItem(instance.split(regexp)[0], false, secured));
+
+            String[] instance_array = instance.split(regexp);
+            secured = instance_array[1].equals("HTTPS");
+            restricted = instance_array.length >= 3 ? instance_array[2].contains(countryCode) : false;
+            instances_list.add(new InstancesListItem(instance.split(regexp)[0], true, secured, restricted));
         }
     }
 
@@ -202,6 +207,7 @@ public class AuthActivity extends NetworkAuthActivity {
         String username = ((EditText) findViewById(R.id.auth_login)).getText().toString();
         String password = ((EditText) findViewById(R.id.auth_pass)).getText().toString();
         final EditTextAction instance_edit = (EditTextAction) findViewById(R.id.instance_name);
+
         if (instance.startsWith("http://")) {
             instance_edit.setText(instance.substring(7));
             instance = ((EditTextAction) findViewById(R.id.instance_name)).getText();
@@ -213,12 +219,20 @@ public class AuthActivity extends NetworkAuthActivity {
                 return;
             }
         }
+
         if (instance.contains("vkontakte.ru") || instance.contains("vk.com") || instance.contains("vk.ru")) {
+            String default_instance;
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                instance_edit.setText(getResources().getText(R.string.default_instance));
+                default_instance =  getResources()
+                        .getText(R.string.default_instance).toString();
             } else {
-                instance_edit.setText(getResources().getText(R.string.default_instance_no_https));
+                default_instance = getResources()
+                        .getText(R.string.default_instance_no_https).toString();
             }
+
+            instance_edit.setText(default_instance);
+
             if (!global_prefs.getBoolean("hideOvkWarnForBeginners", false)) {
                 AlertDialog.Builder dialog_builder = new AlertDialog.Builder(AuthActivity.this);
                 dialog_builder.setTitle(R.string.ovk_warning_title);

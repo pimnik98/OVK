@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyleft © 2022, 2023 OpenVK Team
-    Copyleft © 2022, 2023 Dmitry Tretyakov (aka. Tinelix)
+    Copyleft © 2022-24, 2026 OpenVK Team
+    Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
 
     This program is free software: you can redistribute it and/or modify it under the terms of
     the GNU Affero General Public License as published by the Free Software Foundation, either
@@ -21,7 +21,7 @@
     ТІЛЬКИ з інстанціями <a href="https://github.com/openvk/openvk">OpenVK</a> - мережі з
     відкритим вихідним кодом, несумісною з ВКонтакте.<br><br>Будь ласка, авторизуйтеся ТІЛЬКИ
     до зареєстрованого облікового запису OpenVK в одній з існуючих інстанцій.
-    <br><br>OpenVK ніяк не пов\'язаний з компанією ТОВ \"ВК\" або не схвалений нею.]]></string>
+    <br><br>Додаток OpenVK Legacy та мережа OpenVK є аматорською розробкою і жодним чином не пов\'язані з компанією ТОВ \"ВК\" та ВКонтакте.]]></string>
     <string name="dont_show_warn">Більше не показувати</string>
     <string name="full_app_name">OpenVK Legacy для Android</string>
     <string name="creating_account">Створення облікового запису…</string>
@@ -38,6 +38,7 @@
     <string name="menu_settings">Налаштуваня</string>
     <string name="menu_about">Про додаток</string>
     <string name="instances_list_title">Список інстанцій</string>
+    <string name="maybe_restricted_in_your_country">Можливi обмеження у вашiй країни</string>
 
     <string name="invalid_password">Невірний пароль</string>
 

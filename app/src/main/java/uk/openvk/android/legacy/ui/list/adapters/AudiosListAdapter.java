@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -126,6 +126,8 @@ public class AudiosListAdapter extends RecyclerView.Adapter<AudiosListAdapter.Ho
     }
 
     public ArrayList<Audio> findItems(ArrayList<Audio> objects, String query) {
+        if(objects == null)
+            return null;
         ArrayList<Audio> results = new ArrayList<>();
         for(int i = 0; i < objects.size(); i++) {
             Audio track = objects.get(i);

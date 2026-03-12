@@ -9,6 +9,10 @@ _Powered by OpenVK API._
 
 We will be happy to accept your bugreports [in our bug-tracker](https://github.com/openvk/mobile-android-legacy/projects/1).
 
+> [!WARNING]
+> OpenVK it is fan project, not affiliated in any way with VKontakte and it's company VK LLC. Below is the same message in Russian. \
+> OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "ВК".
+
 ![featureGraphic](fastlane/metadata/android/en-US/images/featureGraphic.png)
 
 ## Download APK
@@ -79,3 +83,5 @@ To compile them you need:
 <a href="https://codeberg.org/OpenVK/mobile-android-legacy">
     <img alt="Get it on Codeberg" src="https://codeberg.org/Codeberg/GetItOnCodeberg/media/branch/main/get-it-on-blue-on-white.png" height="60">
 </a>
+
+

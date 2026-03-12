@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -83,9 +83,7 @@ import uk.openvk.android.legacy.utils.RealPathUtil;
 public class NewPostActivity extends NetworkFragmentActivity implements
         EmojiconGridFragment.OnEmojiconClickedListener,
         EmojiconsFragment.OnEmojiconBackspaceClickedListener, OnKeyboardStateListener {
-    public String server;
-    public String state;
-    public String auth_token;
+
     public ProgressDialog connectionDialog;
     public StringBuilder response_sb;
     public JSONObject json_response;

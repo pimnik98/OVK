@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyleft © 2022, 2023 OpenVK Team
-    Copyleft © 2022, 2023 Dmitry Tretyakov (aka. Tinelix)
+    Copyleft © 2022-24, 2026 OpenVK Team
+    Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
 
     This program is free software: you can redistribute it and/or modify it under the terms of
     the GNU Affero General Public License as published by the Free Software Foundation, either
@@ -29,9 +29,9 @@
         android:background="@null"
         android:ems="10"
         android:hint="Name"
-        android:inputType="textPersonName"
-        android:paddingStart="16dip"
+        android:inputType="text"
         android:paddingLeft="16dip"
+        android:paddingStart="16dip"
         android:textColorHint="#afafaf"
         tools:ignore="TextContrastCheck" />
 

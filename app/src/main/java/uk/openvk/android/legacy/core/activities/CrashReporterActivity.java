@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -134,38 +134,39 @@ public class CrashReporterActivity extends BaseCrashReportDialog
         SharedPreferences instance_prefs = getSharedPreferences("instance", 0);
         SharedPreferences global_prefs =
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        String isTablet;
         String server;
         String usingHTTPS;
-        String isTablet;
-        if(instance_prefs.contains("server")) {
-            server = instance_prefs.getString("server", "");
-        } else {
-            server = "N/A";
-        }
-        if(global_prefs.getBoolean("useHTTPS", false)) {
-            usingHTTPS = "Yes";
-        } else {
-            usingHTTPS = "No";
-        }
-        if(ovk.isTablet) {
-            isTablet = "Yes";
-        } else {
-            isTablet = "No";
-        }
+        String proxy;
+
+        isTablet = ovk.isTablet ? "Enabled" : "Disabled";
+        server = instance_prefs.contains("server") ? instance_prefs.getString("server", "") : "N/A";
+        usingHTTPS = global_prefs.getBoolean("useHTTPS", false) ? "Enabled" : "Disabled";
+        proxy = global_prefs.getBoolean("useProxy", false) ?
+                String.format(
+                        "%s (%s)",
+                        global_prefs.getString("proxy_address", ""),
+                        global_prefs.getString("proxy_type", "")
+                ) :
+                "Disabled";
+
         String header = String.format(
-                "OpenVK Legacy %s (%s)\r\n" +
-                        "==============================================" +
-                        "\r\nDEVICE" +
-                        "\r\nDevice: %s %s (codename: %s)" +
-                        "\r\nAndroid: %s (API %s)\r\n" +
-                        "==============================================" +
-                        "\r\nAPP SETTINGS" +
+                "\r\nOpenVK Legacy for Android %s (%s)\r\n" +
+                        "----------------------- DEVICE INFO ------------------------" +
+                        "\r\nModel: %s %s (codename: %s)" +
+                        "\r\nAndroid %s (API %s, %s)\r\n" +
+                        "----------------------- APP SETTINGS -----------------------" +
                         "\r\nInstance: %s" +
                         "\r\nHTTPS: %s" +
-                        "\r\nTablet UI?: %s\r\n" +
-                        "==============================================\r\n",
-                ovk.version, BuildConfig.GITHUB_COMMIT, Build.BRAND, Build.MODEL, Build.DEVICE,
-                Build.VERSION.RELEASE, Build.VERSION.SDK_INT, server, usingHTTPS, isTablet);
+                        "\r\nProxy: %s" +
+                        "\r\nTablet UI: %s\r\n" +
+                        "----------------------- START OF LOG -----------------------\r\n",
+                ovk.version, BuildConfig.GITHUB_COMMIT,
+                Build.BRAND, Build.MODEL, Build.DEVICE,
+                Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.FINGERPRINT,
+                server, usingHTTPS, proxy, isTablet
+        );
         int lines_count = 0;
         while ((line = bufferedReader.readLine()) != null) {
             if(line.contains("E ACRA") || line.contains("E AndroidRuntime")) {

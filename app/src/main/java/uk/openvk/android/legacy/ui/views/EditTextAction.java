@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -68,5 +68,9 @@ public class EditTextAction extends LinearLayout {
 
     public String getText() {
         return ((EditText) findViewById(R.id.editText)).getText().toString();
+    }
+
+    public void setInputType(int type) {
+        ((EditText) findViewById(R.id.editText)).setInputType(type);
     }
 }

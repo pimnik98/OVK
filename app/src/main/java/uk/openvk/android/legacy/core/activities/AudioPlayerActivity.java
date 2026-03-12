@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -230,6 +230,8 @@ public class AudioPlayerActivity extends NetworkActivity implements
     public void updateCurrentTrackPosition(int track_pos, int status) {
         ImageView play_button = findViewById(R.id.aplayer_play);
         SeekBar seekBar = findViewById(R.id.aplayer_progress);
+        if(audio_tracks.size() < track_pos)
+            return;
         Audio currentTrack = audio_tracks.get(track_pos);
         ovk_api.audios.fillList(audio_tracks);
         if(currentTrackPos != track_pos) {

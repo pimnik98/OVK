@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -586,14 +586,14 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             }
             if (global_prefs.getString("current_screen", "").equals("profile")) {
                 item = ovk_api.wall.getWallItems().get(position);
-                if(wallLayout != null) {
+                if(item != null && wallLayout != null) {
                     wallLayout.select(0, "likes", "delete");
                 } else {
                     return;
                 }
             } else {
                 item = ovk_api.newsfeed.getWallPosts().get(position);
-                if(newsfeedFragment != null) {
+                if(item != null && newsfeedFragment != null) {
                     newsfeedFragment.select(0, "likes", "delete");
                 } else {
                     return;

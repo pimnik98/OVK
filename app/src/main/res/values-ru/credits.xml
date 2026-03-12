@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyleft © 2022, 2023 OpenVK Team
-    Copyleft © 2022, 2023 Dmitry Tretyakov (aka. Tinelix)
+    Copyleft © 2022-24, 2026 OpenVK Team
+    Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
 
     This program is free software: you can redistribute it and/or modify it under the terms of
     the GNU Affero General Public License as published by the Free Software Foundation, either
@@ -49,7 +49,8 @@
     ]]></string>
     <string name="app_disclaimer_title">Дисклеймер</string>
     <string name="app_disclaimer"><![CDATA[
-        OpenVK никак не связан с компанией ООО \"ВК\" или не одобрен ею.
+        Приложение OpenVK Legacy и сеть OpenVK являются любительской разработкой и никак не
+        связаны с компанией ООО \"ВК\" и ВКонтакте.
         Приложение предназначено для работы <b>только</b> с инстанциями OpenVK,
         <a href="%s/topic181_1">см. в FAQ</a>.
     ]]></string>

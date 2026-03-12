@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -23,9 +23,11 @@ public class InstancesListItem {
     public String server;
     public boolean official;
     public boolean secured;
-    public InstancesListItem(String server, boolean official, boolean secured) {
+    public boolean restricted;
+    public InstancesListItem(String server, boolean official, boolean secured, boolean restricted) {
         this.server = server;
         this.official = official;
         this.secured = secured;
+        this.restricted = restricted;
     }
 }

@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -62,58 +62,58 @@ public class FragmentNavigator {
                 case "profile":
                     appActivity.selectedFragment = new ProfilePageFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "profile");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "profile");
                     break;
                 case "friends":
                     appActivity.selectedFragment = new FriendsFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "friends");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "friends");
                     break;
                 case "photos":
                     appActivity.selectedFragment = new PhotosFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "photos");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "photos");
                     break;
                 case "videos":
                     appActivity.selectedFragment = new VideosFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "videos");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "videos");
                     break;
                 case "audios":
                     appActivity.selectedFragment = new AudiosFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "audios");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "audios");
                     break;
                 case "messages":
                     appActivity.selectedFragment = new ConversationsFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "conversations");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "conversations");
                     break;
                 case "groups":
                     appActivity.selectedFragment = new GroupsFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "groups");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "groups");
                     break;
                 case "notes":
                     appActivity.selectedFragment = new NotesFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "groups");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "groups");
                     break;
                 case "newsfeed":
                     appActivity.selectedFragment = new NewsfeedFragment();
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "newsfeed");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "newsfeed");
                     appActivity.setActionBar("custom_newsfeed");
                     break;
                 case "settings":
                     appActivity.selectedFragment = new MainSettingsFragment();
                     showFragment(activity, true);
                     appActivity.progressLayout.enableDarkTheme(false);
-                    appActivity.global_prefs_editor.putString("current_screen", "settings");
+                    appActivity.getGlobalPreferencesEditor().putString("current_screen", "settings");
                     break;
             }
             ft.commit();
-            appActivity.global_prefs_editor.commit();
+            appActivity.getGlobalPreferencesEditor().commit();
             if(appActivity.selectedFragment instanceof ActiveFragment) {
                 ((ActiveFragment) appActivity.selectedFragment).onActivated();
             }

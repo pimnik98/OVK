@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -28,9 +28,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 import uk.openvk.android.legacy.R;
+import uk.openvk.android.legacy.core.activities.AppActivity;
 import uk.openvk.android.legacy.core.activities.AuthActivity;
 import uk.openvk.android.legacy.ui.list.items.InstancesListItem;
 
@@ -74,16 +77,15 @@ public class InstancesListAdapter extends BaseAdapter {
             item_name.setText(item.server);
             ImageView item_official = (ImageView) view.findViewById(R.id.official_state);
             TextView https_chip = (TextView) view.findViewById(R.id.https_chip);
-            if(item.official) {
-                item_official.setVisibility(View.VISIBLE);
-            } else {
-                item_official.setVisibility(View.GONE);
+            item_official.setVisibility(item.official ? View.VISIBLE : View.GONE);
+            https_chip.setVisibility(item.secured ? View.VISIBLE : View.GONE);
+
+            if(item.restricted) {
+                TextView note_text = (TextView) view.findViewById(R.id.note_text);
+                note_text.setText(ctx.getResources().getString(R.string.maybe_restricted_in_your_country));
+                note_text.setVisibility(View.VISIBLE);
             }
-            if(item.secured) {
-                https_chip.setVisibility(View.VISIBLE);
-            } else {
-                https_chip.setVisibility(View.GONE);
-            }
+
         }
 
         InstancesListItem item = getListItem(position);
@@ -91,9 +93,9 @@ public class InstancesListAdapter extends BaseAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ctx.getClass().getSimpleName().equals("AppActivity")) {
+                if(ctx instanceof AppActivity) {
                     //((AppActivity) ctx).onSimpleListItemClicked(position);
-                } else if(ctx.getClass().getSimpleName().equals("AuthActivity")) {
+                } else if(ctx instanceof AuthActivity) {
                     ((AuthActivity) ctx).clickInstancesItem(position);
                 }
             }

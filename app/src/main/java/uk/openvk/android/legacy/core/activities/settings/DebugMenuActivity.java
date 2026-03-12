@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -20,6 +20,7 @@
 package uk.openvk.android.legacy.core.activities.settings;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -227,8 +228,10 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                         @Override
                         public void onClick(View view) {
                             try {
-                                if(instance_prefs.getString("account_password_hash", "")
-                                        .equals(Global.GetSHA256Hash(password_edit.getText().toString()))) {
+                                String hash1 = instance_prefs.getString("account_password_hash", "");
+                                String hash2 = Global.GetSHA256Hash(password_edit.getText().toString());
+
+                                if(hash1.equals(hash2)) {
                                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                                         android.text.ClipboardManager clipboard =
                                                 (android.text.ClipboardManager)
@@ -294,16 +297,24 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     public boolean writeLogToFile() {
         try {
+            OvkApplication ovk = ((OvkApplication) getApplicationContext());
+            String isTablet;
+            String server;
+            String usingHTTPS;
+            String proxy;
+
             Process process = Runtime.getRuntime().exec("logcat -d");
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
 
             StringBuilder log = new StringBuilder();
             String line = "";
+
             while ((line = bufferedReader.readLine()) != null) {
-                log.append(line + "\r\n");
+                log.append(line).append("\r\n");
             }
             try {
                 File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
@@ -312,13 +323,17 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                     directory.mkdirs();
                 }
 
-                directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                directory = new File(
+                        Environment.getExternalStorageDirectory().getAbsolutePath() +
                         "/OpenVK", "App Logs");
                 if (!directory.exists()) {
                     directory.mkdirs();
                 }
                 Date dt = new Date(System.currentTimeMillis());
-                File file = new File(directory, new SimpleDateFormat("yyyyMMdd_HHmmss").format(dt) + ".log");
+                File file = new File(
+                        directory, new SimpleDateFormat("yyyyMMdd_HHmmss").format(dt) + ".log"
+                );
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if(getApplicationContext().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -337,41 +352,41 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                 if(BuildConfig.DEBUG) Log.d("OpenVK Legacy", "Log file created!");
                 FileWriter writer = null;
                 writer = new FileWriter(file);
-                OvkApplication ovk = ((OvkApplication) getApplicationContext());
-                String isTablet;
-                String server;
-                String usingHTTPS;
-                if(ovk.isTablet) {
-                    isTablet = "Yes";
-                } else {
-                    isTablet = "No";
-                }
-                if(instance_prefs.contains("server")) {
-                    server = instance_prefs.getString("server", "");
-                } else {
-                    server = "N/A";
-                }
-                if(global_prefs.getBoolean("useHTTPS", false)) {
-                    usingHTTPS = "Yes";
-                } else {
-                    usingHTTPS = "No";
-                }
-                writer.append(String.format(
-                        "OpenVK Legacy %s (%s)\r\n" +
-                                "==============================================" +
-                                "\r\nDEVICE" +
-                                "\r\nDevice: %s %s (codename: %s)" +
-                                "\r\nAndroid: %s (API %s)\r\n" +
-                                "==============================================" +
-                                "\r\nAPP SETTINGS" +
-                                "\r\nInstance: %s" +
-                                "\r\nHTTPS: %s" +
-                                "\r\nTablet UI?: %s\r\n" +
-                                "==============================================\r\n",
-                        ovk.version, BuildConfig.GITHUB_COMMIT, Build.BRAND, Build.MODEL, Build.DEVICE,
-                        Build.VERSION.RELEASE, Build.VERSION.SDK_INT, server, usingHTTPS, isTablet));
+
+                isTablet = ovk.isTablet ? "Enabled" : "Disabled";
+                server = instance_prefs.contains("server") ? instance_prefs.getString("server", "") : "N/A";
+                usingHTTPS = global_prefs.getBoolean("useHTTPS", false) ? "Enabled" : "Disabled";
+                proxy = global_prefs.getBoolean("useProxy", false) ?
+                            String.format(
+                                    "%s (%s)",
+                                    global_prefs.getString("proxy_address", ""),
+                                    global_prefs.getString("proxy_type", "")
+                            ) :
+                            "Disabled";
+
+                writer.append(
+                        String.format(
+                            "\r\nOpenVK Legacy for Android %s (%s)\r\n" +
+                            "----------------------- DEVICE INFO ------------------------" +
+                            "\r\nModel: %s %s (codename: %s)" +
+                            "\r\nAndroid %s (API %s, %s)\r\n" +
+                            "----------------------- APP SETTINGS -----------------------" +
+                            "\r\nInstance: %s" +
+                            "\r\nHTTPS: %s" +
+                            "\r\nProxy: %s" +
+                            "\r\nTablet UI: %s\r\n" +
+                            "----------------------- START OF LOG -----------------------\r\n",
+                            ovk.version, BuildConfig.GITHUB_COMMIT,
+                            Build.BRAND, Build.MODEL, Build.DEVICE,
+                            Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.FINGERPRINT,
+                            server, usingHTTPS, proxy, isTablet
+                    )
+                );
                 if(log.length() == 0) {
-                    log.append("ERROR: Logcat not supported or not allowed. Please enable USB debugging.");
+                    log.append(
+                        "ERROR: Failed to retrieve data from Logcat. " +
+                         "Please enable USB debugging and run 'adb logcat' in console."
+                    );
                 }
                 writer.append(log);
                 writer.flush();

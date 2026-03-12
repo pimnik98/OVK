@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyleft © 2022, 2023 OpenVK Team
-    Copyleft © 2022, 2023 Dmitry Tretyakov (aka. Tinelix)
+    Copyleft © 2022-24, 2026 OpenVK Team
+    Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
 
     This program is free software: you can redistribute it and/or modify it under the terms of
     the GNU Affero General Public License as published by the Free Software Foundation, either
@@ -68,7 +68,6 @@
                             android:layout_weight="1"
                             android:background="@null"
                             android:hint="@string/instance"
-                            android:inputType="textEmailAddress"
                             android:textColor="#000"
                             android:textColorHint="#afafaf"
                             android:textSize="18dip"
@@ -93,7 +92,7 @@
                         android:layout_height="50dip"
                         android:background="@null"
                         android:hint="@string/mail"
-                        android:inputType="textEmailAddress"
+                        android:inputType="textAutoComplete|textEmailAddress"
                         android:paddingLeft="16dip"
                         android:paddingRight="16dip"
                         android:text=""

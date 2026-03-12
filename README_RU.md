@@ -2,6 +2,9 @@
 
 _[English](README.md)_
 
+> [!WARNING]
+> OpenVK является любительской разработкой и никак не связан с ВКонтакте и компанией ООО "ВК".
+
 Автор: [Дмитрий Третьяков (Tinelix)](https://github.com/tretdm)
 
 **OpenVK Legacy** - мобильный клиент для ретро-устройств, работающие на Android 2.1 Eclair и выше.\
@@ -16,6 +19,7 @@ _Работает на OpenVK API._
   * **[repo.openvk.uk](https://repo.openvk.uk/repo/)** (намного быстрее, зеркало ~~[без TLS](http://repo.openvk.co/repo/)~~ не оплачено)
   * [f-droid.org](https://f-droid.org/packages/uk.openvk.android.legacy/)
   * [izzysoft.de](https://apt.izzysoft.de/fdroid/index/apk/uk.openvk.android.legacy)
+  * [tinelix.ru](https://repo.tinelix.ru)
 * **через [Telegram-канал](https://t.me/+nPLHBZqAsFlhYmIy)**
 * **через [страницу релизов](https://github.com/openvk/mobile-android-legacy/releases/latest)**
 * **через [NashStore](https://store.nashstore.ru/store/637cc36cfb3ed38835524503)** _(а почему бы и нет?)_
@@ -80,3 +84,4 @@ _Работает на OpenVK API._
 <a href="https://codeberg.org/OpenVK/mobile-android-legacy">
     <img alt="Get it on Codeberg" src="https://codeberg.org/Codeberg/GetItOnCodeberg/media/branch/main/get-it-on-blue-on-white.png" height="60">
 </a>
+

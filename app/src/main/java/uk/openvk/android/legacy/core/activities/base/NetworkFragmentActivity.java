@@ -1,6 +1,6 @@
 /*
- *  Copyleft © 2022, 2023, 2024 OpenVK Team
- *  Copyleft © 2022, 2023, 2024 Dmitry Tretyakov (aka. Tinelix)
+ *  Copyleft © 2022-24, 2026 OpenVK Team
+ *  Copyleft © 2022-24, 2026 Dmitry Tretyakov (aka. Tinelix)
  *
  *  This file is part of OpenVK Legacy for Android.
  *
@@ -48,11 +48,14 @@ import uk.openvk.android.legacy.utils.SecureCredentialsStorage;
 
 @SuppressLint("Registered")
 public class NetworkFragmentActivity extends TranslucentFragmentActivity {
+    protected String server;
+    protected String state;
+    protected String auth_token;
     public OpenVKAPI ovk_api;
-    public SharedPreferences global_prefs;
-    public SharedPreferences instance_prefs;
-    public SharedPreferences.Editor global_prefs_editor;
-    public SharedPreferences.Editor instance_prefs_editor;
+    protected SharedPreferences global_prefs;
+    protected SharedPreferences instance_prefs;
+    protected SharedPreferences.Editor global_prefs_editor;
+    protected SharedPreferences.Editor instance_prefs_editor;
     public Handler handler;
     public OvkAPIReceiver receiver;
     private String sessionId;
@@ -172,5 +175,13 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity {
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onDestroy();
+    }
+
+    public SharedPreferences.Editor getGlobalPreferencesEditor() {
+        return global_prefs_editor;
+    }
+
+    public SharedPreferences.Editor getInstancePreferenceEditor() {
+        return instance_prefs_editor;
     }
 }
