@@ -99,16 +99,16 @@ android {
             minSdkVersion 7
             //noinspection OldTargetApi
             targetSdkVersion 29
-            versionCode 244
-            versionName "1.2.244-d"
+            versionCode 245
+            versionName "1.2.245-d"
             signingConfig signingConfigs.debug
         }
         releaseConfig {
             minSdkVersion 7
             applicationId 'uk.openvk.android.legacy'
             targetSdkVersion 29
-            versionCode 244
-            versionName '1.2.244'
+            versionCode 245
+            versionName '1.2.245'
             if (file('.signing/app-release.prop').exists()) {
                 signingConfig signingConfigs.release
             }
@@ -119,8 +119,8 @@ android {
             minSdkVersion 7
             //noinspection OldTargetApi
             targetSdkVersion 29
-            versionCode 244
-            versionName "1.2.244-f"
+            versionCode 245
+            versionName "1.2.245-f"
             if (file('.signing/app-fdroid.prop').exists()) {
                 signingConfig signingConfigs.fdroid
             }

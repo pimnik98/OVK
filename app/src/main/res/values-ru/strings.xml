@@ -39,7 +39,7 @@
     <string name="menu_settings">Настройки</string>
     <string name="menu_about">О приложении</string>
     <string name="instances_list_title">Список инстанций</string>
-    <string name="maybe_restricted_on_your_country">Возможны ограничения в вашей стране</string>
+    <string name="maybe_restricted_in_your_country">Возможны ограничения в вашей стране</string>
 
     <string name="invalid_password">Неверный пароль</string>
 

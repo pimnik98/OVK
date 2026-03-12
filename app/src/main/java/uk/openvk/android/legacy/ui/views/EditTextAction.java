@@ -69,4 +69,8 @@ public class EditTextAction extends LinearLayout {
     public String getText() {
         return ((EditText) findViewById(R.id.editText)).getText().toString();
     }
+
+    public void setInputType(int type) {
+        ((EditText) findViewById(R.id.editText)).setInputType(type);
+    }
 }

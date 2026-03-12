@@ -327,7 +327,8 @@ public class VideoPlayerActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        mp.stop();
+        if(mp != null)
+            mp.stop();
         super.onDestroy();
     }
 }

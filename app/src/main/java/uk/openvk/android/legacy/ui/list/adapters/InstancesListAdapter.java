@@ -33,6 +33,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 import uk.openvk.android.legacy.R;
+import uk.openvk.android.legacy.core.activities.AppActivity;
 import uk.openvk.android.legacy.core.activities.AuthActivity;
 import uk.openvk.android.legacy.ui.list.items.InstancesListItem;
 
@@ -81,7 +82,7 @@ public class InstancesListAdapter extends BaseAdapter {
 
             if(item.restricted) {
                 TextView note_text = (TextView) view.findViewById(R.id.note_text);
-                note_text.setText(ctx.getResources().getString(R.string.maybe_restricted_on_your_country));
+                note_text.setText(ctx.getResources().getString(R.string.maybe_restricted_in_your_country));
                 note_text.setVisibility(View.VISIBLE);
             }
 
@@ -92,9 +93,9 @@ public class InstancesListAdapter extends BaseAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ctx.getClass().getSimpleName().equals("AppActivity")) {
+                if(ctx instanceof AppActivity) {
                     //((AppActivity) ctx).onSimpleListItemClicked(position);
-                } else if(ctx.getClass().getSimpleName().equals("AuthActivity")) {
+                } else if(ctx instanceof AuthActivity) {
                     ((AuthActivity) ctx).clickInstancesItem(position);
                 }
             }

@@ -103,7 +103,7 @@
                         android:layout_height="50dip"
                         android:background="@null"
                         android:hint="@string/mail"
-                        android:inputType="textEmailAddress"
+                        android:inputType="textAutoComplete|textEmailAddress"
                         android:paddingLeft="16dip"
                         android:paddingRight="16dip"
                         android:text=""

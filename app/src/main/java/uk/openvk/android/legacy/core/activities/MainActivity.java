@@ -201,18 +201,16 @@ public class MainActivity extends TranslucentActivity {
     }
 
     private void closeSplashScreen() {
+        Context context = getApplicationContext();
+        Intent intent;
         if ((accountArray.size() == 0)) {
-            Context context = getApplicationContext();
-            Intent intent = new Intent(context, AuthActivity.class);
+            intent = new Intent(context, AuthActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
         } else {
-            Context context = getApplicationContext();
-            Intent intent = new Intent(context, AppActivity.class);
-            startActivity(intent);
-            finish();
+            intent = new Intent(context, AppActivity.class);
         }
+        startActivity(intent);
+        finish();
     }
 
     private void getAndroidAccounts() {
@@ -227,7 +225,6 @@ public class MainActivity extends TranslucentActivity {
         File prefs_directory = new File(profile_path);
         File[] prefs_files = prefs_directory.listFiles();
         String file_extension;
-        String account_names[] = new String[0];
         Context app_ctx = getApplicationContext();
         accountArray.clear();
         try {
@@ -241,13 +238,14 @@ public class MainActivity extends TranslucentActivity {
                     String name = prefs.getString("account_name", "[Unknown account]");
                     long uid = prefs.getLong("uid", 0);
                     String server = prefs.getString("server", "");
-                    if(server.length() > 0 && uid > 0 && name.length() > 0) {
+                    String accessToken = prefs.getString("access_token", "");
+                    if(server.length() > 0
+                            && accessToken.length() > 0) {
                         InstanceAccount account = new InstanceAccount(name, uid, server);
                         accountArray.add(account);
                     }
                 }
             }
-            Log.d(OvkApplication.APP_TAG, String.format("Files: %s", account_names.length));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -260,6 +260,11 @@ public class OvkAPIReceiver extends BroadcastReceiver {
                         msg.what = HandlerMessages.WALL_GET;
                     }
                     break;
+                case "Wall.getById":
+                    break;
+                case "Wall.post":
+                    msg.what = HandlerMessages.WALL_POST;
+                    break;
                 case "Messages.getConversations":
                     ovk_api.messages.parseConversationsList(
                             data.getString("response"),
@@ -281,6 +286,19 @@ public class OvkAPIReceiver extends BroadcastReceiver {
                                 true, true);
                     }
                     break;
+                case "Groups.getById":
+                    msg.what = HandlerMessages.GROUPS_GET_BY_ID;
+                    ovk_api.groups.parse(data.getString("response"));
+                    break;
+                case "Groups.getMembers":
+                    if(activity instanceof GroupMembersActivity) {
+                        ((GroupMembersActivity) activity).group.members = new ArrayList<>();
+                        ((GroupMembersActivity) activity).group.parseMembers(
+                                data.getString("response"),
+                                downloadManager, true
+                        );
+                        msg.what = HandlerMessages.GROUP_MEMBERS;
+                    }
                 case "Ovk.version":
                     msg.what = HandlerMessages.OVK_VERSION;
                     ovk_api.ovk.parseVersion(data.getString("response"));
@@ -350,9 +368,7 @@ public class OvkAPIReceiver extends BroadcastReceiver {
                         break;
                 }
             } else if(activity instanceof NewPostActivity) {
-                if(method.equals("Wall.post")) {
-                    msg.what = HandlerMessages.WALL_POST;
-                } else if(method.startsWith("Photos.get") && method.endsWith("Server")) {
+                if(method.startsWith("Photos.get") && method.endsWith("Server")) {
                     net_a.ovk_api.photos.parseUploadServer(data.getString("response"), method);
                     msg.what = HandlerMessages.PHOTOS_UPLOAD_SERVER;
                 } else if(method.startsWith("Photos.save")) {
@@ -401,10 +417,7 @@ public class OvkAPIReceiver extends BroadcastReceiver {
             assert method != null;
             switch (method) {
                 case "Groups.getMembers":
-                    group_members_a.group.members = new ArrayList<>();
-                    group_members_a.group.parseMembers(data.getString("response"),
-                            downloadManager, true);
-                    msg.what = HandlerMessages.GROUP_MEMBERS;
+
                     break;
             }
         }
