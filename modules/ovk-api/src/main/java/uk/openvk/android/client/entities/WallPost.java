@@ -50,10 +50,11 @@ import java.util.concurrent.TimeUnit;
 
 import uk.openvk.android.client.OpenVKAPI;
 import uk.openvk.android.client.attachments.Attachment;
+import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.client.counters.PostCounters;
 import uk.openvk.android.client.wrappers.JSONParser;
 
-public class WallPost implements Parcelable {
+public class WallPost extends LazyEntity implements Parcelable {
 
     private long dt_sec;
     public long post_id;
@@ -63,7 +64,6 @@ public class WallPost implements Parcelable {
     public String owner_name;
     public String text;
     public RepostInfo repost;
-    private int type;
     public Bitmap avatar;
     private String avatar_url;
     public PostCounters counters;
@@ -90,14 +90,11 @@ public class WallPost implements Parcelable {
         post_id = p_id;
         this.attachments = attachments;
         contains_repost = repost != null && repost.newsfeed_item != null;
+        entityType = LazyEntity.REAL_ENTITY;
     }
 
     public WallPost() {
-
-    }
-
-    public WallPost(int type) {
-        this.type = type;
+        entityType = LazyEntity.SLEEPING_ENTITY;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -164,6 +161,8 @@ public class WallPost implements Parcelable {
             contains_repost = repost != null && repost.newsfeed_item != null;
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            entityType = LazyEntity.REAL_ENTITY;
         }
     }
 
@@ -292,6 +291,8 @@ public class WallPost implements Parcelable {
             }
         } catch (JSONException ex) {
             ex.printStackTrace();
+        } finally {
+            entityType = LazyEntity.REAL_ENTITY;
         }
         if(this.attachments == null) {
             Log.e(OpenVKAPI.TAG, "Oops!");
@@ -332,6 +333,8 @@ public class WallPost implements Parcelable {
             repost.newsfeed_item.text = values.getAsString("repost_text");
             repost.newsfeed_item.avatar_url = values.getAsString("repost_avatar_url");
         }
+
+        entityType = LazyEntity.REAL_ENTITY;
     }
 
     public void convertEntityToSQLite(SQLiteDatabase database, String from) {
@@ -426,6 +429,8 @@ public class WallPost implements Parcelable {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+            } finally {
+                entityType = LazyEntity.REAL_ENTITY;
             }
         }
     }

@@ -49,6 +49,7 @@ import java.util.ArrayList;
 
 import dev.tinelix.retro_pm.MenuItem;
 import dev.tinelix.retro_pm.PopupMenu;
+import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.R;
 import uk.openvk.android.client.OpenVKAPI;
@@ -101,7 +102,20 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
     @Override
     public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new Holder(LayoutInflater.from(ctx).inflate(R.layout.list_item_newsfeed, parent, false));
+        int layoutId;
+
+        if(viewType != 0x8000)
+            layoutId = R.layout.list_item_newsfeed;
+        else
+            layoutId = R.layout.layout_progress_compact;
+
+        return new Holder(
+                LayoutInflater.from(ctx).inflate(
+                        ctx.getResources().getLayout(layoutId),
+                        parent, false
+                ),
+                viewType
+        );
     }
 
     @Override
@@ -125,33 +139,35 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
     public class Holder extends RecyclerView.ViewHolder {
 
-        public final TextView poster_name;
-        public final TextView post_info;
-        public final TextView post_text;
-        public final LinearLayout repost_info;
-        public final TextView original_poster_name;
-        public final TextView original_post_info;
-        public final TextView original_post_text;
-        public final TextView likes_counter;
-        public final TextView reposts_counter;
-        public final TextView comments_counter;
+        public TextView poster_name;
+        public TextView post_info;
+        public TextView post_text;
+        public LinearLayout repost_info;
+        public TextView original_poster_name;
+        public TextView original_post_info;
+        public TextView original_post_text;
+        public TextView likes_counter;
+        public TextView reposts_counter;
+        public TextView comments_counter;
         public final View convertView;
-        public final ImageView avatar;
-        private final TextView error_label;
-        private final TextView expand_text_btn;
-        private final TextView repost_expand_text_btn;
-        private final ImageView api_app_indicator;
-        private final ImageView verified_icon;
-        private final ImageButton options_btn;
-        private final PostAttachmentsView post_attach_container;
-        private final PostAttachmentsView repost_attach_container;
+        public ImageView avatar;
+        private TextView error_label;
+        private TextView expand_text_btn;
+        private TextView repost_expand_text_btn;
+        private ImageView api_app_indicator;
+        private ImageView verified_icon;
+        private ImageButton options_btn;
+        private PostAttachmentsView post_attach_container;
+        private PostAttachmentsView repost_attach_container;
         private PopupMenu p_menu;
         private boolean likeAdded = false;
         private boolean likeDeleted = false;
 
-        public Holder(View view) {
+        public Holder(View view, int type) {
             super(view);
             this.convertView = view;
+            if(type == 0x8000)
+                return;
             this.poster_name = view.findViewById(R.id.poster_name_view);
             this.post_info = view.findViewById(R.id.post_info_view);
             this.post_text = view.findViewById(R.id.post_view);
@@ -175,6 +191,9 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
         void bind(final int position) {
             final WallPost item = getItem(position);
+
+            if(item.getEntityType() == LazyEntity.SLEEPING_ENTITY)
+                return;
 
             options_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -395,15 +414,11 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                 @Override
                 public void onClick(View view) {
                     if (item.counters.isLiked) {
-                        if(!likeAdded) {
-                            likeDeleted = true;
-                        }
+                        if(!likeAdded) likeDeleted = true;
                         deleteLike(ctx, position, item,"post", view);
                         item.counters.isLiked = false;
                     } else {
-                        if(!likeDeleted) {
-                            likeAdded = true;
-                        }
+                        if(!likeDeleted) likeAdded = true;
                         addLike(ctx, position, item,"post", view);
                         item.counters.isLiked = true;
                     }
@@ -645,7 +660,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
     @Override
     public int getItemViewType(int position)
     {
-        return position;
+        return items.get(position).getEntityType() == LazyEntity.SLEEPING_ENTITY ? 0x8000 : position;
     }
 
     public void setArray(ArrayList<WallPost> array) {

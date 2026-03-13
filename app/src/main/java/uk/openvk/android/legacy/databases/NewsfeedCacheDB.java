@@ -28,6 +28,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.client.entities.WallPost;
 import uk.openvk.android.legacy.databases.base.CacheDatabase;
 
@@ -138,10 +139,26 @@ public class NewsfeedCacheDB extends CacheDatabase {
             );
             SQLiteDatabase db = helper.getWritableDatabase();
             try {
-                post.convertEntityToSQLite(db, "news");
+                if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY)
+                    post.convertEntityToSQLite(db, "news");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            db.close();
+            helper.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void clear(Context ctx) {
+        try {
+            NewsfeedCacheDB.CacheOpenHelper helper = new NewsfeedCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, prefix)
+            );
+            SQLiteDatabase db = helper.getWritableDatabase();
+            db.delete("newsfeed", null, null);
             db.close();
             helper.close();
         } catch (Exception ex) {
@@ -161,7 +178,8 @@ public class NewsfeedCacheDB extends CacheDatabase {
             try {
                 for (int i = 0; i < wallPosts.size(); i++) {
                     WallPost post = wallPosts.get(i);
-                    post.convertEntityToSQLite(db, "newsfeed");
+                    if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY)
+                        post.convertEntityToSQLite(db, "newsfeed");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

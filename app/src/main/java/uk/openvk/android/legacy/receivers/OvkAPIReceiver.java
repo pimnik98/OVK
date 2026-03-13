@@ -167,7 +167,7 @@ public class OvkAPIReceiver extends BroadcastReceiver {
                         msg.what = HandlerMessages.NEWSFEED_GET_MORE;
                         ovk_api.newsfeed.parse(activity,
                                 downloadManager, data.getString("response"),
-                                global_prefs.getString("photos_quality", ""), false);
+                                global_prefs.getString("photos_quality", ""), true);
                     } else {
                         msg.what = HandlerMessages.NEWSFEED_GET;
                         ovk_api.newsfeed.parse(activity,
