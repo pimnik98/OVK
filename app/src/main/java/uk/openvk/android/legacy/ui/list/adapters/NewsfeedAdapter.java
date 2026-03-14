@@ -65,8 +65,9 @@ import uk.openvk.android.legacy.ui.views.WallLayout;
 
 public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder> {
 
-    private final String instance;
-    private final boolean isWall;
+    private String instance;
+    private boolean isWall;
+    private boolean uilDebugging;
     private boolean safeViewing;
     private String where;
     private ArrayList<WallPost> items = new ArrayList<>();
@@ -82,17 +83,23 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
     public NewsfeedAdapter(Context context, ArrayList<WallPost> posts, boolean isWall) {
         ctx = context;
         items = posts;
-        instance = PreferenceManager.getDefaultSharedPreferences(ctx).getString("current_instance", "");
-        safeViewing = PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("safeViewing", true);
+        SharedPreferences global_prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        instance = global_prefs.getString("current_instance", "");
+        safeViewing = global_prefs.getBoolean("safeViewing", true);
+        uilDebugging = global_prefs.getBoolean("uilDebugging", false);
         this.isWall = isWall;
         this.displayimageOptions =
                 new DisplayImageOptions.Builder().bitmapConfig(Bitmap.Config.ARGB_8888).build();
-        this.imageLoaderConfig =
-                new ImageLoaderConfiguration.Builder(ctx.getApplicationContext()).
-                        defaultDisplayImageOptions(displayimageOptions)
-                        .memoryCacheSize(16777216) // 16 MB memory cache
-                        .writeDebugLogs()
-                        .build();
+
+        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(ctx.getApplicationContext()).
+                defaultDisplayImageOptions(displayimageOptions)
+                .memoryCacheSize(16777216); // 16 MB memory cache
+
+        if(uilDebugging)
+            builder.writeDebugLogs();
+
+        this.imageLoaderConfig = builder.build();
+
         if (ImageLoader.getInstance().isInited()) {
             ImageLoader.getInstance().destroy();
         }

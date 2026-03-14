@@ -71,7 +71,8 @@ import uk.openvk.android.legacy.ui.views.attach.VideoAttachView;
 
 @SuppressWarnings("ConstantConditions")
 public class PostViewLayout extends LinearLayout {
-    private final String instance;
+    private String instance;
+    private boolean uilDebugging;
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration imageLoaderConfig;
     private DisplayImageOptions displayimageOptions;
@@ -98,18 +99,22 @@ public class PostViewLayout extends LinearLayout {
         layoutParams.width = RelativeLayout.LayoutParams.MATCH_PARENT;
         layoutParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
         view.setLayoutParams(layoutParams);
-        instance = PreferenceManager.getDefaultSharedPreferences(
-                getContext()).getString("current_instance", "");
-        global_prefs = android.support.v7.preference
-                .PreferenceManager.getDefaultSharedPreferences(getContext());
+        global_prefs = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+        instance = global_prefs.getString("current_instance", "");
+        uilDebugging = global_prefs.getBoolean("uilDebugging", false);
+
         this.displayimageOptions =
                 new DisplayImageOptions.Builder().bitmapConfig(Bitmap.Config.ARGB_8888).build();
-        this.imageLoaderConfig =
-                new ImageLoaderConfiguration.Builder(context.getApplicationContext()).
-                        defaultDisplayImageOptions(displayimageOptions)
-                        .memoryCacheSize(16777216) // 16 MB memory cache
-                        .writeDebugLogs()
-                        .build();
+
+        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(
+                getContext().getApplicationContext()
+        ).defaultDisplayImageOptions(displayimageOptions).memoryCacheSize(16777216); // 16 MB memory cache
+
+        if(uilDebugging)
+            builder.writeDebugLogs();
+
+        imageLoaderConfig = builder.build();
+
         if (ImageLoader.getInstance().isInited()) {
             ImageLoader.getInstance().destroy();
         }

@@ -209,6 +209,7 @@ public class OvkAPIWrapper {
                                             ) {
                                             }
 
+                                            @SuppressLint("TrustAllX509TrustManager")
                                             @Override
                                             public void checkServerTrusted(
                                                     java.security.cert.X509Certificate[] chain, String authType

@@ -31,14 +31,11 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -536,8 +533,10 @@ public class AppActivity extends NetworkFragmentActivity {
             } catch (Exception ignored) {
             }
         }
+
         ft = getSupportFragmentManager().beginTransaction();
         if(position < 6 || position == 7) setActionBar("");
+
         switch (position) {
             case 0:
                 setActionBarTitle(getResources().getString(R.string.friends));
@@ -1033,15 +1032,18 @@ public class AppActivity extends NetworkFragmentActivity {
 
     private void activateLongPollService() {
         OvkApplication ovk_app = ((OvkApplication) getApplicationContext());
-        client_info = SecureCredentialsStorage.generateClientInfo(this, client_info);
+        client_info = SecureCredentialsStorage.generateClientInfo(this, client_info, false);
         ovk_app.longPollService =
                 new LongPollService(this, handler, client_info);
         ovk_app.longPollService.setProxyConnection(
                 global_prefs.getBoolean("useProxy", false),
                 global_prefs.getString("proxy_address", ""));
-        ovk_app.longPollService.run(instance_prefs.
-                        getString("server", ""), longPollServer.address, longPollServer.key,
-                longPollServer.ts, client_info);
+        ovk_app.longPollService.run(
+                instance_prefs.getString("server", ""),
+                instance_prefs.getString("access_token", ""),
+                longPollServer.address, longPollServer.key,
+                longPollServer.ts, client_info
+        );
     }
 
     private void setErrorPage(Bundle data, String icon, int reason, boolean showRetry) {

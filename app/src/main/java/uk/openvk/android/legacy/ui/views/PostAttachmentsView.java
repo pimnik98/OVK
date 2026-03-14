@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.os.Build;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -359,7 +360,13 @@ public class PostAttachmentsView extends LinearLayout {
     }
 
     private void loadPhotoPlaceholder(final WallPost post, Photo photo, ImageLoader imageLoader, ImageView view) {
-        Drawable drawable = parent.getResources().getDrawable(R.drawable.photo_placeholder);
+        Drawable drawable;
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            drawable = parent.getResources().getDrawable(R.drawable.photo_placeholder, getContext().getTheme());
+        else
+            drawable = parent.getResources().getDrawable(R.drawable.photo_placeholder);
+
         Canvas canvas = new Canvas();
         try {
             Bitmap bitmap = Bitmap.createBitmap(
