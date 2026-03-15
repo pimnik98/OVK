@@ -190,4 +190,8 @@ public class UsersCacheDB extends CacheDatabase {
             return null;
         }
     }
+
+    public static void addUser(Context ctx, User user) {
+
+    }
 }

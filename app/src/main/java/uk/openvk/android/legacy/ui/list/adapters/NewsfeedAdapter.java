@@ -50,6 +50,8 @@ import java.util.ArrayList;
 import dev.tinelix.retro_pm.MenuItem;
 import dev.tinelix.retro_pm.PopupMenu;
 import uk.openvk.android.client.base.LazyEntity;
+import uk.openvk.android.client.entities.Group;
+import uk.openvk.android.client.entities.User;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.R;
 import uk.openvk.android.client.OpenVKAPI;
@@ -231,7 +233,38 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             } else {
                 api_app_indicator.setVisibility(View.GONE);
             }
-            poster_name.setText(item.author_name);
+
+            String poster_name_str = "";
+
+            if(item.author.id != item.owner.id) {
+                String owner_name = "";
+                String author_name = "";
+                if(item.author instanceof User) {
+                    User user = ((User) item.author);
+                    author_name = String.format("%s %s", user.first_name, user.last_name);
+                } else if(item.author instanceof Group) {
+                    Group group = ((Group) item.author);
+                    author_name = group.name;
+                }
+
+                if(item.owner instanceof User) {
+                    User user = ((User) item.owner);
+                    owner_name = String.format("%s %s", user.first_name, user.last_name);
+                } else if(item.owner instanceof Group) {
+                    Group group = ((Group) item.owner);
+                    owner_name = group.name;
+                }
+                poster_name_str = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
+            } else if(item.author instanceof User) {
+                User user = ((User) item.author);
+                poster_name_str = String.format("%s %s", user.first_name, user.last_name);
+            } else if(item.author instanceof Group) {
+                Group group = ((Group) item.author);
+                poster_name_str = group.name;
+            }
+
+            poster_name.setText(poster_name_str);
+
             if(item.verified_author) {
                 verified_icon.setVisibility(View.VISIBLE);
             } else {
@@ -380,7 +413,13 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                 likes_counter.setEnabled(false);
             }
 
-            Bitmap author_avatar = item.avatar;
+            Bitmap author_avatar = null;
+
+            if(item.author instanceof User)
+                author_avatar = ((User) item.author).avatar;
+            else if(item.author instanceof Group)
+                author_avatar = ((Group) item.author).avatar;
+
             if(author_avatar != null) {
                 avatar.setImageBitmap(author_avatar);
             } else {
@@ -389,7 +428,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                 try {
                     Bitmap bitmap = BitmapFactory.decodeFile(
                             String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
-                                    ctx.getCacheDir(), instance, item.author_id), options);
+                                    ctx.getCacheDir(), instance, item.author.id), options);
                     if (bitmap != null) {
                         avatar.setImageBitmap(bitmap);
                     } else {
@@ -529,7 +568,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                             Uri.parse(
                                 String.format(
                                         "openvk://ovk/wall%s_%s",
-                                        item.owner_id, item.post_id
+                                        item.owner.id, item.post_id
                                 )
                             )
                     );
@@ -580,7 +619,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             } else {
                 return;
             }
-            ovk_api.likes.add(ovk_api.wrapper, item.owner_id, item.post_id, position);
+            ovk_api.likes.add(ovk_api.wrapper, item.owner.id, item.post_id, position);
         }
 
         public void deleteLike(Context ctx, int position, WallPost item, String post, View view) {
@@ -621,7 +660,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                     return;
                 }
             }
-            ovk_api.likes.delete(ovk_api.wrapper, item.owner_id, item.post_id, position);
+            ovk_api.likes.delete(ovk_api.wrapper, item.owner.id, item.post_id, position);
         }
 
         public void showAuthorPage(Context ctx, String where, int position) {
@@ -641,12 +680,12 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
             item = getItem(position);
 
-            if(item.author_id != ovk_api.account.id) {
+            if(item.author.id != ovk_api.account.id) {
                 String url = "";
-                if (item.author_id < 0) {
-                    url = "openvk://ovk/club" + -item.author_id;
+                if (item.author instanceof Group) {
+                    url = "openvk://ovk/club" + -item.author.id;
                 } else {
-                    url = "openvk://ovk/id" + item.author_id;
+                    url = "openvk://ovk/id" + item.author.id;
                 }
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setPackage("uk.openvk.android.legacy");

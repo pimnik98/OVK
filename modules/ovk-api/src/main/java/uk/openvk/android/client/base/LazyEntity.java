@@ -5,6 +5,7 @@ public class LazyEntity {
     public static final int REAL_ENTITY     = 1;
 
     protected int entityType;
+    public long id;
 
     public LazyEntity() { }
 

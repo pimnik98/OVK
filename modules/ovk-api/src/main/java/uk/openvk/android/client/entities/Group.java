@@ -37,7 +37,6 @@ import uk.openvk.android.client.wrappers.OvkAPIWrapper;
 
 public class Group extends LazyEntity implements Parcelable {
     public String name;
-    public long id;
     public boolean verified;
     private JSONParser jsonParser;
     public String screen_name;

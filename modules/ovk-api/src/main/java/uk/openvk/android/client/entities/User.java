@@ -37,7 +37,6 @@ import uk.openvk.android.client.wrappers.JSONParser;
 public class User extends LazyEntity implements Parcelable {
     public String first_name;
     public String last_name;
-    public long id;
     public boolean verified;
     public boolean online;
     public long ls_date;

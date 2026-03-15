@@ -566,7 +566,7 @@ public class Global {
                                                 repost_view.findViewById(R.id.text_edit)).getText()
                                                 .toString();
                                         ovk_api.wall.repost
-                                                (ovk_api.wrapper, post.owner_id, post.post_id, msg_text);
+                                                (ovk_api.wrapper, post.owner.id, post.post_id, msg_text);
                                         dialog.close();
                                     } catch (Exception ex) {
                                         ex.printStackTrace();

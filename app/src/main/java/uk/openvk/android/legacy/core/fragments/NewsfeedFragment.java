@@ -51,6 +51,8 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 
 import uk.openvk.android.client.base.LazyEntity;
+import uk.openvk.android.client.entities.Group;
+import uk.openvk.android.client.entities.User;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
@@ -61,7 +63,6 @@ import uk.openvk.android.legacy.core.activities.AppActivity;
 import uk.openvk.android.legacy.core.activities.base.NetworkFragmentActivity;
 import uk.openvk.android.legacy.core.fragments.base.ActiveFragment;
 import uk.openvk.android.legacy.core.listeners.InfinityRecyclerViewScrollListener;
-import uk.openvk.android.legacy.core.listeners.OnEndlessScrollListener;
 import uk.openvk.android.legacy.databases.NewsfeedCacheDB;
 import uk.openvk.android.legacy.ui.list.adapters.NewsfeedAdapter;
 import uk.openvk.android.legacy.ui.utils.WrappedLinearLayoutManager;
@@ -232,9 +233,15 @@ public class NewsfeedFragment extends ActiveFragment {
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                     Bitmap bitmap = BitmapFactory.decodeFile(
                             String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
-                                    getContext().getCacheDir(), instance, item.author_id), options);
+                                    getContext().getCacheDir(), instance, item.author.id), options);
                     if (bitmap != null) {
-                        item.avatar = bitmap;
+                        if(item.author instanceof User) {
+                            User user = (User) item.author;
+                            user.avatar = bitmap;
+                        } else if(item.author instanceof Group){
+                            Group group = (Group) item.author;
+                            group.avatar = bitmap;
+                        }
                     }
                     wallPosts.set(i, item);
                 } catch (OutOfMemoryError err) {

@@ -104,10 +104,13 @@ public class NewsfeedCacheDB extends CacheDatabase {
             SQLiteDatabase db = helper.getReadableDatabase();
             ArrayList<WallPost> result = new ArrayList<>();
             try {
-
-                Cursor cursor = db.query("newsfeed",
-                        null, null, null,
-                        null, null, "`time` desc");
+                Cursor cursor = db.rawQuery(
+                    "SELECT * "
+                       + "FROM newsfeed "
+                       + "JOIN wall ON newsfeed.post_id = wall.post_id "
+                       + "ORDER BY `time` desc",
+                        null
+                );
                 if (cursor != null && cursor.getCount() > 0) {
                     int i = 0;
                     cursor.moveToFirst();

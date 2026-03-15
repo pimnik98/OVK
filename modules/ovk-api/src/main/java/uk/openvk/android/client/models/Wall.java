@@ -36,8 +36,11 @@ import java.util.ArrayList;
 import uk.openvk.android.client.OpenVKAPI;
 import uk.openvk.android.client.attachments.Attachment;
 import uk.openvk.android.client.attachments.CommonAttachment;
+import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.client.entities.Audio;
+import uk.openvk.android.client.entities.Group;
 import uk.openvk.android.client.entities.Poll;
+import uk.openvk.android.client.entities.User;
 import uk.openvk.android.client.entities.Video;
 import uk.openvk.android.client.entities.Comment;
 import uk.openvk.android.client.entities.Photo;
@@ -128,12 +131,10 @@ public class Wall implements Parcelable {
                     long post_id = post.getLong("id");
                     long author_id = post.getLong("from_id");
                     long dt_sec = post.getLong("date");
-                    String original_author_name = "";
-                    String original_author_avatar_url = "";
-                    String author_name = "";
-                    String owner_name = "";
-                    String avatar_url = "";
-                    String owner_avatar_url = "";
+                    LazyEntity author = null;
+                    LazyEntity owner = null;
+                    LazyEntity original_author;
+                    LazyEntity original_owner = null;
                     String author_avatar_url = "";
                     String content = post.getString("text");
                     boolean isLiked = false;
@@ -152,9 +153,10 @@ public class Wall implements Parcelable {
                                 createAttachmentsList(owner_id, post_id, quality,
                                         attachments, "newsfeed_attachment");
                     }
-                    WallPost item = new WallPost(String.format("(Unknown author: %s)",
-                            author_id), dt_sec, null,
-                            content, counters, "", attachments_list, owner_id, post_id);
+                    WallPost item = new WallPost(
+                            dt_sec, null, content, counters,
+                            author_avatar_url, attachments_list, owner_id, post_id
+                    );
                     item.setJSONString(post.toString());
                     if(post.has("post_source") && !post.isNull("post_source")) {
                         if(post.getJSONObject("post_source").getString("type").equals("api")) {
@@ -170,8 +172,7 @@ public class Wall implements Parcelable {
                     }
                     if(post.getJSONArray("copy_history").length() > 0) {
                         JSONObject repost = post.getJSONArray("copy_history").getJSONObject(0);
-                        WallPost repost_item = new WallPost(String.format("(Unknown author: %s)",
-                                repost.getLong("from_id")),
+                        WallPost repost_item = new WallPost(
                                 repost.getInt("date"), null,
                                 repost.getString("text"), null, "",
                                 null, repost.getInt("owner_id"),
@@ -196,9 +197,11 @@ public class Wall implements Parcelable {
                                 for (int profiles_index = 0; profiles_index < profiles.length(); profiles_index++) {
                                     JSONObject profile = profiles.getJSONObject(profiles_index);
                                     if (profile.getLong("id") == repost.getLong("from_id")) {
-                                        original_author_name = String.format("%s %s", profile.getString("first_name"),
-                                                profile.getString("last_name"));
-                                        original_author_avatar_url = profile.getString("photo_50");
+                                        original_author = new User();
+                                        original_author.id = repost.getLong("from_id");
+                                        ((User) original_author).first_name = profile.getString("first_name");
+                                        ((User) original_author).last_name = profile.getString("last_name");
+                                        ((User) original_author).avatar_url = profile.getString("photo_50");
                                         if(profile.has("verified")) {
                                             if(profile.get("verified") instanceof Integer) {
                                                 verified_author = profile.getInt("verified") == 1;
@@ -209,32 +212,33 @@ public class Wall implements Parcelable {
                                     }
                                 }
                             }
-                        } else {
-                            if(newsfeed.has("groups")) {
+                        } else if(newsfeed.has("groups")) {
                                 JSONArray groups = newsfeed.getJSONArray("groups");
                                 for (int groups_index = 0; groups_index < groups.length(); groups_index++) {
                                     JSONObject group = groups.getJSONObject(groups_index);
                                     if (-group.getLong("id") == repost.getLong("from_id")) {
-                                       original_author_name = group.getString("name");
-                                       original_author_avatar_url = group.getString("photo_50");
+                                        original_author = new Group();
+                                        original_author.id = repost.getLong("from_id");
+                                        ((Group) original_author).name = group.getString("name");
+                                        ((Group) original_author).avatar_url = group.getString("photo_50");
                                     }
                                 }
-                            }
                         }
-                        repost_item.author_name = original_author_name;
-                        repostInfo.name = original_author_name;
                         repostInfo.newsfeed_item = repost_item;
                         item.repost = repostInfo;
                     }
-                    item.author_id = author_id;
+
                     if(author_id > 0) {
                         if(newsfeed.has("profiles")) {
                             JSONArray profiles = newsfeed.getJSONArray("profiles");
                             for (int profiles_index = 0; profiles_index < profiles.length(); profiles_index++) {
                                 JSONObject profile = profiles.getJSONObject(profiles_index);
                                 if (profile.getLong("id") == author_id) {
-                                    author_name = String.format("%s %s", profile.getString("first_name"),
-                                            profile.getString("last_name"));
+                                    author = new User();
+                                    author.id = author_id;
+                                    ((User) author).first_name = profile.getString("first_name");
+                                    ((User) author).last_name = profile.getString("last_name");
+                                    ((User) author).avatar_url = profile.getString("photo_50");
                                     author_avatar_url = profile.getString("photo_50");
                                     if(profile.has("verified")) {
                                         if(profile.get("verified") instanceof Integer) {
@@ -244,9 +248,11 @@ public class Wall implements Parcelable {
                                         }
                                     }
                                 } else if (profile.getLong("id") == owner_id) {
-                                    owner_name = String.format("%s %s", profile.getString("first_name"),
-                                            profile.getString("last_name"));
-                                    original_author_avatar_url = profile.getString("photo_50");
+                                    owner = new User();
+                                    owner.id = owner_id;
+                                    ((User) owner).first_name = profile.getString("first_name");
+                                    ((User) owner).last_name = profile.getString("last_name");
+                                    ((User) owner).avatar_url = profile.getString("photo_50");
                                     if(profile.has("verified")) {
                                         if(profile.get("verified") instanceof Integer) {
                                             verified_author = profile.getInt("verified") == 1;
@@ -256,8 +262,6 @@ public class Wall implements Parcelable {
                                     }
                                 }
                             }
-                            if(author_avatar_url.length() > 0)
-                                avatar_url = author_avatar_url;
                         }
                         if(owner_id < 0) {
                             if(newsfeed.has("groups")) {
@@ -265,8 +269,10 @@ public class Wall implements Parcelable {
                                 for (int groups_index = 0; groups_index < groups.length(); groups_index++) {
                                     JSONObject group = groups.getJSONObject(groups_index);
                                     if (-group.getInt("id") == owner_id) {
-                                        owner_name = group.getString("name");
-                                        avatar_url = group.getString("photo_50");
+                                        owner = new Group();
+                                        owner.id = owner_id;
+                                        ((Group) owner).name = group.getString("name");
+                                        ((Group) owner).avatar_url = group.getString("photo_50");
                                         if(group.get("verified") instanceof Integer) {
                                             verified_author = group.getInt("verified") == 1;
                                         } else {
@@ -276,11 +282,6 @@ public class Wall implements Parcelable {
                                 }
                             }
                         }
-                        if(author_id == owner_id) {
-                            item.author_name = author_name;
-                        } else {
-                            item.author_name = author_name + "|" + owner_name;
-                        }
                     } else {
                         if(newsfeed.has("groups") && newsfeed.has("profiles")) {
                             JSONArray groups = newsfeed.getJSONArray("groups");
@@ -288,8 +289,15 @@ public class Wall implements Parcelable {
                             for (int groups_index = 0; groups_index < groups.length(); groups_index++) {
                                 JSONObject group = groups.getJSONObject(groups_index);
                                 if (-group.getInt("id") == author_id) {
-                                    item.author_name = group.getString("name");
-                                    avatar_url = group.getString("photo_50");
+                                    author = new Group();
+                                    ((Group) author).name = group.getString("name");
+                                    ((Group) author).avatar_url = group.getString("photo_50");
+                                    author_avatar_url = group.getString("photo_50");
+                                    if(group.get("verified") instanceof Integer) {
+                                        verified_author = group.getInt("verified") == 1;
+                                    } else {
+                                        verified_author = group.getBoolean("verified");
+                                    }
                                     if(group.has("verified")) {
                                         if(group.get("verified") instanceof Integer) {
                                             verified_author = group.getInt("verified") == 1;
@@ -301,8 +309,17 @@ public class Wall implements Parcelable {
                             }
                         }
                     }
+
+                    if(author_id == owner_id) {
+                        item.owner = author;
+                    } else {
+                        item.owner = owner;
+                    }
+
+                    item.author = author;
+
                     Photo avatar = new Photo();
-                    avatar.url = avatar_url;
+                    avatar.url = author_avatar_url;
                     avatar.filename = String.format("avatar_%s", author_id);
                     try { // handle floating crash
                         avatars.add(avatar);
@@ -317,6 +334,8 @@ public class Wall implements Parcelable {
                                 "be overestimated.");
                     }
                 }
+
+
                 if(isWall) {
                     switch (quality) {
                         case "low":

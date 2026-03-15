@@ -27,7 +27,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -36,16 +35,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import uk.openvk.android.client.OpenVKAPI;
@@ -58,14 +49,10 @@ public class WallPost extends LazyEntity implements Parcelable {
 
     private long dt_sec;
     public long post_id;
-    public long author_id;
-    public long owner_id;
-    public String author_name;
-    public String owner_name;
+    public LazyEntity author;
+    public LazyEntity owner;
     public String text;
     public RepostInfo repost;
-    public Bitmap avatar;
-    private String avatar_url;
     public PostCounters counters;
     public boolean verified_author;
     public boolean is_explicit;
@@ -76,25 +63,22 @@ public class WallPost extends LazyEntity implements Parcelable {
     public Date dt;
 
     @SuppressLint("SimpleDateFormat")
-    public WallPost(String author, long dt_sec, RepostInfo repostInfo, String post_text,
+    public WallPost(long dt_sec, RepostInfo repostInfo, String post_text,
                     PostCounters nICI, String avatar_url, ArrayList<Attachment> attachments,
                     long o_id, long p_id) {
-        author_name = author;
         this.dt_sec = dt_sec;
         dt = new Date(TimeUnit.SECONDS.toMillis(dt_sec));
         repost = repostInfo;
         counters = nICI;
         text = post_text;
-        this.avatar_url = avatar_url;
-        owner_id = o_id;
+        if(o_id < 0) {
+            owner = new Group();
+            ((Group) owner).id = o_id;
+        }
         post_id = p_id;
         this.attachments = attachments;
         contains_repost = repost != null && repost.newsfeed_item != null;
         entityType = LazyEntity.REAL_ENTITY;
-    }
-
-    public WallPost() {
-        entityType = LazyEntity.SLEEPING_ENTITY;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -113,13 +97,18 @@ public class WallPost extends LazyEntity implements Parcelable {
 
             }
             JSONArray attachments = post.getJSONArray("attachments");
-            owner_id = post.getLong("owner_id");
+            owner = post.getLong("owner_id") < 0 ? new Group() : new User();
+            owner.id = post.getLong("owner_id");
+
+            author = post.getLong("from_id") < 0 ? new Group() : new User();
+            owner.id = post.getLong("from_id");
+
             post_id = post.getLong("id");
-            author_id = post.getLong("from_id");
+
             if(post.has("is_explicit")) {
                 is_explicit = post.getBoolean("is_explicit");
             }
-            createAttachmentsList(owner_id, post_id, attachments);
+            createAttachmentsList(owner.id, post_id, attachments);
             dt_sec = post.getLong("date");
             dt = new Date(TimeUnit.SECONDS.toMillis(dt_sec));
             text = post.getString("text");
@@ -145,8 +134,7 @@ public class WallPost extends LazyEntity implements Parcelable {
             }
             if(post.getJSONArray("copy_history").length() > 0) {
                 JSONObject repost = post.getJSONArray("copy_history").getJSONObject(0);
-                WallPost repost_item = new WallPost(String.format("(Unknown author: %s)",
-                        repost.getInt("from_id")),
+                WallPost repost_item = new WallPost(
                         repost.getInt("date"), null, repost.getString("text"),
                         null, "",
                         null, repost.getInt("owner_id"), repost.getInt("id"));
@@ -164,6 +152,10 @@ public class WallPost extends LazyEntity implements Parcelable {
         } finally {
             entityType = LazyEntity.REAL_ENTITY;
         }
+    }
+
+    public WallPost() {
+        entityType = LazyEntity.SLEEPING_ENTITY;
     }
 
     public void setExplicit(boolean value) {
@@ -305,33 +297,28 @@ public class WallPost extends LazyEntity implements Parcelable {
         ContentValues values = new ContentValues();
         DatabaseUtils.cursorRowToContentValues(cursor, values);
         post_id = values.getAsInteger("post_id");
-        owner_id = values.getAsInteger("owner_id");
-        author_id = values.getAsInteger("author_id");
         text = values.getAsString("text");
         dt = new Date(values.getAsLong("time"));
         counters = new PostCounters();
         counters.likes = values.getAsInteger("likes");
         counters.reposts = values.getAsInteger("reposts");
         counters.comments = values.getAsInteger("comments");
-        author_name = values.getAsString("author_name");
-        avatar_url = values.getAsString("avatar_url");
         if(values.getAsString("attachments") != null)
             deserializeAttachments(values.getAsString("attachments"), this);
         else
             attachments = new ArrayList<>();
+
         contains_repost = values.getAsBoolean("contains_repost");
         if (contains_repost) {
-            repost = new RepostInfo( values.getAsString("repost_author_name"),
+            /*repost = new RepostInfo( values.getAsString("repost_author_name"),
                     values.getAsLong("repost_original_time"), ctx);
-            repost.newsfeed_item = new WallPost();
-            repost.newsfeed_item.post_id = values.getAsInteger("repost_original_id");
-            repost.newsfeed_item.author_id = values.getAsInteger("repost_author_id");
-            repost.newsfeed_item.author_name = values.getAsString("repost_author_name");
+            repost.newsfeed_item = null;
+            repost.newsfeed_item.post_id = values.getAsInteger("repost_id");
+            repost.newsfeed_item.author.id = values.getAsInteger("repost_author_id");
             repost.newsfeed_item.attachments = new ArrayList<>();
             if(values.getAsString("repost_attachments") != null)
                 deserializeAttachments(values.getAsString("repost_attachments"), repost.newsfeed_item);
-            repost.newsfeed_item.text = values.getAsString("repost_text");
-            repost.newsfeed_item.avatar_url = values.getAsString("repost_avatar_url");
+            repost.newsfeed_item.text = values.getAsString("repost_text");*/
         }
 
         entityType = LazyEntity.REAL_ENTITY;
@@ -339,17 +326,18 @@ public class WallPost extends LazyEntity implements Parcelable {
 
     public void convertEntityToSQLite(SQLiteDatabase database, String from) {
         ContentValues values = new ContentValues();
+        ContentValues newsfeed_values = new ContentValues();
+
         values.put("post_id", post_id);
-        values.put("author_id", author_id);
-        values.put("owner_id", owner_id);
-        values.put("author_name", author_name);
+        values.put("author_id", author.id);
+        values.put("owner_id", owner.id);
         values.put("text", text);
         values.put("time", dt.getTime());
-        values.put("avatar_url", avatar_url);
         values.put("likes", counters.likes);
         values.put("comments", counters.comments);
         values.put("reposts", counters.reposts);
         values.put("contains_repost", contains_repost);
+
         if(attachments.size() > 0) {
             String attachments_json = serializeAttachments(this, attachments);
             if(attachments_json != null) {
@@ -357,22 +345,15 @@ public class WallPost extends LazyEntity implements Parcelable {
             }
         }
         if(contains_repost) {
-            values.put("repost_original_id", repost.newsfeed_item.post_id);
-            values.put("repost_author_id", repost.newsfeed_item.author_id);
-            values.put("repost_owner_id", repost.newsfeed_item.owner_id);
-            values.put("repost_author_name", repost.newsfeed_item.author_name);
-            values.put("repost_text", repost.newsfeed_item.text);
-            if(repost.newsfeed_item.attachments.size() > 0) {
-                String attachments_json =
-                        serializeAttachments(repost.newsfeed_item, repost.newsfeed_item.attachments);
-                if(attachments_json != null) {
-                    values.put("repost_attachments", attachments_json);
-                }
-            }
-            values.put("repost_avatar_url", repost.newsfeed_item.avatar_url);
-            values.put("repost_original_time", repost.newsfeed_item.dt.getTime());
+            values.put("repost_id", repost.newsfeed_item.post_id);
         }
-        database.insert(from, null, values);
+        database.insert("wall", null, values);
+
+        if(from.equals("newsfeed")) {
+            newsfeed_values.put("post_id", post_id);
+            newsfeed_values.put("time", dt.getTime());
+            database.insert(from, null, newsfeed_values);
+        }
     }
 
     private String serializeAttachments(WallPost post, ArrayList<Attachment> attachments) {
@@ -436,13 +417,10 @@ public class WallPost extends LazyEntity implements Parcelable {
     }
 
     public WallPost(Parcel in) {
-        avatar_url = in.readString();
-        avatar = in.readParcelable(Bitmap.class.getClassLoader());
-        author_name = in.readString();
         text = in.readString();
-        owner_id = in.readLong();
+        owner.id = in.readLong();
         post_id = in.readLong();
-        author_id = in.readInt();
+        author.id = in.readInt();
     }
 
     public void setJSONString(String json) {
@@ -472,13 +450,10 @@ public class WallPost extends LazyEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(avatar_url);
-        parcel.writeParcelable(avatar, i);
-        parcel.writeString(author_name);
         parcel.writeString(text);
-        parcel.writeLong(owner_id);
+        parcel.writeLong(owner.id);
         parcel.writeLong(post_id);
-        parcel.writeLong(author_id);
+        parcel.writeLong(author.id);
     }
 
     public static class WallPostSource {
