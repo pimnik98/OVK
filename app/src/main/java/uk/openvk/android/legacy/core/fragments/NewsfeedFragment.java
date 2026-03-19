@@ -231,9 +231,18 @@ public class NewsfeedFragment extends ActiveFragment {
                     WallPost item = wallPosts.get(i);
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                    Bitmap bitmap = BitmapFactory.decodeFile(
+
+                    Bitmap bitmap = null;
+                    if(item.author != null)
+                        bitmap = BitmapFactory.decodeFile(
                             String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
                                     getContext().getCacheDir(), instance, item.author.id), options);
+                    else if(item.owner != null)
+                        bitmap = BitmapFactory.decodeFile(
+                                String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
+                                        getContext().getCacheDir(), instance, item.owner.id), options);
+
+
                     if (bitmap != null) {
                         if(item.author instanceof User) {
                             User user = (User) item.author;

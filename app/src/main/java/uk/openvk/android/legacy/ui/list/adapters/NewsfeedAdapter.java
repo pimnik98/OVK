@@ -235,34 +235,9 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             }
 
             String poster_name_str = "";
+            String original_poster_name_str = "";
 
-            if(item.author.id != item.owner.id) {
-                String owner_name = "";
-                String author_name = "";
-                if(item.author instanceof User) {
-                    User user = ((User) item.author);
-                    author_name = String.format("%s %s", user.first_name, user.last_name);
-                } else if(item.author instanceof Group) {
-                    Group group = ((Group) item.author);
-                    author_name = group.name;
-                }
-
-                if(item.owner instanceof User) {
-                    User user = ((User) item.owner);
-                    owner_name = String.format("%s %s", user.first_name, user.last_name);
-                } else if(item.owner instanceof Group) {
-                    Group group = ((Group) item.owner);
-                    owner_name = group.name;
-                }
-                poster_name_str = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
-            } else if(item.author instanceof User) {
-                User user = ((User) item.author);
-                poster_name_str = String.format("%s %s", user.first_name, user.last_name);
-            } else if(item.author instanceof Group) {
-                Group group = ((Group) item.author);
-                poster_name_str = group.name;
-            }
-
+            poster_name_str = retrivePosterName(item);
             poster_name.setText(poster_name_str);
 
             if(item.verified_author) {
@@ -332,7 +307,10 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
                 if (item.repost != null) {
                     repost_info.setVisibility(View.VISIBLE);
-                    original_poster_name.setText(item.repost.name);
+
+                    original_poster_name_str = retrivePosterName(item.repost.newsfeed_item);
+                    original_poster_name.setText(original_poster_name_str);
+
                     original_post_info.setText(item.repost.time);
                     String repost_text = item.repost.newsfeed_item.text.replaceAll("&lt;", "<")
                             .replaceAll("&gt;", ">")
@@ -485,6 +463,41 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                     openWallComments(ctx, position, view);
                 }
             });
+        }
+
+        private String retrivePosterName(WallPost item) {
+            String name = "(Unknown author)";
+
+            if(item.author == null)
+                return name;
+
+            if(item.owner != null && item.author.id != item.owner.id) {
+                String owner_name = "";
+                String author_name = "";
+                if(item.author instanceof User) {
+                    User user = ((User) item.author);
+                    author_name = String.format("%s %s", user.first_name, user.last_name);
+                } else if(item.author instanceof Group) {
+                    Group group = ((Group) item.author);
+                    author_name = group.name;
+                }
+
+                if(item.owner instanceof User) {
+                    User user = ((User) item.owner);
+                    owner_name = String.format("%s %s", user.first_name, user.last_name);
+                } else if(item.owner instanceof Group) {
+                    Group group = ((Group) item.owner);
+                    owner_name = group.name;
+                }
+                name = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
+            } else if(item.author instanceof User) {
+                User user = ((User) item.author);
+                name = String.format("%s %s", user.first_name, user.last_name);
+            } else if(item.author instanceof Group) {
+                Group group = ((Group) item.author);
+                name = group.name;
+            }
+            return name;
         }
 
         private void showPostOptions(View view) {

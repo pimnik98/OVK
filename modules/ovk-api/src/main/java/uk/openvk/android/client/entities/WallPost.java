@@ -43,6 +43,7 @@ import uk.openvk.android.client.OpenVKAPI;
 import uk.openvk.android.client.attachments.Attachment;
 import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.client.counters.PostCounters;
+import uk.openvk.android.client.models.Users;
 import uk.openvk.android.client.wrappers.JSONParser;
 
 public class WallPost extends LazyEntity implements Parcelable {
@@ -73,8 +74,11 @@ public class WallPost extends LazyEntity implements Parcelable {
         text = post_text;
         if(o_id < 0) {
             owner = new Group();
-            ((Group) owner).id = o_id;
+        } else {
+            owner = new User();
         }
+
+        owner.id = o_id;
         post_id = p_id;
         this.attachments = attachments;
         contains_repost = repost != null && repost.newsfeed_item != null;
@@ -137,11 +141,19 @@ public class WallPost extends LazyEntity implements Parcelable {
                 WallPost repost_item = new WallPost(
                         repost.getInt("date"), null, repost.getString("text"),
                         null, "",
-                        null, repost.getInt("owner_id"), repost.getInt("id"));
+                        null, repost.getLong("owner_id"), repost.getInt("id"));
                 repost_item.setJSONString(repost.toString());
-                RepostInfo repostInfo = new RepostInfo(String.format("(Unknown author: %s)",
-                        repost.getInt("from_id")),
-                        repost.getInt("date"), ctx);
+
+                RepostInfo repostInfo = new RepostInfo(ctx, repost.getInt("date"));
+                repostInfo.author = repost.getLong("owner_id") < 0 ? new Group() : new User();
+                repostInfo.author.id = repost.getLong("owner_id");
+
+                if(repostInfo.author instanceof User) {
+                    ((User) repostInfo.author).first_name = String.format("(User %s)", repostInfo.author.id);
+                } else {
+                    ((Group) repostInfo.author).name = String.format("(Group %s)", -repostInfo.author.id);
+                }
+
                 repostInfo.newsfeed_item = repost_item;
                 this.repost = repostInfo;
                 JSONArray repost_attachments = repost.getJSONArray("attachments");
@@ -303,6 +315,17 @@ public class WallPost extends LazyEntity implements Parcelable {
         counters.likes = values.getAsInteger("likes");
         counters.reposts = values.getAsInteger("reposts");
         counters.comments = values.getAsInteger("comments");
+
+        author = values.getAsLong("author_id") < 0 ? new Group() : new User();
+        author.id = values.getAsLong("author_id");
+
+        if(values.getAsLong("author_id").equals(values.getAsLong("owner_id")))
+            owner = author;
+        else {
+            owner = values.getAsLong("owner_id") < 0 ? new Group() : new User();
+            owner.id = values.getAsLong("owner_id");
+        }
+
         if(values.getAsString("attachments") != null)
             deserializeAttachments(values.getAsString("attachments"), this);
         else
@@ -324,35 +347,36 @@ public class WallPost extends LazyEntity implements Parcelable {
         entityType = LazyEntity.REAL_ENTITY;
     }
 
-    public void convertEntityToSQLite(SQLiteDatabase database, String from) {
-        ContentValues values = new ContentValues();
+    public void convertEntityToSQLite(SQLiteDatabase posts_db, SQLiteDatabase users_db, SQLiteDatabase groups_db, String from) {
+        ContentValues wall_values = new ContentValues();
         ContentValues newsfeed_values = new ContentValues();
 
-        values.put("post_id", post_id);
-        values.put("author_id", author.id);
-        values.put("owner_id", owner.id);
-        values.put("text", text);
-        values.put("time", dt.getTime());
-        values.put("likes", counters.likes);
-        values.put("comments", counters.comments);
-        values.put("reposts", counters.reposts);
-        values.put("contains_repost", contains_repost);
+        wall_values.put("post_id", post_id);
+        wall_values.put("author_id", author.id);
+        if(owner != null)
+            wall_values.put("owner_id", owner.id);
+        wall_values.put("text", text);
+        wall_values.put("time", dt.getTime());
+        wall_values.put("likes", counters.likes);
+        wall_values.put("comments", counters.comments);
+        wall_values.put("reposts", counters.reposts);
+        wall_values.put("contains_repost", contains_repost);
 
         if(attachments.size() > 0) {
             String attachments_json = serializeAttachments(this, attachments);
             if(attachments_json != null) {
-                values.put("attachments", attachments_json);
+                wall_values.put("attachments", attachments_json);
             }
         }
-        if(contains_repost) {
-            values.put("repost_id", repost.newsfeed_item.post_id);
-        }
-        database.insert("wall", null, values);
+        if(contains_repost)
+            wall_values.put("repost_id", repost.newsfeed_item.post_id);
+
+        posts_db.insert("wall", null, wall_values);
 
         if(from.equals("newsfeed")) {
             newsfeed_values.put("post_id", post_id);
             newsfeed_values.put("time", dt.getTime());
-            database.insert(from, null, newsfeed_values);
+            posts_db.insert(from, null, newsfeed_values);
         }
     }
 

@@ -194,6 +194,10 @@ public class PhotoViewerActivity extends NetworkActivity {
                 } else if(getResources().getDisplayMetrics().widthPixels <= 480) {
                     max_size = 960;
                 }
+
+                if(bitmap == null)
+                    return;
+
                 float aspect_ratio = (float)bitmap.getWidth() / (float)max_size;
                 if(bitmap.getWidth() > max_size || bitmap.getHeight() > max_size) {
                     Bitmap photo_scaled;

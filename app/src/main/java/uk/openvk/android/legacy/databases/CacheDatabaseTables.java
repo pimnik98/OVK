@@ -75,21 +75,60 @@ public class CacheDatabaseTables {
         );
     }
 
-    public static void createFriendsTable(SQLiteDatabase db) {
+    public static void createUsersTables(SQLiteDatabase db, boolean clear) {
+        if(clear) {
+            db.execSQL("DROP TABLE IF EXISTS `users`");
+            db.execSQL("DROP TABLE IF EXISTS `birthdays`");
+            db.execSQL("DROP TABLE IF EXISTS `friends`");
+        }
+
         db.execSQL(
-                "DROP TABLE IF EXISTS `friends`"
+                "CREATE TABLE `users` (" +
+                        "user_id bigint PRIMARY KEY, " +
+                        "first_name varchar(150) NOT NULL, " +
+                        "last_name varchar(150), " +
+                        "screenname varchar(150), " +
+                        "photo varchar(360), " +
+                        "photo_small varchar(360), " +
+                        "sex int NOT NULL, " +
+                        "name_r varchar(200)" +
+                ")"
+        );
+        db.execSQL(
+                "CREATE TABLE `birthdays` (" +
+                        "user_id bigint unique," +
+                        "bday int," +
+                        "bmonth int," +
+                        "byear int," +
+                        "FOREIGN KEY(user_id) REFERENCES users(user_id)" +
+                ")"
         );
         db.execSQL(
                 "CREATE TABLE `friends` (" +
-                        "user_id bigint unique, " +
-                        "first_name varchar(150), " +
-                        "last_name varchar(150), " +
-                        "photo varchar(200), " +
-                        "birthday int, " +
-                        "birthmonth int, " +
-                        "birthyear int, " +
-                        "name_r varchar(200)" +
+                    "user_id bigint, " +
+                    "user2_id bigint, " +
+                    "FOREIGN KEY(user_id) REFERENCES users(user_id)," +
+                    "FOREIGN KEY(user2_id) REFERENCES users(user_id)" +
                 ")"
+        );
+    }
+
+    public static void createGroupsTable(SQLiteDatabase db, boolean clear) {
+        if(clear) {
+            db.execSQL("DROP TABLE IF EXISTS `groups`");
+        }
+
+        db.execSQL(
+                "CREATE TABLE `groups` (" +
+                        "group_id bigint PRIMARY KEY, " +
+                        "name varchar(200) NOT NULL, " +
+                        "screenname varchar(150), " +
+                        "description varchar(600)," +
+                        "photo varchar(360), " +
+                        "admin bit, " +
+                        "type int, " +
+                        "members bigint" +
+                        ")"
         );
     }
 

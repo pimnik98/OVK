@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import uk.openvk.android.client.base.LazyEntity;
+import uk.openvk.android.client.entities.Group;
+import uk.openvk.android.client.entities.User;
 import uk.openvk.android.client.entities.WallPost;
 import uk.openvk.android.legacy.databases.base.CacheDatabase;
 
@@ -136,19 +138,80 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
     public static void addPost(WallPost post, Context ctx) {
         try {
-            NewsfeedCacheDB.CacheOpenHelper helper = new NewsfeedCacheDB.CacheOpenHelper(
+            NewsfeedCacheDB.CacheOpenHelper posts_helper = new NewsfeedCacheDB.CacheOpenHelper(
                     ctx.getApplicationContext(),
                     getCurrentDatabaseName(ctx, prefix)
             );
-            SQLiteDatabase db = helper.getWritableDatabase();
+            SQLiteDatabase posts_db = posts_helper.getWritableDatabase();
+
+            UsersCacheDB.CacheOpenHelper users_helper = new UsersCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, UsersCacheDB.prefix)
+            );
+
+            SQLiteDatabase users_db = users_helper.getWritableDatabase();
+
+            GroupsCacheDB.CacheOpenHelper groups_helper = new GroupsCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, GroupsCacheDB.prefix)
+            );
+
+            SQLiteDatabase groups_db = groups_helper.getWritableDatabase();
+
             try {
-                if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY)
-                    post.convertEntityToSQLite(db, "news");
+                if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
+                    post.convertEntityToSQLite(posts_db, users_db, groups_db, "news");
+
+                    if (post.author != null) {
+                        if (post.author instanceof User) {
+                            if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
+                                ContentValues user_values = new ContentValues();
+                                user_values.put("user_id", post.author.id);
+                                user_values.put("first_name", ((User) post.author).first_name);
+                                user_values.put("last_name", ((User) post.author).last_name);
+                                user_values.put("sex", ((User) post.author).sex);
+                                users_db.insert("users", null, user_values);
+                            }
+                        } else if (post.author instanceof Group) {
+                            if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
+                                ContentValues group_values = new ContentValues();
+                                group_values.put("group_id", post.author.id);
+                                group_values.put("name", ((Group) post.author).name);
+                                groups_db.insert("groups", null, group_values);
+                            }
+                        }
+                    }
+
+                    if (post.owner != null && post.author != null && post.owner.id != post.author.id) {
+                        if (post.owner instanceof User) {
+                            if(!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
+                                ContentValues user_values = new ContentValues();
+                                user_values.put("user_id", post.owner.id);
+                                user_values.put("first_name", ((User) post.owner).first_name);
+                                user_values.put("last_name", ((User) post.owner).last_name);
+                                user_values.put("sex", ((User) post.owner).sex);
+                                users_db.insert("users", null, user_values);
+                            }
+                        } else if (post.owner instanceof Group) {
+                            if(!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
+                                ContentValues group_values = new ContentValues();
+                                group_values.put("group_id", post.owner.id);
+                                group_values.put("name", ((Group) post.owner).name);
+                                groups_db.insert("groups", null, group_values);
+                            }
+                        }
+                    }
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            db.close();
-            helper.close();
+
+            posts_db.close();
+            posts_helper.close();
+            users_db.close();
+            users_helper.close();
+            groups_db.close();
+            groups_helper.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -171,24 +234,85 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
     public static void putPosts(Context ctx, ArrayList<WallPost> wallPosts, boolean clear) {
         try {
-            NewsfeedCacheDB.CacheOpenHelper helper = new NewsfeedCacheDB.CacheOpenHelper(
+            NewsfeedCacheDB.CacheOpenHelper posts_helper = new NewsfeedCacheDB.CacheOpenHelper(
                     ctx.getApplicationContext(),
                     getCurrentDatabaseName(ctx, prefix)
             );
-            SQLiteDatabase db = helper.getWritableDatabase();
+            SQLiteDatabase posts_db = posts_helper.getWritableDatabase();
+
+            UsersCacheDB.CacheOpenHelper users_helper = new UsersCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, UsersCacheDB.prefix)
+            );
+            SQLiteDatabase users_db = users_helper.getWritableDatabase();
+
+            GroupsCacheDB.CacheOpenHelper groups_helper = new GroupsCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, GroupsCacheDB.prefix)
+            );
+
+            SQLiteDatabase groups_db = groups_helper.getWritableDatabase();
+
             if(clear)
-                db.delete("newsfeed", null, null);
+                posts_db.delete("newsfeed", null, null);
+
             try {
                 for (int i = 0; i < wallPosts.size(); i++) {
                     WallPost post = wallPosts.get(i);
-                    if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY)
-                        post.convertEntityToSQLite(db, "newsfeed");
+                    if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
+                        post.convertEntityToSQLite(posts_db, users_db, groups_db, "newsfeed");
+                        if (post.author != null) {
+                            if (post.author instanceof User) {
+                                if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
+                                    ContentValues user_values = new ContentValues();
+                                    user_values.put("user_id", post.author.id);
+                                    user_values.put("first_name", ((User) post.author).first_name);
+                                    user_values.put("last_name", ((User) post.author).last_name);
+                                    user_values.put("sex", ((User) post.author).sex);
+                                    users_db.insert("users", null, user_values);
+                                }
+                            } else if (post.author instanceof Group) {
+                                if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
+                                    ContentValues group_values = new ContentValues();
+                                    group_values.put("group_id", post.author.id);
+                                    group_values.put("name", ((Group) post.author).name);
+                                    groups_db.insert("groups", null, group_values);
+                                }
+                            }
+                        }
+
+                        if (post.owner != null) {
+                            if (post.owner instanceof User) {
+                                if (!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
+                                    ContentValues user_values = new ContentValues();
+                                    user_values.put("user_id", post.owner.id);
+                                    user_values.put("first_name", ((User) post.owner).first_name);
+                                    user_values.put("last_name", ((User) post.owner).last_name);
+                                    user_values.put("sex", ((User) post.owner).sex);
+                                    users_db.insert("users", null, user_values);
+                                }
+                            } else if (post.owner instanceof Group) {
+                                if (!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
+                                    ContentValues group_values = new ContentValues();
+                                    group_values.put("group_id", post.owner.id);
+                                    group_values.put("name", ((Group) post.owner).name);
+                                    groups_db.insert("groups", null, group_values);
+                                }
+                            }
+                        }
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            db.close();
-            helper.close();
+
+            posts_db.close();
+            posts_helper.close();
+            users_db.close();
+            users_helper.close();
+            groups_db.close();
+            groups_helper.close();
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
