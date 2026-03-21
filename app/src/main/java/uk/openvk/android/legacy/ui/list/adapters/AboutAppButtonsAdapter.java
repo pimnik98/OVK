@@ -19,6 +19,7 @@ import uk.openvk.android.legacy.R;
 public class AboutAppButtonsAdapter extends BaseAdapter {
     private final SharedPreferences global_prefs;
     private final String instance;
+    private final float xdpi;
     private Context ctx;
     ArrayList<Button> buttons;
     float dp;
@@ -28,6 +29,7 @@ public class AboutAppButtonsAdapter extends BaseAdapter {
         this.global_prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
         this.instance = global_prefs.getString("current_instance", "");
         dp = ctx.getResources().getDisplayMetrics().scaledDensity;
+        xdpi = ctx.getResources().getDisplayMetrics().xdpi;
         buttons = new ArrayList<>();
 
         Button sourceCodeBtn = new Button(ctx);
@@ -88,8 +90,10 @@ public class AboutAppButtonsAdapter extends BaseAdapter {
                 )
         );
 
-
-        ((Button) view).setTextSize(14);
+        if((dp * ctx.getResources().getDisplayMetrics().widthPixels) <= 760)
+            ((Button) view).setTextSize(13);
+        else
+            ((Button) view).setTextSize(14);
 
         view.setPadding((int)(8.0 * dp), 0,  (int)(8.0 * dp), 0);
         return view;

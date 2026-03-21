@@ -28,7 +28,8 @@
     <string name="ovk_mobile_apps">Додатки OpenVK</string>
     <string name="about_app_authors">Автори</string>
     <string name="about_app_translators">Перекладачі</string>
-    <string name="about_app_components">Используемые компоненты</string>
+    <string name="app_legal">Правова інформація</string>
+    <string name="about_app_components">Використовувані компоненти</string>
     <string-array name="app_dev_positions">
         <item>Супроводжуючий</item>
         <item>Шеф-розробник</item>
@@ -50,8 +51,8 @@
     <string name="app_eng_translators">Григорій Клюшніков\nКоманда OpenVK Legacy</string>
     <string name="app_rus_translators">Григорій Клюшніков\nКоманда OpenVK Legacy</string>
     <string name="app_ukr_translators">Команда OpenVK Legacy\r\nЯрослав Бєлоград (AlesAlte)</string>
-    <string name="app_license_title">Лiцензiя OpenVK Legacy</string>
-    <string name="app_license_text">GNU (Affero) General Public License версії 3.0 або вище</string>
+    <string name="app_license_title">Ліцензія вільного ПЗ</string>
+    <string name="app_license_text">GNU Affero General Public License версії 3.0 або вище</string>
     <string name="app_disclaimer_title">Дисклеймер</string>
     <string name="app_disclaimer">Додаток OpenVK Legacy та мережа OpenVK є аматорською розробкою і жодним
         чином не пов\'язані з компанією ТОВ \"ВК\" та ВКонтакте.</string>

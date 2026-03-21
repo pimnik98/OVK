@@ -44,8 +44,9 @@
         <item>Gregory Klyushnikov\r\nOpenVK Team|0,1</item>
         <item>Ярослав Белоград (AlesAlte)|2</item>
     </string-array>
-    <string name="app_license_title">OpenVK Legacy License</string>
+    <string name="app_legal">Legal</string>
+    <string name="app_license_title">FOSS License</string>
     <string name="app_license_text">GNU Affero General Public License v3.0 or later</string>
     <string name="app_disclaimer_title">Disclaimer</string>
-    <string name="app_disclaimer">The OpenVK Legacy application and the OpenVK network are amateur development and not affiliated in any way with the VK LLC and VKontakte.</string>
+    <string name="app_disclaimer">The OpenVK Legacy application and the OpenVK network are fan projects and not affiliated in any way with the VK LLC and VKontakte.</string>
 </resources>
