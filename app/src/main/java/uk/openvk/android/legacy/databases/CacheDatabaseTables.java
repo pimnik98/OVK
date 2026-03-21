@@ -31,7 +31,7 @@ public class CacheDatabaseTables {
                 "CREATE TABLE `newsfeed` (" +
                         "post_id bigint, " +
                         "time bigint, " +
-                        "FOREIGN KEY(post_id) REFERENCES wall(post_id)," +
+                        "FOREIGN KEY(post_id) REFERENCES wall(post_id) ON DELETE cascade," +
                         "FOREIGN KEY(time) REFERENCES wall(time)" +
                 ")"
                 );

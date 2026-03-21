@@ -203,8 +203,8 @@ public class NewsfeedFragment extends ActiveFragment {
             newsfeedAdapter.notifyDataSetChanged();
         }
 
-        if(clear)
-            NewsfeedCacheDB.putPosts(ctx, this.wallPosts, true);
+        if(cache)
+            NewsfeedCacheDB.putPosts(ctx, this.wallPosts, clear);
         adjustLayout(getContext().getResources().getConfiguration().orientation);
     }
 
@@ -373,7 +373,7 @@ public class NewsfeedFragment extends ActiveFragment {
                 }
             }
 
-            createAdapter(ctx, ovk_api.newsfeed.getWallPosts(), false, clear);
+            createAdapter(ctx, ovk_api.newsfeed.getWallPosts(), true, clear);
             adjustLayout(getResources().getConfiguration().orientation);
             if(ovk_api.newsfeed.getWallPosts().size() > 0) {
                 return;

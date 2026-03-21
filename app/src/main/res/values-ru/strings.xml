@@ -717,6 +717,7 @@
     <string name="birthday">День рождения</string>
     <string name="post_fail_empty">Прежде чем опубликовать запись, обязательно напишите что-нибудь и повторите еще раз.</string>
     <string name="on_wall">%1$s на стене %2$s</string>
+    <string name="on_wall_2">%1$s на стене незнакомца</string>
     <string name="debug_incompatibillity_error">Требуется Android 4.1 или выше</string>
     <string name="about_instance">Об инстанции</string>
     <string name="server_address">Сервер:</string>

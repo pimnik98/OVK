@@ -730,6 +730,7 @@
     <string name="birthday">День народження</string>
     <string name="post_fail_empty">Перш ніж опублікувати запис, обов\'язково напишіть щось та повторіть ще раз.</string>
     <string name="on_wall">%1$s на стiнi %2$s</string>
+    <string name="on_wall_2">%1$s на стiнi незнайомця</string>
     <string name="debug_incompatibillity_error">Потрібен Android 4.1 або вище</string>
     <string name="about_instance">Про iнстанцiю</string>
     <string name="server_address">Сервер:</string>

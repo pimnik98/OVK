@@ -698,6 +698,7 @@
 	<string name="birthday">Birthday</string>
 	<string name="post_fail_empty">Before posting, be sure to write something and repeat it again.</string>
 	<string name="on_wall">%1$s on %2$s\'s wall</string>
+	<string name="on_wall_2">%1$s on stranger\'s wall</string>
 	<string name="about_instance">About instance</string>
 	<string name="server_address">Server:</string>
 	<string name="connection_type">Connection type</string>

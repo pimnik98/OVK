@@ -404,13 +404,15 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 try {
-                    Bitmap bitmap = BitmapFactory.decodeFile(
-                            String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
-                                    ctx.getCacheDir(), instance, item.author.id), options);
-                    if (bitmap != null) {
-                        avatar.setImageBitmap(bitmap);
-                    } else {
-                        avatar.setImageDrawable(ctx.getResources().getDrawable(R.drawable.photo_loading));
+                    if(item.author != null) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(
+                                String.format("%s/%s/photos_cache/newsfeed_avatars/avatar_%s",
+                                        ctx.getCacheDir(), instance, item.author.id), options);
+                        if (bitmap != null) {
+                            avatar.setImageBitmap(bitmap);
+                        } else {
+                            avatar.setImageDrawable(ctx.getResources().getDrawable(R.drawable.photo_loading));
+                        }
                     }
                 } catch (OutOfMemoryError ignored) {
 
@@ -471,29 +473,42 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             if(item.author == null)
                 return name;
 
-            if(item.owner != null && item.author.id != item.owner.id) {
-                String owner_name = "";
-                String author_name = "";
-                if(item.author instanceof User) {
-                    User user = ((User) item.author);
-                    author_name = String.format("%s %s", user.first_name, user.last_name);
-                } else if(item.author instanceof Group) {
-                    Group group = ((Group) item.author);
-                    author_name = group.name;
-                }
+            String owner_name = "";
+            String author_name = "";
 
+            if(item.author instanceof User) {
+                User user = ((User) item.author);
+                author_name = String.format("%s %s", user.first_name, user.last_name);
+            } else if(item.author instanceof Group) {
+                Group group = ((Group) item.author);
+                author_name = group.name;
+            }
+
+            if(item.owner == null) {
+                name = ctx.getResources().getString(R.string.on_wall_2, author_name);
+            } else if(item.author.id != item.owner.id) {
                 if(item.owner instanceof User) {
                     User user = ((User) item.owner);
-                    owner_name = String.format("%s %s", user.first_name, user.last_name);
+                    if(user.first_name != null && user.last_name != null) {
+                        owner_name = String.format("%s %s", user.first_name, user.last_name);
+                        name = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
+                    } else if(user.first_name != null) {
+                        owner_name = user.first_name;
+                        name = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
+                    } else
+                        name = ctx.getResources().getString(R.string.on_wall_2, author_name);
                 } else if(item.owner instanceof Group) {
                     Group group = ((Group) item.owner);
                     owner_name = group.name;
+                    name = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
                 }
-                name = ctx.getResources().getString(R.string.on_wall, author_name, owner_name);
-            } else if(item.author instanceof User) {
+            } else if(item.author instanceof User && item.owner instanceof User) {
                 User user = ((User) item.author);
-                name = String.format("%s %s", user.first_name, user.last_name);
-            } else if(item.author instanceof Group) {
+                if(user.last_name != null)
+                    name = String.format("%s %s", user.first_name, user.last_name);
+                else
+                    name = user.first_name;
+            } else if(item.author instanceof Group && item.owner instanceof Group) {
                 Group group = ((Group) item.author);
                 name = group.name;
             }

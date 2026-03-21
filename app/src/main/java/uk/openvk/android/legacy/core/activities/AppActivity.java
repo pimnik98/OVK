@@ -781,9 +781,10 @@ public class AppActivity extends NetworkFragmentActivity {
                 if (selectedFragment instanceof FriendsFragment) {
                     progressLayout.setVisibility(View.GONE);
                     findViewById(R.id.app_fragment).setVisibility(View.VISIBLE);
+
+                    ((FriendsFragment) selectedFragment)
+                            .createAdapter(this, requestsList, "requests");
                 }
-                ((FriendsFragment) selectedFragment)
-                        .createAdapter(this, requestsList, "requests");
             } else if (message == HandlerMessages.PHOTOS_GETALBUMS) {
                 ArrayList<PhotoAlbum> albumsList = ovk_api.photos.albumsList;
                 if (selectedFragment instanceof PhotosFragment) {

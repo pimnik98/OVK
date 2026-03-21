@@ -99,37 +99,61 @@ public class NewsfeedCacheDB extends CacheDatabase {
     public static ArrayList<WallPost> getPostsList(Context ctx) {
         try {
             semaphore.acquire();
-            NewsfeedCacheDB.CacheOpenHelper helper = new NewsfeedCacheDB.CacheOpenHelper(
+            NewsfeedCacheDB.CacheOpenHelper posts_helper = new NewsfeedCacheDB.CacheOpenHelper(
                     ctx.getApplicationContext(),
                     getCurrentDatabaseName(ctx, prefix)
             );
-            SQLiteDatabase db = helper.getReadableDatabase();
-            ArrayList<WallPost> result = new ArrayList<>();
+            SQLiteDatabase posts_db = posts_helper.getReadableDatabase();
+
+            UsersCacheDB.CacheOpenHelper users_helper = new UsersCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, UsersCacheDB.prefix)
+            );
+            SQLiteDatabase users_db = users_helper.getReadableDatabase();
+
+            GroupsCacheDB.CacheOpenHelper groups_helper = new GroupsCacheDB.CacheOpenHelper(
+                    ctx.getApplicationContext(),
+                    getCurrentDatabaseName(ctx, GroupsCacheDB.prefix)
+            );
+            SQLiteDatabase groups_db = groups_helper.getReadableDatabase();
+
+            ArrayList<WallPost> posts_result = new ArrayList<>();
             try {
-                Cursor cursor = db.rawQuery(
+                Cursor posts_cursor = posts_db.rawQuery(
                     "SELECT * "
                        + "FROM newsfeed "
                        + "JOIN wall ON newsfeed.post_id = wall.post_id "
                        + "ORDER BY `time` desc",
                         null
                 );
-                if (cursor != null && cursor.getCount() > 0) {
+
+                if (posts_cursor != null && posts_cursor.getCount() > 0) {
                     int i = 0;
-                    cursor.moveToFirst();
+                    posts_cursor.moveToFirst();
                     do {
                         WallPost post = new WallPost();
-                        post.convertSQLiteToEntity(cursor, ctx);
-                        result.add(post);
+                        post.convertSQLiteToEntity(posts_cursor, ctx);
+                        post.resolveAuthorsFromSQLite(users_db, groups_db);
+                        post.resolveRepost(posts_db, users_db, groups_db, ctx);
+                        posts_result.add(post);
                         i++;
-                    } while (cursor.moveToNext());
+                    } while (posts_cursor.moveToNext());
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            db.close();
-            helper.close();
+
+            posts_db.close();
+            posts_helper.close();
+
+            users_db.close();
+            users_helper.close();
+
+            groups_db.close();
+            groups_helper.close();
+
             semaphore.release();
-            return result;
+            return posts_result;
         } catch (Exception e) {
             semaphore.release();
             return null;
@@ -160,7 +184,7 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
             try {
                 if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
-                    post.convertEntityToSQLite(posts_db, users_db, groups_db, "news");
+                    post.convertEntityToSQLite(posts_db);
 
                     if (post.author != null) {
                         if (post.author instanceof User) {
@@ -219,12 +243,12 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
     public static void clear(Context ctx) {
         try {
-            NewsfeedCacheDB.CacheOpenHelper helper = new NewsfeedCacheDB.CacheOpenHelper(
+            WallCacheDB.CacheOpenHelper helper = new WallCacheDB.CacheOpenHelper(
                     ctx.getApplicationContext(),
                     getCurrentDatabaseName(ctx, prefix)
             );
             SQLiteDatabase db = helper.getWritableDatabase();
-            db.delete("newsfeed", null, null);
+            db.delete("wall", null, null);
             db.close();
             helper.close();
         } catch (Exception ex) {
@@ -253,14 +277,31 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
             SQLiteDatabase groups_db = groups_helper.getWritableDatabase();
 
-            if(clear)
+            if(clear) {
                 posts_db.delete("newsfeed", null, null);
+            }
 
             try {
                 for (int i = 0; i < wallPosts.size(); i++) {
                     WallPost post = wallPosts.get(i);
+
+                    if(clear) {
+                        ContentValues newsfeed_values = new ContentValues();
+                        newsfeed_values.put("post_id", post.post_id);
+                        newsfeed_values.put("time", post.dt.getTime());
+                        posts_db.insert("newsfeed", null, newsfeed_values);
+                    }
+
+                    if(post.owner != null) {
+                        if (WallCacheDB.isExist(posts_db, post.owner.id, post.post_id))
+                            continue;
+                    } else {
+                        if (WallCacheDB.isExist(posts_db, post.author.id, post.post_id))
+                            continue;
+                    }
+
                     if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
-                        post.convertEntityToSQLite(posts_db, users_db, groups_db, "newsfeed");
+                        post.convertEntityToSQLite(posts_db);
                         if (post.author != null) {
                             if (post.author instanceof User) {
                                 if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
@@ -411,5 +452,25 @@ public class NewsfeedCacheDB extends CacheDatabase {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static boolean isExist(Context ctx, long user_id) {
+        boolean result = false;
+        CacheDatabase.CacheOpenHelper helper =
+                new CacheDatabase.CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
+        SQLiteDatabase db = helper.getWritableDatabase();
+        try {
+            String table_name = "users";
+            Cursor cursor = db.query(table_name, new String[]{"count(*)"},
+                    "`user_id`=" + user_id,
+                    null, null, null, null);
+            result = cursor.getCount() > 0 && cursor.moveToFirst() && cursor.getInt(0) > 0;
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        db.close();
+        helper.close();
+        return result;
     }
 }
