@@ -75,13 +75,13 @@ public class WallLayout extends LinearLayout {
         super(context, attrs);
         View view =  LayoutInflater.from(getContext()).inflate(
                 R.layout.layout_wall, null);
-
         this.addView(view);
 
         llm = new WrappedLinearLayoutManager(context);
 
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
         layoutParams.width = RelativeLayout.LayoutParams.MATCH_PARENT;
+        layoutParams.gravity = Gravity.CENTER;
         view.setLayoutParams(layoutParams);
         instance = PreferenceManager.getDefaultSharedPreferences(
                 getContext()).getString("current_instance", "");
@@ -143,14 +143,14 @@ public class WallLayout extends LinearLayout {
 
     public void updateItem(WallPost item, int position) {
         if(wallAdapter != null) {
-            wallView = (RecyclerView) findViewById(R.id.news_listview);
+            wallView = findViewById(R.id.news_listview);
             wallItems.set(position, item);
             wallAdapter.notifyItemChanged(position);
         }
     }
 
     public void loadPhotos() {
-        wallView = (RecyclerView) findViewById(R.id.wall_listview);
+        wallView = findViewById(R.id.wall_listview);
         try {
             if(wallAdapter != null) {
                 int visibleItemCount = llm.getChildCount();
@@ -244,7 +244,7 @@ public class WallLayout extends LinearLayout {
 
     public void setScrollingPositions() {
         loadPhotos();
-        wallView = (RecyclerView) findViewById(R.id.wall_listview);
+        wallView = findViewById(R.id.wall_listview);
         wallView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -294,7 +294,7 @@ public class WallLayout extends LinearLayout {
 
     public void loadAvatars() {
         if(wallAdapter != null) {
-            wallView = (RecyclerView) findViewById(R.id.wall_listview);
+            wallView = findViewById(R.id.wall_listview);
             for (int i = 0; i < getCount(); i++) {
                 try {
                     WallPost item = wallItems.get(i);
@@ -323,18 +323,25 @@ public class WallLayout extends LinearLayout {
         }
     }
 
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adjustLayoutSize(newConfig.orientation);
+    }
+
     public void adjustLayoutSize(int orientation) {
         if (!((OvkApplication) getContext().getApplicationContext()).isTablet) {
-            wallView = (RecyclerView) findViewById(R.id.wall_listview);
+            wallView = findViewById(R.id.wall_listview);
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 LinearLayout.LayoutParams layoutParams = new LayoutParams((int)
-                        (480 * (getResources().getDisplayMetrics().density)),
+                        (400 * (getResources().getDisplayMetrics().scaledDensity)),
                         ViewGroup.LayoutParams.WRAP_CONTENT);
-                layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+                layoutParams.gravity = Gravity.CENTER;
                 wallView.setLayoutParams(layoutParams);
             } else {
                 LinearLayout.LayoutParams layoutParams = new LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
                 wallView.setLayoutParams(layoutParams);
             }
