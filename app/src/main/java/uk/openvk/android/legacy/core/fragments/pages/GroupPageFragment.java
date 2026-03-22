@@ -90,10 +90,23 @@ public class GroupPageFragment extends ActiveFragment {
                         .setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_black));
             }
         }
+
+        CustomSwipeRefreshLayout p2r_view = view.findViewById(R.id.refreshable_layout);
+        p2r_view.refreshComplete();
+        OvkRefreshableHeaderLayout rhl = new OvkRefreshableHeaderLayout(getContext());
+        if(!((OvkApplication) getContext().getApplicationContext()).isTablet) {
+            rhl.enableDarkTheme();
+        }
+        try {
+            p2r_view.setCustomHeadview(rhl);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        p2r_view.setTriggerDistance(80);
         return view;
     }
 
-    public void loadWall(final Context ctx, Group group, final OpenVKAPI ovk_api) {
+    public void loadWall(final Context ctx, final Group group, final OpenVKAPI ovk_api) {
         if(ovk_api.wall.getWallItems().size() > 0) {
             wallLayout.createAdapter(ctx, ovk_api.wall.getWallItems());
             loading_more_posts = true;
@@ -202,16 +215,6 @@ public class GroupPageFragment extends ActiveFragment {
     public void loadAPIData(final OpenVKAPI ovk_api, final Group group) {
         CustomSwipeRefreshLayout p2r_view = view.findViewById(R.id.refreshable_layout);
         p2r_view.refreshComplete();
-        OvkRefreshableHeaderLayout rhl = new OvkRefreshableHeaderLayout(getContext());
-        if(!((OvkApplication) getContext().getApplicationContext()).isTablet) {
-            rhl.enableDarkTheme();
-        }
-        try {
-            p2r_view.setCustomHeadview(rhl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        p2r_view.setTriggerDistance(80);
         p2r_view.setOnRefreshListener(new CustomSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

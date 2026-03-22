@@ -73,13 +73,6 @@ public class PhotoAlbumActivity extends NetworkActivity {
         ProgressLayout progressLayout = findViewById(R.id.progress_layout);
         progressLayout.setVisibility(View.VISIBLE);
         progressLayout.enableDarkTheme(true);
-        if (savedInstanceState == null) {
-            access_token = instance_prefs.getString("access_token", "");
-        } else {
-            access_token = (String) savedInstanceState.getSerializable("access_token");
-        }
-
-        instance = instance_prefs.getString("server", "");
 
         DisplayMetrics metrics = new DisplayMetrics();
         Display display = getWindowManager().getDefaultDisplay();
