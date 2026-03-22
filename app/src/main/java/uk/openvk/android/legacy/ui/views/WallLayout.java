@@ -124,6 +124,7 @@ public class WallLayout extends LinearLayout {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec_custom);
             Log.d(OvkApplication.APP_TAG, "Preparing WallLayout...");
             ViewGroup.LayoutParams params = getLayoutParams();
+            params.width = getMeasuredWidth();
             params.height = getMeasuredHeight();
             setMeasuredDimension(params.width, params.height);
         } catch (Exception ex) {
