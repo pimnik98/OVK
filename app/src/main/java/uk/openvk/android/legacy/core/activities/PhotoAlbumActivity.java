@@ -74,6 +74,8 @@ public class PhotoAlbumActivity extends NetworkActivity {
         progressLayout.setVisibility(View.VISIBLE);
         progressLayout.enableDarkTheme(true);
 
+        instance = global_prefs.getString("current_instance", "");
+
         DisplayMetrics metrics = new DisplayMetrics();
         Display display = getWindowManager().getDefaultDisplay();
         display.getMetrics(metrics);
