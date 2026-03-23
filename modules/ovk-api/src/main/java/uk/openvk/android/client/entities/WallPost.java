@@ -352,7 +352,7 @@ public class WallPost extends LazyEntity implements Parcelable {
             Cursor groups_cursor = groups_db.rawQuery(
                     "SELECT * "
                             + "FROM groups "
-                            + "WHERE groups_id = ?",
+                            + "WHERE group_id = ?",
                     new String[]{Long.toString(author.id)}
             );
 
@@ -410,7 +410,12 @@ public class WallPost extends LazyEntity implements Parcelable {
                 repost = new RepostInfo(values.getAsLong("time"), ctx);
                 repost.newsfeed_item = new WallPost();
                 repost.newsfeed_item.post_id = values.getAsInteger("post_id");
+                if(repost.newsfeed_item.author == null)
+                    repost.newsfeed_item.author = values.getAsInteger("author_id") > 0 ? new User() : new Group();
                 repost.newsfeed_item.author.id = values.getAsInteger("author_id");
+                if(repost.newsfeed_item.owner == null)
+                    repost.newsfeed_item.owner = values.getAsInteger("owner_id") > 0 ? new User() : new Group();
+                repost.newsfeed_item.owner.id = values.getAsInteger("owner_id");
                 repost.newsfeed_item.attachments = new ArrayList<>();
                 if(values.getAsString("repost_attachments") != null)
                     deserializeAttachments(values.getAsString("attachments"), repost.newsfeed_item);

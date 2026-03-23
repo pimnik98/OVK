@@ -320,40 +320,41 @@ public class NewsfeedFragment extends ActiveFragment {
     public void adjustLayout(int orientation) {
         super.adjustLayout(orientation);
         try {
+            if(newsfeedView == null && view != null)
+                newsfeedView = view.findViewById(R.id.news_listview);
+
             if(newsfeedView != null) {
                 if (((OvkApplication) getContext().getApplicationContext()).isTablet) {
+                    int menuWidth = 0;
+
+                    if(getActivity() instanceof AppActivity)
+                        menuWidth = (int) ((AppActivity) getActivity()).getSlidingMenuWidth();
+
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.
-                                LayoutParams((int) (600 * (getResources().getDisplayMetrics().density)),
-                                ViewGroup.LayoutParams.WRAP_CONTENT);
-                        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-                        newsfeedView.setLayoutParams(layoutParams);
+                        int sidePadding = (int) ((300 - (menuWidth / 2)) * (getResources().getDisplayMetrics().density));
+                        newsfeedView.setPadding(sidePadding, 0, sidePadding, 0);
                     } else {
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.
-                                LayoutParams((int) (500 * (getResources().getDisplayMetrics().density)),
-                                ViewGroup.LayoutParams.WRAP_CONTENT);
-                        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-                        newsfeedView.setLayoutParams(layoutParams);
+                        int sidePadding = (int) ((140 - (menuWidth / 2))  * (getResources().getDisplayMetrics().density));
+                        newsfeedView.setPadding(sidePadding, 0, sidePadding, 0);
                     }
                 } else {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.
-                                LayoutParams((int) (480 * (getResources().getDisplayMetrics().density)),
-                                ViewGroup.LayoutParams.WRAP_CONTENT);
-                        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-                        newsfeedView.setLayoutParams(layoutParams);
+                        int sidePadding = (int) (480  * (getResources().getDisplayMetrics().density));
+                        newsfeedView.setPadding(sidePadding, 0, sidePadding, 0);
                     } else {
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.
-                                LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT);
-                        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-                        newsfeedView.setLayoutParams(layoutParams);
+                        newsfeedView.setPadding(0, 0, 0, 0);
                     }
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adjustLayout(newConfig.orientation);
     }
 
     public void refreshAdapter() {

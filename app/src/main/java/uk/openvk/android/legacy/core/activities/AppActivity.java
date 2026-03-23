@@ -257,11 +257,13 @@ public class AppActivity extends NetworkFragmentActivity {
                     if (!((OvkApplication) getApplicationContext()).isTablet) {
                         menu.toggle(true);
                     } else {
-                        if (slidingmenuLayout.getVisibility() == View.VISIBLE) {
-                            slidingmenuLayout.setVisibility(View.GONE);
-                        } else {
-                            slidingmenuLayout.setVisibility(View.VISIBLE);
-                        }
+                        slidingmenuLayout.setVisibility(
+                                slidingmenuLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE
+                        );
+                        if(selectedFragment instanceof NewsfeedFragment)
+                            ((NewsfeedFragment) selectedFragment).adjustLayout(
+                                    getResources().getConfiguration().orientation
+                            );
                     }
                 }
             });
@@ -1191,5 +1193,13 @@ public class AppActivity extends NetworkFragmentActivity {
         } else {
             return 0;
         }
+    }
+
+    public float getSlidingMenuWidth() {
+        if(slidingmenuLayout.getVisibility() == View.GONE)
+            return 0;
+        float width = slidingmenuLayout.getLayoutParams().width;
+        float dp = getResources().getDisplayMetrics().scaledDensity;
+        return width / dp;
     }
 }

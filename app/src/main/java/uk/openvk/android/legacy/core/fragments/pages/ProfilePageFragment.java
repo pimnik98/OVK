@@ -504,7 +504,7 @@ public class ProfilePageFragment extends ActiveFragment {
         if(load_photos) {
             ((WallLayout) view.findViewById(R.id.wall_layout)).loadPhotos();
         }
-        final InfinityNestedScrollView scrollView = view.findViewById(R.id.scrollView);
+        final InfinityScrollView scrollView = view.findViewById(R.id.scrollView);
 
     }
 
