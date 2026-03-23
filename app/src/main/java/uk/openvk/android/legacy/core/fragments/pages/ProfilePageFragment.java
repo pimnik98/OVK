@@ -566,6 +566,7 @@ public class ProfilePageFragment extends ActiveFragment {
         });
         selector.showNewPostIcon();
         loading_more_posts = false;
+        adjustLayout(((OvkApplication) getContext().getApplicationContext()).config.orientation);
     }
 
     public void loadWallFromCache(final Context ctx, final OpenVKAPI ovk_api, long owner_id) {
@@ -591,6 +592,7 @@ public class ProfilePageFragment extends ActiveFragment {
             ovk_api.wall.get(ovk_api.wrapper, owner_id, 25);
         }
         loading_more_posts = false;
+        adjustLayout(((OvkApplication) getContext().getApplicationContext()).config.orientation);
     }
 
     public void refreshOptionsMenu() {
