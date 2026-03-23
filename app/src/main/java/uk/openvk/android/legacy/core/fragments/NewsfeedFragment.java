@@ -339,7 +339,7 @@ public class NewsfeedFragment extends ActiveFragment {
                     }
                 } else {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        int sidePadding = (int) (480  * (getResources().getDisplayMetrics().density));
+                        int sidePadding = (int) (60  * (getResources().getDisplayMetrics().density));
                         newsfeedView.setPadding(sidePadding, 0, sidePadding, 0);
                     } else {
                         newsfeedView.setPadding(0, 0, 0, 0);
