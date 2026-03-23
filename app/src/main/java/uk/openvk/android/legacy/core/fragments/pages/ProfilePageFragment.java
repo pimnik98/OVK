@@ -28,6 +28,7 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ import uk.openvk.android.legacy.core.fragments.base.ActiveFragment;
 import uk.openvk.android.legacy.core.listeners.OnScrollListener;
 import uk.openvk.android.legacy.databases.WallCacheDB;
 import uk.openvk.android.legacy.ui.views.OvkRefreshableHeaderLayout;
+import uk.openvk.android.legacy.ui.views.base.InfinityNestedScrollView;
 import uk.openvk.android.legacy.ui.views.base.InfinityScrollView;
 import uk.openvk.android.legacy.ui.views.AboutProfileLayout;
 import uk.openvk.android.legacy.ui.views.ProfileCounterLayout;
@@ -502,50 +504,8 @@ public class ProfilePageFragment extends ActiveFragment {
         if(load_photos) {
             ((WallLayout) view.findViewById(R.id.wall_layout)).loadPhotos();
         }
-        final InfinityScrollView scrollView = view.findViewById(R.id.scrollView);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            scrollView.setOnScrollListener(new OnScrollListener() {
-                @Override
-                public void onScroll(InfinityScrollView infinityScrollView, int x, int y, int old_x, int old_y) {
-                    View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
-                    int diff = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
-                    OpenVKAPI ovk_api = null;
-                    if (!loading_more_posts) {
-                        if (diff == 0) {
-                            if(ctx instanceof NetworkFragmentActivity){
-                                ovk_api = ((NetworkFragmentActivity) ctx).ovk_api;
-                                Global.loadMoreWallPosts(ovk_api, ovk_api.user.id);
-                            } else if(ctx instanceof NetworkActivity) {
-                                ovk_api = ((NetworkActivity) ctx).ovk_api;
-                                Global.loadMoreWallPosts(ovk_api, ovk_api.user.id);
-                            }
-                        }
-                        loading_more_posts = true;
-                    }
-                }
-            });
-        } else {
-            scrollView.setOnScrollListener(new OnScrollListener() {
-                @Override
-                public void onScroll(InfinityScrollView infinityScrollView, int x, int y, int old_x, int old_y) {
-                    View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
-                    int diff = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
-                    OpenVKAPI ovk_api = null;
-                    if (!loading_more_posts) {
-                        if (diff == 0) {
-                            if(ctx instanceof NetworkFragmentActivity){
-                                ovk_api = ((NetworkFragmentActivity) ctx).ovk_api;
-                                Global.loadMoreWallPosts(ovk_api, ovk_api.user.id);
-                            } else if(ctx instanceof NetworkActivity) {
-                                ovk_api = ((NetworkActivity) ctx).ovk_api;
-                                Global.loadMoreWallPosts(ovk_api, ovk_api.user.id);
-                            }
-                        }
-                        loading_more_posts = true;
-                    }
-                }
-            });
-        }
+        final InfinityNestedScrollView scrollView = view.findViewById(R.id.scrollView);
+
     }
 
     public void loadAPIData(Context ctx, final OpenVKAPI ovk_api, WindowManager wm) {
@@ -710,7 +670,8 @@ public class ProfilePageFragment extends ActiveFragment {
             placeholder_lp.gravity = Gravity.CENTER_HORIZONTAL;
             placeholder.setLayoutParams(placeholder_lp);
         } else {
-            ((LinearLayout.LayoutParams) wallLayout.getLayoutParams()).gravity = Gravity.CENTER;
+            ((RelativeLayout.LayoutParams) wallLayout.getLayoutParams()).width =
+                    LinearLayout.LayoutParams.MATCH_PARENT;
             wallLayout.adjustLayoutSize(orientation);
         }
     }

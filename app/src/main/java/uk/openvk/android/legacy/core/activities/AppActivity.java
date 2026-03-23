@@ -304,7 +304,11 @@ public class AppActivity extends NetworkFragmentActivity {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
         // Adjusting layout for Mobile UI and Tablet UI
+
+        ((OvkApplication) getApplicationContext()).config = newConfig;
+
         if(selectedFragment instanceof ActiveFragment) {
             ((ActiveFragment) selectedFragment).adjustLayout(newConfig.orientation);
         }
@@ -317,8 +321,6 @@ public class AppActivity extends NetworkFragmentActivity {
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             Global.fixWindowPadding(getWindow(), getTheme());
         }
-        ((OvkApplication) getApplicationContext()).config = newConfig;
-        super.onConfigurationChanged(newConfig);
     }
 
     private void createSlidingMenu(boolean isTablet) {
