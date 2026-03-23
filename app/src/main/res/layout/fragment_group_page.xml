@@ -50,7 +50,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#e3e4e6"
-            android:id="@+id/group_scrollview">
+            android:descendantFocusability="blocksDescendants"
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:isScrollContainer="false"
+            android:id="@+id/group_scrollview"
+            swiperefresh:ignore="UnusedAttribute">
 
             <LinearLayout
                 android:layout_width="match_parent"
