@@ -111,6 +111,19 @@ public class Global {
         }
     }
 
+    public boolean isWidescreen() {
+        if(ctx != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                return ctx.getResources().getConfiguration().smallestScreenWidthDp >= 400;
+            } else
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                        && (ctx.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
+                        >= Configuration.SCREENLAYOUT_SIZE_NORMAL;
+        } else {
+            return false;
+        }
+    }
+
     public long getHeapSize() {
         Runtime rt = Runtime.getRuntime();
         return rt.maxMemory();

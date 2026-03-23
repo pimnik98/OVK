@@ -323,8 +323,9 @@ public class NewsfeedFragment extends ActiveFragment {
             if(newsfeedView == null && view != null)
                 newsfeedView = view.findViewById(R.id.news_listview);
 
+            OvkApplication app = ((OvkApplication) getContext().getApplicationContext());
             if(newsfeedView != null) {
-                if (((OvkApplication) getContext().getApplicationContext()).isTablet) {
+                if (app.isTablet) {
                     int menuWidth = 0;
 
                     if(getActivity() instanceof AppActivity)
@@ -339,7 +340,8 @@ public class NewsfeedFragment extends ActiveFragment {
                     }
                 } else {
                     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        int sidePadding = (int) (60  * (getResources().getDisplayMetrics().density));
+                        int sidePadding =
+                                (int) ((app.isWidescreen ? 200 : 60) * (getResources().getDisplayMetrics().density));
                         newsfeedView.setPadding(sidePadding, 0, sidePadding, 0);
                     } else {
                         newsfeedView.setPadding(0, 0, 0, 0);
