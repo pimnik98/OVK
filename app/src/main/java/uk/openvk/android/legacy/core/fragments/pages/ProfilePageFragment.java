@@ -710,12 +710,7 @@ public class ProfilePageFragment extends ActiveFragment {
             placeholder_lp.gravity = Gravity.CENTER_HORIZONTAL;
             placeholder.setLayoutParams(placeholder_lp);
         } else {
-            if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                wallLayout.getLayoutParams().width = 600 * dp;
-                ((LinearLayout.LayoutParams) wallLayout.getLayoutParams()).gravity = Gravity.CENTER;
-            } else {
-                wallLayout.getLayoutParams().width = getResources().getDisplayMetrics().widthPixels;
-            }
+            ((LinearLayout.LayoutParams) wallLayout.getLayoutParams()).gravity = Gravity.CENTER;
             wallLayout.adjustLayoutSize(orientation);
         }
     }

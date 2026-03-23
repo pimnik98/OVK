@@ -97,16 +97,8 @@ public class WallLayout extends LinearLayout {
                     @Override
                     public void run() {
                         requestLayout();
-                        if (getWidth() >= (int)
-                                (600 * getContext().getResources().getDisplayMetrics().density)) {
-                            adjustLayoutSize(getContext().getResources().getConfiguration()
-                                    .orientation);
-                        } else {
-                            LinearLayout.LayoutParams layoutParams = new LayoutParams(getWidth(),
-                                    ViewGroup.LayoutParams.WRAP_CONTENT);
-                            layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-                            wallView.setLayoutParams(layoutParams);
-                        }
+                        adjustLayoutSize(getContext().getResources().getConfiguration()
+                                .orientation);
                     }
                 });
             }
@@ -334,13 +326,13 @@ public class WallLayout extends LinearLayout {
             wallView = findViewById(R.id.wall_listview);
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 LinearLayout.LayoutParams layoutParams = new LayoutParams((int)
-                        (400 * (getResources().getDisplayMetrics().scaledDensity)),
+                        (480 * (getResources().getDisplayMetrics().scaledDensity)),
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.gravity = Gravity.CENTER;
                 wallView.setLayoutParams(layoutParams);
             } else {
                 LinearLayout.LayoutParams layoutParams = new LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        getResources().getDisplayMetrics().widthPixels,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
                 wallView.setLayoutParams(layoutParams);
