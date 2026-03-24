@@ -361,14 +361,16 @@ public class PhotoViewerActivity extends NetworkActivity {
                         if (getApplicationContext().checkSelfPermission(
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                             destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+                            Toast.makeText(getApplicationContext(),
+                                    R.string.photo_save_ok, Toast.LENGTH_LONG).show();
                         } else {
                             Global.allowPermissionDialog(this, false);
                         }
                     } else {
                         destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+                        Toast.makeText(getApplicationContext(),
+                                R.string.photo_save_ok, Toast.LENGTH_LONG).show();
                     }
-                    Toast.makeText(getApplicationContext(),
-                            R.string.photo_save_ok, Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         Global.allowPermissionDialog(this, false);

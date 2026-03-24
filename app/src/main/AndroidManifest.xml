@@ -29,6 +29,7 @@
         tools:replace="android:label"
         tools:ignore="UnusedAttribute"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:installLocation="auto">
 
         <activity android:name=".core.activities.MainActivity"
