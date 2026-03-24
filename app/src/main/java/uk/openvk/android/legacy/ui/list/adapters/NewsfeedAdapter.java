@@ -260,34 +260,10 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                             .replaceAll("&gt;", ">")
                             .replaceAll("&amp;", "&")
                             .replaceAll("&quot;", "\"");
-                    String[] lines = text.split("\r\n|\r|\n");
-                    StringBuilder text_llines = new StringBuilder();
-                    if (lines.length > 8) {
-                        for (int line_no = 0; line_no < 8; line_no++) {
-                            if (line_no == 7) {
-                                if (lines[line_no].length() > 0)
-                                    text_llines.append(String.format("%s...", lines[line_no]));
-                            } else if (line_no == 6) {
-                                if (lines[line_no + 1].length() == 0) {
-                                    text_llines.append(String.format("%s", lines[line_no]));
-                                } else {
-                                    text_llines.append(String.format("%s\r\n", lines[line_no]));
-                                }
-                            } else {
-                                text_llines.append(String.format("%s\r\n", lines[line_no]));
-                            }
-                        }
-                        post_text.setText(Global.formatLinksAsHtml(text_llines.toString()));
-                        expand_text_btn.setVisibility(View.VISIBLE);
-                    } else {
-                        OvkExpandableText expandableText = Global.formatLinksAsHtml(text, 500);
-                        post_text.setText(expandableText.sp_text);
-                        if (expandableText.expandable) {
-                            expand_text_btn.setVisibility(View.VISIBLE);
-                        } else {
-                            expand_text_btn.setVisibility(View.GONE);
-                        }
-                    }
+
+                    OvkExpandableText expandableText = Global.formatLinksAsHtml(shrinkPostText(text), 500);
+                    post_text.setText(expandableText.sp_text);
+                    expand_text_btn.setVisibility(expandableText.expandable ? View.VISIBLE : View.GONE);
                 } else {
                     post_text.setVisibility(View.GONE);
                     expand_text_btn.setVisibility(View.GONE);
@@ -295,12 +271,9 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
                 if(item.attachments.size() > 0) {
                     post_attach_container.loadAttachments(
-                            ctx,
-                            items,
-                            item,
-                            imageLoader,
-                            item.attachments,
-                            position);
+                            ctx, items, item, imageLoader,
+                            item.attachments, position
+                    );
                 } else {
                     post_attach_container.setVisibility(View.GONE);
                 }
@@ -310,38 +283,20 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
                     original_poster_name_str = retrivePosterName(item.repost.newsfeed_item);
                     original_poster_name.setText(original_poster_name_str);
-
                     original_post_info.setText(Global.formatTimestamp(ctx, item.repost.newsfeed_item.dt.getTime()));
+
                     String repost_text = item.repost.newsfeed_item.text.replaceAll("&lt;", "<")
                             .replaceAll("&gt;", ">")
                             .replaceAll("&amp;", "&").replaceAll("&quot;", "\"");
+
                     if(repost_text.length() > 0) {
                         String[] repost_lines = item.repost.newsfeed_item.text.split("\r\n|\r|\n");
-                        if (repost_lines.length > 8 && item.repost.newsfeed_item.text.length() <= 500) {
-                            StringBuilder text_llines = new StringBuilder();
-                            for (int line_no = 0; line_no < 8; line_no++) {
-                                if (line_no == 7) {
-                                    if (repost_lines[line_no].length() > 0)
-                                        text_llines.append(String.format("%s...", repost_lines[line_no]));
-                                } else if (line_no == 6) {
-                                    if (repost_lines[line_no + 1].length() == 0) {
-                                        text_llines.append(String.format("%s", repost_lines[line_no]));
-                                    } else {
-                                        text_llines.append(String.format("%s\r\n", repost_lines[line_no]));
-                                    }
-                                } else {
-                                    text_llines.append(String.format("%s\r\n", repost_lines[line_no]));
-                                }
-                            }
-                            original_post_text.setText(Global.formatLinksAsHtml(text_llines.toString()));
-                            repost_expand_text_btn.setVisibility(View.VISIBLE);
-                        } else if (repost_text.length() > 500) {
-                            original_post_text.setText(String.format("%s...", repost_text.substring(0, 500)));
-                            repost_expand_text_btn.setVisibility(View.VISIBLE);
-                        } else {
-                            original_post_text.setText(repost_text);
-                            repost_expand_text_btn.setVisibility(View.GONE);
-                        }
+                        String post_text = shrinkPostText(item.repost.newsfeed_item.text);
+                        original_post_text.setText(Global.formatLinksAsHtml(post_text));
+                        repost_expand_text_btn.setVisibility(
+                                repost_lines.length > 8 || repost_text.length() > 500 ?
+                                        View.VISIBLE : View.GONE
+                        );
                     } else {
                         original_post_text.setVisibility(View.GONE);
                     }
@@ -472,6 +427,29 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                     openWallComments(ctx, position, view);
                 }
             });
+        }
+
+        private String shrinkPostText(String text) {
+            String[] lines = text.split("\r\n|\r|\n");
+            StringBuilder text_llines = new StringBuilder();
+            if(lines.length > 8) {
+                for (int line_no = 0; line_no < 8; line_no++) {
+                    if (line_no == 7) {
+                        if (lines[line_no].length() > 0)
+                            text_llines.append(String.format("%s...", lines[line_no]));
+                    } else if (line_no == 6) {
+                        text_llines.append(lines[line_no + 1].length() == 0 ?
+                                String.format("%s", lines[line_no]) : String.format("%s\r\n", lines[line_no]));
+                    } else {
+                        text_llines.append(String.format("%s\r\n", lines[line_no]));
+                    }
+                }
+                return text_llines.toString();
+            } else if (text.length() > 500) {
+                return String.format("%s...", text.substring(0, 500));
+            } else {
+                return text;
+            }
         }
 
         private String retrivePosterName(WallPost item) {
