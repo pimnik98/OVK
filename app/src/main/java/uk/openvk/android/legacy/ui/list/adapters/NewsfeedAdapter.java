@@ -30,6 +30,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.util.LruCache;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -261,9 +262,10 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                             .replaceAll("&amp;", "&")
                             .replaceAll("&quot;", "\"");
 
-                    OvkExpandableText expandableText = Global.formatLinksAsHtml(shrinkPostText(text), 500);
+                    OvkExpandableText expandableText = Global.formatLinksAsHtml(shrinkPostText(text), 600);
                     post_text.setText(expandableText.sp_text);
                     expand_text_btn.setVisibility(expandableText.expandable ? View.VISIBLE : View.GONE);
+                    post_text.setMovementMethod(LinkMovementMethod.getInstance());
                 } else {
                     post_text.setVisibility(View.GONE);
                     expand_text_btn.setVisibility(View.GONE);
@@ -445,8 +447,8 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                     }
                 }
                 return text_llines.toString();
-            } else if (text.length() > 500) {
-                return String.format("%s...", text.substring(0, 500));
+            } else if (text.length() > 600) {
+                return String.format("%s...", text.substring(0, 600));
             } else {
                 return text;
             }
