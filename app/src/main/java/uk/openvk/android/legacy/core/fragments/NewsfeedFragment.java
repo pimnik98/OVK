@@ -139,6 +139,9 @@ public class NewsfeedFragment extends ActiveFragment {
         super.onPrepareOptionsMenu(menu);
         if(menu != null) {
             if (menu.size() > 0) {
+                if(getActivity() instanceof NetworkFragmentActivity)
+                    account = ((NetworkFragmentActivity) getActivity()).ovk_api.account;
+
                 if (account == null || account.id == 0) {
                     menu.findItem(R.id.newpost).setVisible(false);
                 }
@@ -205,22 +208,8 @@ public class NewsfeedFragment extends ActiveFragment {
 
         if(cache)
             NewsfeedCacheDB.putPosts(ctx, this.wallPosts, clear);
-        adjustLayout(getContext().getResources().getConfiguration().orientation);
-    }
 
-    public void updateItem(WallPost item, int position) {
-        if(newsfeedAdapter != null) {
-            newsfeedView = view.findViewById(R.id.news_listview);
-            wallPosts.set(position, item);
-            newsfeedAdapter.notifyItemChanged(position);
-        }
-    }
-
-    public void updateAllItems() {
-        if(newsfeedAdapter != null) {
-            newsfeedView = (RecyclerView) view.findViewById(R.id.news_listview);
-            newsfeedAdapter.notifyDataSetChanged();
-        }
+        adjustLayout(((OvkApplication)(getContext().getApplicationContext())).config.orientation);
     }
 
     public void loadAvatars() {
@@ -261,37 +250,13 @@ public class NewsfeedFragment extends ActiveFragment {
         }
     }
 
-    private void loadPhotos() {
+    public void loadPhotos() {
         newsfeedView = view.findViewById(R.id.news_listview);
         try {
             newsfeedAdapter.notifyDataSetChanged();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    public void setScrollingPositions(final Context ctx, final boolean load_photos,
-                                      final boolean infinity_scroll) {
-        loading_more_posts = false;
-        if(load_photos) {
-            loadPhotos();
-        }
-        final InfinityNestedScrollView scrollView = view.findViewById(R.id.scrollView);
-        /*scrollView.setOnScrollListener(new OnNestedScrollListener() {
-            @Override
-            public void onScroll(InfinityNestedScrollView infinityScrollView, int x, int y, int old_x, int old_y) {
-                View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
-                int diff = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
-                if (!loading_more_posts) {
-                    if (diff == 0) {
-                        if (ctx instanceof AppActivity) {
-                            loading_more_posts = true;
-                            ((AppActivity) ctx).loadMoreNews();
-                        }
-                    }
-                }
-            }
-        });*/
     }
 
     public int getCount() {
@@ -362,6 +327,7 @@ public class NewsfeedFragment extends ActiveFragment {
     public void refreshAdapter() {
         if(newsfeedAdapter != null) {
             newsfeedAdapter.notifyDataSetChanged();
+            adjustLayout(((OvkApplication)(getContext().getApplicationContext())).config.orientation);
         }
     }
 
@@ -377,14 +343,13 @@ public class NewsfeedFragment extends ActiveFragment {
             }
 
             createAdapter(ctx, ovk_api.newsfeed.getWallPosts(), true, clear);
-            adjustLayout(getResources().getConfiguration().orientation);
+            adjustLayout(((OvkApplication)(getContext().getApplicationContext())).config.orientation);
             if(ovk_api.newsfeed.getWallPosts().size() > 0) {
                 return;
             }
             loading_more_posts = true;
             if(clear)
                 newsfeedView.scrollToPosition(0);
-
         }
     }
 

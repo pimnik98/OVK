@@ -311,7 +311,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                     original_poster_name_str = retrivePosterName(item.repost.newsfeed_item);
                     original_poster_name.setText(original_poster_name_str);
 
-                    original_post_info.setText(item.repost.time);
+                    original_post_info.setText(Global.formatTimestamp(ctx, item.repost.newsfeed_item.dt.getTime()));
                     String repost_text = item.repost.newsfeed_item.text.replaceAll("&lt;", "<")
                             .replaceAll("&gt;", ">")
                             .replaceAll("&amp;", "&").replaceAll("&quot;", "\"");
@@ -321,12 +321,19 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
                             StringBuilder text_llines = new StringBuilder();
                             for (int line_no = 0; line_no < 8; line_no++) {
                                 if (line_no == 7) {
-                                    text_llines.append(String.format("%s...", repost_lines[line_no]));
+                                    if (repost_lines[line_no].length() > 0)
+                                        text_llines.append(String.format("%s...", repost_lines[line_no]));
+                                } else if (line_no == 6) {
+                                    if (repost_lines[line_no + 1].length() == 0) {
+                                        text_llines.append(String.format("%s", repost_lines[line_no]));
+                                    } else {
+                                        text_llines.append(String.format("%s\r\n", repost_lines[line_no]));
+                                    }
                                 } else {
                                     text_llines.append(String.format("%s\r\n", repost_lines[line_no]));
                                 }
                             }
-                            original_post_text.setText(text_llines.toString());
+                            original_post_text.setText(Global.formatLinksAsHtml(text_llines.toString()));
                             repost_expand_text_btn.setVisibility(View.VISIBLE);
                         } else if (repost_text.length() > 500) {
                             original_post_text.setText(String.format("%s...", repost_text.substring(0, 500)));
@@ -470,16 +477,21 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
         private String retrivePosterName(WallPost item) {
             String name = "(Unknown author)";
 
-            if(item.author == null)
-                return name;
-
             String owner_name = "";
             String author_name = "";
 
-            if(item.author instanceof User) {
+            if(item.author == null && item.owner == null)
+                return name;
+            else if(item.author == null)
+                item.author = item.owner;
+
+            if (item.author instanceof User) {
                 User user = ((User) item.author);
-                author_name = String.format("%s %s", user.first_name, user.last_name);
-            } else if(item.author instanceof Group) {
+                if(user.first_name != null && user.last_name != null)
+                    author_name = String.format("%s %s", user.first_name, user.last_name);
+                else if(user.first_name != null)
+                    author_name = user.first_name;
+            } else if (item.author instanceof Group) {
                 Group group = ((Group) item.author);
                 author_name = group.name;
             }
@@ -538,7 +550,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
             }
         }
 
-        public void repost(int position) {
+        void repost(int position) {
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             final ArrayList<String> functions = new ArrayList<>();
             builder.setTitle(R.string.repost_dlg_title);

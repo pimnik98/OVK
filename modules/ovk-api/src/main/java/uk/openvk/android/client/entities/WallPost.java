@@ -343,6 +343,8 @@ public class WallPost extends LazyEntity implements Parcelable {
     public void resolveAuthorsFromSQLite(SQLiteDatabase users_db, SQLiteDatabase groups_db) {
         author = resolveAuthorsFromSQLite(users_db, groups_db, author.id);
         owner = resolveAuthorsFromSQLite(users_db, groups_db, owner.id);
+        if(owner.id == author.id)
+            owner = author;
     }
 
     public LazyEntity resolveAuthorsFromSQLite(SQLiteDatabase users_db, SQLiteDatabase groups_db, long author_id) {
@@ -410,16 +412,24 @@ public class WallPost extends LazyEntity implements Parcelable {
                 repost = new RepostInfo(values.getAsLong("time"), ctx);
                 repost.newsfeed_item = new WallPost();
                 repost.newsfeed_item.post_id = values.getAsInteger("post_id");
+
                 if(repost.newsfeed_item.author == null)
                     repost.newsfeed_item.author = values.getAsInteger("author_id") > 0 ? new User() : new Group();
+
                 repost.newsfeed_item.author.id = values.getAsInteger("author_id");
+
                 if(repost.newsfeed_item.owner == null)
                     repost.newsfeed_item.owner = values.getAsInteger("owner_id") > 0 ? new User() : new Group();
+
                 repost.newsfeed_item.owner.id = values.getAsInteger("owner_id");
                 repost.newsfeed_item.attachments = new ArrayList<>();
                 if(values.getAsString("repost_attachments") != null)
                     deserializeAttachments(values.getAsString("attachments"), repost.newsfeed_item);
+
                 repost.newsfeed_item.text = values.getAsString("text");
+                repost.newsfeed_item.dt_sec = values.getAsLong("time");
+                repost.newsfeed_item.dt = new Date(values.getAsLong("time"));
+
                 repost.newsfeed_item.resolveAuthorsFromSQLite(users_db, groups_db);
             }
         }

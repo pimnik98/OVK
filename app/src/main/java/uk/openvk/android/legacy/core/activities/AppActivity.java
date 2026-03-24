@@ -160,9 +160,11 @@ public class AppActivity extends NetworkFragmentActivity {
                         global_prefs.getBoolean("notifyLED", true), global_prefs
                         .getBoolean("notifyVibrate", true), global_prefs.getBoolean("notifySound", true),
                         global_prefs.getString("notifyRingtone", ""));
+
         notifMan = ((OvkApplication) getApplicationContext()).notifMan;
         notifMan.createLongPollChannel();
         notifMan.createAudioPlayerChannel();
+
         if(activity_menu == null) {
             popup_menu  = new PopupMenu(this, null);
             activity_menu = popup_menu.getMenu();
@@ -215,6 +217,7 @@ public class AppActivity extends NetworkFragmentActivity {
                 if(selectedFragment instanceof NewsfeedFragment) {
                     ((NewsfeedFragment) selectedFragment).autoLoad = true;
                 }
+
                 progressLayout.setVisibility(View.GONE);
                 findViewById(R.id.app_fragment).setVisibility(View.VISIBLE);
             }
@@ -523,7 +526,6 @@ public class AppActivity extends NetworkFragmentActivity {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             actionBar = findViewById(R.id.actionbar);
             actionBar.removeAllActions();
-            //createActionPopupMenu(activity_menu, false);
         }
         global_prefs_editor = global_prefs.edit();
         if(is_menu) {
@@ -531,7 +533,10 @@ public class AppActivity extends NetworkFragmentActivity {
                 if (!((OvkApplication) getApplicationContext()).isTablet) {
                     menu.toggle(true);
                 }
-                if (activity_menu != null) {
+                if(position == 7) {
+                    getMenuInflater().inflate(R.menu.newsfeed, activity_menu);
+                    onPrepareOptionsMenu(activity_menu);
+                } else if (activity_menu != null) {
                     activity_menu.clear();
                 }
             } catch (Exception ignored) {
@@ -587,6 +592,7 @@ public class AppActivity extends NetworkFragmentActivity {
                     ovk_api.newsfeed = new Newsfeed();
                     newsfeed_count = 25;
                 }
+
                 ((NewsfeedFragment) selectedFragment).autoLoad = true;
                 progressLayout.setVisibility(View.GONE);
                 findViewById(R.id.app_fragment).setVisibility(View.VISIBLE);
@@ -624,11 +630,14 @@ public class AppActivity extends NetworkFragmentActivity {
                         String.format("%s %s", ovk_api.account.first_name, ovk_api.account.last_name);
                 instance_prefs_editor.putString("profile_name", profile_name);
                 instance_prefs_editor.commit();
+
                 if(selectedFragment instanceof MainSettingsFragment) {
                     ((MainSettingsFragment) selectedFragment).setAccount(ovk_api.account);
                 }
+
                 slidingmenuLayout.setProfileName(profile_name);
                 ArrayList<WallPost> cached_posts = NewsfeedCacheDB.getPostsList(this);
+
                 if(cached_posts != null && cached_posts.size() > 0) {
                     if(selectedFragment instanceof NewsfeedFragment) {
                         ((NewsfeedFragment) selectedFragment).loadFromCache(this);
@@ -639,13 +648,17 @@ public class AppActivity extends NetworkFragmentActivity {
                     ovk_api.newsfeed.get(ovk_api.wrapper, newsfeed_count);
                 }
                 ovk_api.messages.getLongPollServer(ovk_api.wrapper);
+
                 if(selectedFragment instanceof NewsfeedFragment) {
                     ((NewsfeedFragment) selectedFragment).loadAccount(ovk_api);
                 }
+
                 ovk_api.account.getCounters(ovk_api.wrapper);
                 ovk_api.users.getAccountUser(ovk_api.wrapper, ovk_api.account.id);
+
                 slidingmenuLayout.loadAccountAvatar(ovk_api.account,
                         global_prefs.getString("photos_quality", ""));
+
                 if(ovk_api.messages == null) {
                     ovk_api.messages = new Messages();
                 }
@@ -658,6 +671,7 @@ public class AppActivity extends NetworkFragmentActivity {
                 slidingMenuArray.set(4, messages_item);
                 SlidingMenuAdapter slidingMenuAdapter = new SlidingMenuAdapter(this,
                         slidingMenuArray);
+
                 if(!((OvkApplication) getApplicationContext()).isTablet) {
                     ((ListView) menu.getMenu().findViewById(R.id.menu_view))
                             .setAdapter(slidingMenuAdapter);
@@ -665,11 +679,13 @@ public class AppActivity extends NetworkFragmentActivity {
                     ((ListView) slidingmenuLayout.findViewById(R.id.menu_view))
                             .setAdapter(slidingMenuAdapter);
                 }
+
                 try {
                     ab_layout.setNotificationCount(ovk_api.account.counters);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+
             } else if (message == HandlerMessages.NEWSFEED_GET ||
                     message == HandlerMessages.NEWSFEED_GET_GLOBAL ||
                     message == HandlerMessages.NEWSFEED_GET_MORE ||
@@ -689,6 +705,7 @@ public class AppActivity extends NetworkFragmentActivity {
                     else
                         setErrorPage(data, "ovk", message, false);
                 }
+
             } else if (message == HandlerMessages.MESSAGES_GET_LONGPOLL_SERVER) {
                 ovk_api.messages.getConversations(ovk_api.wrapper);
                 activateLongPollService();
@@ -697,8 +714,7 @@ public class AppActivity extends NetworkFragmentActivity {
                         global_prefs.getString("photos_quality", ""));
             } else if (message == HandlerMessages.NEWSFEED_ATTACHMENTS) {
                 if(selectedFragment instanceof NewsfeedFragment) {
-                    ((NewsfeedFragment) selectedFragment)
-                            .setScrollingPositions(this, true, true);
+                    ((NewsfeedFragment) selectedFragment).loadPhotos();
                 }
             } else if(message == HandlerMessages.NEWSFEED_AVATARS) {
                 if(selectedFragment instanceof NewsfeedFragment) {
@@ -706,8 +722,7 @@ public class AppActivity extends NetworkFragmentActivity {
                 }
             } else if (message == HandlerMessages.WALL_ATTACHMENTS) {
                 if(selectedFragment instanceof ProfilePageFragment) {
-                    ((WallLayout) selectedFragment.getView().findViewById(R.id.wall_layout))
-                            .setScrollingPositions();
+                    ((NewsfeedFragment) selectedFragment).loadPhotos();
                 }
             } else if(message == HandlerMessages.VIDEO_THUMBNAILS) {
                 if(selectedFragment instanceof NewsfeedFragment) {
