@@ -73,7 +73,8 @@ public class CrashReporterActivity extends BaseCrashReportDialog
             e.printStackTrace();
         }
 
-        ((EditText) view.findViewById(R.id.crash_report)).setKeyListener(null);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            ((EditText) view.findViewById(R.id.crash_report)).setKeyListener(null);
         dialogBuilder.setView(view);
         dialog = new OvkAlertDialog(this);
         dialog.build(dialogBuilder, getResources().getString(R.string.crash_title), null, view);
