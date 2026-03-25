@@ -71,7 +71,11 @@ public class CacheDatabaseTables {
                         "attachments blob, " +
                         "contains_repost bit, " +
                         "repost_id bigint, " +
-                        "FOREIGN KEY(repost_id) REFERENCES wall(post_id)" +
+                        "repost_author_id bigint, " +
+                        "repost_owner_id bigint, " +
+                        "FOREIGN KEY(repost_id) REFERENCES wall(post_id)," +
+                        "FOREIGN KEY(repost_author_id) REFERENCES wall(author_id)," +
+                        "FOREIGN KEY(repost_owner_id) REFERENCES wall(owner_id)," +
                  ")"
                 );
         db.execSQL(

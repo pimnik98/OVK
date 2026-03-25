@@ -693,6 +693,8 @@
     <string name="posted_successfully">Запись опубликована.</string>
 
     <string name="debug_menu">Меню отладки</string>
+    <string name="sett_debug">Отладка</string>
+    <string name="sett_behavior">Поведение</string>
     <string name="api_logging">Журналирование API</string>
     <string name="write_logs_to_file">Запись журнала в файл</string>
     <string name="send_bug_report">Отправить баг-репорт</string>
@@ -704,6 +706,7 @@
     <string name="experimental_features">Экспериментальные функции</string>
     <string name="experimental_features_description">Используйте только на свой страх и риск, так как они могут быть нестабильными или неработоспособными</string>
     <string name="uil_debugging">Отладка загрузчика фотографий UIL</string>
+    <string name="reset_personal_db">Сбросить персональные БД</string>
     <string name="cause_app_to_crash">Вызвать сбой приложения</string>
     <string name="terminate">Завершить процесс</string>
     <string name="dnd_mode">Режим \"Не беспокоить\"</string>

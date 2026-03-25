@@ -77,14 +77,15 @@ public class CrashReporterActivity extends BaseCrashReportDialog
         dialogBuilder.setView(view);
         dialog = new OvkAlertDialog(this);
         dialog.build(dialogBuilder, getResources().getString(R.string.crash_title), null, view);
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getResources().getString(R.string.show_crash_report),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        showReport();
-                    }
-                });
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            dialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    getResources().getString(R.string.show_crash_report),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            showReport();
+                        }
+                    });
         dialog.setButton(DialogInterface.BUTTON_NEUTRAL, getResources().getString(R.string.restart_app),
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -98,7 +99,7 @@ public class CrashReporterActivity extends BaseCrashReportDialog
                 finish();
             }
         });
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
@@ -124,6 +125,9 @@ public class CrashReporterActivity extends BaseCrashReportDialog
     }
 
     private void writeLog() throws IOException {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+            return;
+
         Process process = Runtime.getRuntime().exec("logcat -d");
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
@@ -152,17 +156,17 @@ public class CrashReporterActivity extends BaseCrashReportDialog
                 "Disabled";
 
         String header = String.format(
-                        "OpenVK Legacy for Android %s (%s)\r\n" +
-                        "----------------------- DEVICE INFO ------------------------" +
+                "OpenVK Legacy for Android %s (%s)\r\n" +
+                        "------------------------------------ DEVICE INFO ------------------------------------" +
                         "\r\nModel: %s %s (codename: %s)" +
                         "\r\nAndroid %s (API %s)" +
                         "\r\nBuild fingerprint: %s\r\n" +
-                        "----------------------- APP SETTINGS -----------------------" +
+                        "----------------------------------- APP SETTINGS ------------------------------------" +
                         "\r\nInstance: %s" +
                         "\r\nHTTPS: %s" +
                         "\r\nProxy: %s" +
                         "\r\nTablet UI: %s\r\n" +
-                        "----------------------- START OF LOG -----------------------\r\n",
+                        "----------------------------------- START OF LOG ------------------------------------\r\n",
                 ovk.version, BuildConfig.GITHUB_COMMIT,
                 Build.BRAND, Build.MODEL, Build.DEVICE,
                 Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.FINGERPRINT,
