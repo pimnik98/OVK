@@ -172,7 +172,7 @@ public class PhotoAlbumActivity extends NetworkActivity {
         //super.setTranslucentStatusBar();
         if(tintManager == null)
             tintManager = new SystemBarTintManager(this);
-            tintManager.setStatusBarTintEnabled(Build.VERSION.SDK_INT < 35);
+        tintManager.setStatusBarTintEnabled(Build.VERSION.SDK_INT < 35);
     }
 
     @Override
