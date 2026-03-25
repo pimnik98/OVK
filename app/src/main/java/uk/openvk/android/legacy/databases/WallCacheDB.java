@@ -321,48 +321,12 @@ public class WallCacheDB extends CacheDatabase {
             try {
                 for (int i = 0; i < wallPosts.size(); i++) {
                     WallPost post = wallPosts.get(i);
-                    if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
-                        post.convertEntityToSQLite(posts_db);
-                        if (post.author != null) {
-                            if (post.author instanceof User) {
-                                if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
-                                    ContentValues user_values = new ContentValues();
-                                    user_values.put("user_id", post.author.id);
-                                    user_values.put("first_name", ((User) post.author).first_name);
-                                    user_values.put("last_name", ((User) post.author).last_name);
-                                    user_values.put("sex", ((User) post.author).sex);
-                                    users_db.insert("users", null, user_values);
-                                }
-                            } else if (post.author instanceof Group) {
-                                if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
-                                    ContentValues group_values = new ContentValues();
-                                    group_values.put("group_id", post.author.id);
-                                    group_values.put("name", ((Group) post.author).name);
-                                    groups_db.insert("groups", null, group_values);
-                                }
-                            }
-                        }
-
-                        if (post.owner != null) {
-                            if (post.owner instanceof User) {
-                                if (!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
-                                    ContentValues user_values = new ContentValues();
-                                    user_values.put("user_id", post.owner.id);
-                                    user_values.put("first_name", ((User) post.owner).first_name);
-                                    user_values.put("last_name", ((User) post.owner).last_name);
-                                    user_values.put("sex", ((User) post.owner).sex);
-                                    users_db.insert("users", null, user_values);
-                                }
-                            } else if (post.owner instanceof Group) {
-                                if (!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
-                                    ContentValues group_values = new ContentValues();
-                                    group_values.put("group_id", post.owner.id);
-                                    group_values.put("name", ((Group) post.owner).name);
-                                    groups_db.insert("groups", null, group_values);
-                                }
-                            }
-                        }
+                    post.convertEntityToSQLite(posts_db);
+                    if(post.contains_repost) {
+                        post.repost.newsfeed_item.convertEntityToSQLite(posts_db);
+                        writePostAuthorsInfo(ctx, post.repost.newsfeed_item, users_db, groups_db);
                     }
+                    writePostAuthorsInfo(ctx, post, users_db, groups_db);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -377,6 +341,48 @@ public class WallCacheDB extends CacheDatabase {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private static void writePostAuthorsInfo(Context ctx, WallPost post, SQLiteDatabase users_db, SQLiteDatabase groups_db) {
+        if (post.author != null) {
+            if (post.author instanceof User) {
+                if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
+                    ContentValues user_values = new ContentValues();
+                    user_values.put("user_id", post.author.id);
+                    user_values.put("first_name", ((User) post.author).first_name);
+                    user_values.put("last_name", ((User) post.author).last_name);
+                    user_values.put("sex", ((User) post.author).sex);
+                    users_db.insert("users", null, user_values);
+                }
+            } else if (post.author instanceof Group) {
+                if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
+                    ContentValues group_values = new ContentValues();
+                    group_values.put("group_id", post.author.id);
+                    group_values.put("name", ((Group) post.author).name);
+                    groups_db.insert("groups", null, group_values);
+                }
+            }
+        }
+
+        if (post.owner != null) {
+            if (post.owner instanceof User) {
+                if (!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
+                    ContentValues user_values = new ContentValues();
+                    user_values.put("user_id", post.owner.id);
+                    user_values.put("first_name", ((User) post.owner).first_name);
+                    user_values.put("last_name", ((User) post.owner).last_name);
+                    user_values.put("sex", ((User) post.owner).sex);
+                    users_db.insert("users", null, user_values);
+                }
+            } else if (post.owner instanceof Group) {
+                if (!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
+                    ContentValues group_values = new ContentValues();
+                    group_values.put("group_id", post.owner.id);
+                    group_values.put("name", ((Group) post.owner).name);
+                    groups_db.insert("groups", null, group_values);
+                }
+            }
         }
     }
 

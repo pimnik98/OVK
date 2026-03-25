@@ -206,21 +206,21 @@ public class NewsfeedCacheDB extends CacheDatabase {
                         }
                     }
 
-                    if (post.owner != null && post.author != null && post.owner.id != post.author.id) {
+                    if (post.owner != null) {
                         if (post.owner instanceof User) {
                             if(!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
                                 ContentValues user_values = new ContentValues();
-                                user_values.put("user_id", post.owner.id);
-                                user_values.put("first_name", ((User) post.owner).first_name);
-                                user_values.put("last_name", ((User) post.owner).last_name);
-                                user_values.put("sex", ((User) post.owner).sex);
+                                user_values.put("user_id", post.author.id);
+                                user_values.put("first_name", ((User) post.author).first_name);
+                                user_values.put("last_name", ((User) post.author).last_name);
+                                user_values.put("sex", ((User) post.author).sex);
                                 users_db.insert("users", null, user_values);
                             }
                         } else if (post.owner instanceof Group) {
                             if(!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
                                 ContentValues group_values = new ContentValues();
-                                group_values.put("group_id", post.owner.id);
-                                group_values.put("name", ((Group) post.owner).name);
+                                group_values.put("group_id", post.author.id);
+                                group_values.put("name", ((Group) post.author).name);
                                 groups_db.insert("groups", null, group_values);
                             }
                         }
@@ -288,7 +288,20 @@ public class NewsfeedCacheDB extends CacheDatabase {
                     if(clear) {
                         ContentValues newsfeed_values = new ContentValues();
                         newsfeed_values.put("post_id", post.post_id);
-                        newsfeed_values.put("time", post.dt.getTime());
+                        if(post.owner != null) {
+                            newsfeed_values.put("owner_id", post.owner.id);
+                            if(post.author == null)
+                                newsfeed_values.put("author_id", post.owner.id);
+                        }
+
+                        if(post.author != null) {
+                            newsfeed_values.put("author_id", post.author.id);
+                            newsfeed_values.put("owner_id", post.author.id);
+                        }
+                        if(post.dt != null)
+                            newsfeed_values.put("time", post.dt.getTime());
+                        else
+                            newsfeed_values.put("time", post.dt_sec * 1000);
                         posts_db.insert("newsfeed", null, newsfeed_values);
                     }
 
@@ -302,45 +315,11 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
                     if(post.getEntityType() != LazyEntity.SLEEPING_ENTITY) {
                         post.convertEntityToSQLite(posts_db);
-                        if (post.author != null) {
-                            if (post.author instanceof User) {
-                                if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
-                                    ContentValues user_values = new ContentValues();
-                                    user_values.put("user_id", post.author.id);
-                                    user_values.put("first_name", ((User) post.author).first_name);
-                                    user_values.put("last_name", ((User) post.author).last_name);
-                                    user_values.put("sex", ((User) post.author).sex);
-                                    users_db.insert("users", null, user_values);
-                                }
-                            } else if (post.author instanceof Group) {
-                                if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
-                                    ContentValues group_values = new ContentValues();
-                                    group_values.put("group_id", post.author.id);
-                                    group_values.put("name", ((Group) post.author).name);
-                                    groups_db.insert("groups", null, group_values);
-                                }
-                            }
+                        if(post.contains_repost) {
+                            post.repost.newsfeed_item.convertEntityToSQLite(posts_db);
+                            writePostAuthorsInfo(ctx, post.repost.newsfeed_item, users_db, groups_db);
                         }
-
-                        if (post.owner != null) {
-                            if (post.owner instanceof User) {
-                                if (!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
-                                    ContentValues user_values = new ContentValues();
-                                    user_values.put("user_id", post.owner.id);
-                                    user_values.put("first_name", ((User) post.owner).first_name);
-                                    user_values.put("last_name", ((User) post.owner).last_name);
-                                    user_values.put("sex", ((User) post.owner).sex);
-                                    users_db.insert("users", null, user_values);
-                                }
-                            } else if (post.owner instanceof Group) {
-                                if (!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
-                                    ContentValues group_values = new ContentValues();
-                                    group_values.put("group_id", post.owner.id);
-                                    group_values.put("name", ((Group) post.owner).name);
-                                    groups_db.insert("groups", null, group_values);
-                                }
-                            }
-                        }
+                        writePostAuthorsInfo(ctx, post, users_db, groups_db);
                     }
                 }
             } catch (Exception ex) {
@@ -356,6 +335,48 @@ public class NewsfeedCacheDB extends CacheDatabase {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private static void writePostAuthorsInfo(Context ctx, WallPost post, SQLiteDatabase users_db, SQLiteDatabase groups_db) {
+        if (post.author != null) {
+            if (post.author instanceof User) {
+                if(!UsersCacheDB.isExist(ctx, users_db, post.author.id)) {
+                    ContentValues user_values = new ContentValues();
+                    user_values.put("user_id", post.author.id);
+                    user_values.put("first_name", ((User) post.author).first_name);
+                    user_values.put("last_name", ((User) post.author).last_name);
+                    user_values.put("sex", ((User) post.author).sex);
+                    users_db.insert("users", null, user_values);
+                }
+            } else if (post.author instanceof Group) {
+                if(!GroupsCacheDB.isExist(ctx, groups_db, post.author.id)) {
+                    ContentValues group_values = new ContentValues();
+                    group_values.put("group_id", post.author.id);
+                    group_values.put("name", ((Group) post.author).name);
+                    groups_db.insert("groups", null, group_values);
+                }
+            }
+        }
+
+        if (post.owner != null) {
+            if (post.owner instanceof User) {
+                if (!UsersCacheDB.isExist(ctx, users_db, post.owner.id)) {
+                    ContentValues user_values = new ContentValues();
+                    user_values.put("user_id", post.owner.id);
+                    user_values.put("first_name", ((User) post.owner).first_name);
+                    user_values.put("last_name", ((User) post.owner).last_name);
+                    user_values.put("sex", ((User) post.owner).sex);
+                    users_db.insert("users", null, user_values);
+                }
+            } else if (post.owner instanceof Group) {
+                if (!GroupsCacheDB.isExist(ctx, groups_db, post.owner.id)) {
+                    ContentValues group_values = new ContentValues();
+                    group_values.put("group_id", post.owner.id);
+                    group_values.put("name", ((Group) post.owner).name);
+                    groups_db.insert("groups", null, group_values);
+                }
+            }
         }
     }
 

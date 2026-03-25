@@ -30,8 +30,12 @@ public class CacheDatabaseTables {
         db.execSQL(
                 "CREATE TABLE `newsfeed` (" +
                         "post_id bigint, " +
+                        "author_id bigint, " +
+                        "owner_id bigint, " +
                         "time bigint, " +
                         "FOREIGN KEY(post_id) REFERENCES wall(post_id) ON DELETE cascade," +
+                        "FOREIGN KEY(author_id) REFERENCES wall(author_id) ON DELETE cascade," +
+                        "FOREIGN KEY(owner_id) REFERENCES wall(owner_id) ON DELETE cascade," +
                         "FOREIGN KEY(time) REFERENCES wall(time)" +
                 ")"
                 );

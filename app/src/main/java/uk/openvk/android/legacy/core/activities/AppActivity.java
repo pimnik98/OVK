@@ -722,7 +722,7 @@ public class AppActivity extends NetworkFragmentActivity {
                 }
             } else if (message == HandlerMessages.WALL_ATTACHMENTS) {
                 if(selectedFragment instanceof ProfilePageFragment) {
-                    ((NewsfeedFragment) selectedFragment).loadPhotos();
+                    ((ProfilePageFragment) selectedFragment).loadPhotos();
                 }
             } else if(message == HandlerMessages.VIDEO_THUMBNAILS) {
                 if(selectedFragment instanceof NewsfeedFragment) {

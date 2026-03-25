@@ -48,7 +48,7 @@ import uk.openvk.android.client.wrappers.JSONParser;
 
 public class WallPost extends LazyEntity implements Parcelable {
 
-    private long dt_sec;
+    public long dt_sec;
     public long post_id;
     public LazyEntity author;
     public LazyEntity owner;
@@ -343,7 +343,10 @@ public class WallPost extends LazyEntity implements Parcelable {
     public void resolveAuthorsFromSQLite(SQLiteDatabase users_db, SQLiteDatabase groups_db) {
         author = resolveAuthorsFromSQLite(users_db, groups_db, author.id);
         owner = resolveAuthorsFromSQLite(users_db, groups_db, owner.id);
-        if(owner.id == author.id)
+        if(owner != null) {
+            if (owner.id == author.id)
+                owner = author;
+        } else
             owner = author;
     }
 
@@ -440,16 +443,22 @@ public class WallPost extends LazyEntity implements Parcelable {
 
 
         wall_values.put("post_id", post_id);
-        wall_values.put("author_id", author.id);
-        if(owner == null)
-            wall_values.put("owner_id", author.id);
-        else
+        if(author != null) {
+            wall_values.put("author_id", author.id);
+            if(owner == null)
+                wall_values.put("owner_id", author.id);
+            else
+                wall_values.put("owner_id", owner.id);
+        } else if(owner != null) {
             wall_values.put("owner_id", owner.id);
+            wall_values.put("author_id", owner.id);
+        }
+
         wall_values.put("text", text);
         wall_values.put("time", dt.getTime());
-        wall_values.put("likes", counters.likes);
-        wall_values.put("comments", counters.comments);
-        wall_values.put("reposts", counters.reposts);
+        wall_values.put("likes", counters != null ? counters.likes : 0);
+        wall_values.put("comments", counters != null ? counters.comments : 0);
+        wall_values.put("reposts", counters != null ? counters.reposts : 0);
         wall_values.put("contains_repost", contains_repost);
 
         if(attachments.size() > 0) {

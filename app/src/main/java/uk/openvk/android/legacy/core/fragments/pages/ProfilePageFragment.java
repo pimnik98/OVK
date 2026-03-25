@@ -700,4 +700,14 @@ public class ProfilePageFragment extends ActiveFragment {
     public void onResume() {
         super.onResume();
     }
+
+    public void loadPhotos() {
+        if(wallLayout != null) {
+            try {
+                wallLayout.getAdapter().notifyDataSetChanged();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 }
