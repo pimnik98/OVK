@@ -158,16 +158,16 @@ public class CrashReporterActivity extends BaseCrashReportDialog
 
         String header = String.format(
                 "OpenVK Legacy for Android %s (%s)\r\n" +
-                        "--------------------------------- DEVICE  INFO ----------------------------------" +
+                        "----------------------- DEVICE  INFO ------------------------" +
                         "\r\nModel: %s %s (codename: %s)" +
                         "\r\nAndroid %s (API %s)" +
                         "\r\nBuild fingerprint: %s\r\n" +
-                        "--------------------------------- APP SETTINGS ----------------------------------" +
+                        "----------------------- APP SETTINGS ------------------------" +
                         "\r\nInstance: %s" +
                         "\r\nHTTPS: %s" +
                         "\r\nProxy: %s" +
                         "\r\nTablet UI: %s\r\n" +
-                        "--------------------------------- START OF LOG ----------------------------------\r\n",
+                        "----------------------- START OF LOG ------------------------\r\n",
                 ovk.version, BuildConfig.GITHUB_COMMIT,
                 Build.BRAND, Build.MODEL, Build.DEVICE,
                 Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.FINGERPRINT,
