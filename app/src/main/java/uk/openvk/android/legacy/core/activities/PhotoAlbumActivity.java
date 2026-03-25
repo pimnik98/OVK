@@ -40,6 +40,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
@@ -164,6 +165,14 @@ public class PhotoAlbumActivity extends NetworkActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(Color.parseColor("#88000000"));
         }
+    }
+
+    @Override
+    protected void setTranslucentStatusBar() {
+        //super.setTranslucentStatusBar();
+        if(tintManager == null)
+            tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintEnabled(Build.VERSION.SDK_INT < 35);
     }
 
     @Override
