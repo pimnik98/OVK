@@ -344,9 +344,8 @@ public class NewsfeedFragment extends ActiveFragment {
 
             createAdapter(ctx, ovk_api.newsfeed.getWallPosts(), true, clear);
             adjustLayout(((OvkApplication)(getContext().getApplicationContext())).config.orientation);
-            if(ovk_api.newsfeed.getWallPosts().size() > 0) {
+            if(ovk_api.newsfeed.getWallPosts().size() > 0)
                 return;
-            }
             loading_more_posts = true;
             if(clear)
                 newsfeedView.scrollToPosition(0);
