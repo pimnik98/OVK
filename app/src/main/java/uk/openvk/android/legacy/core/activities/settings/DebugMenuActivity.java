@@ -50,16 +50,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 import dev.tinelix.retro_ab.ActionBar;
 import uk.openvk.android.legacy.BuildConfig;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
+import uk.openvk.android.legacy.databases.AudioCacheDB;
+import uk.openvk.android.legacy.databases.GroupsCacheDB;
+import uk.openvk.android.legacy.databases.NewsfeedCacheDB;
+import uk.openvk.android.legacy.databases.UsersCacheDB;
+import uk.openvk.android.legacy.databases.WallCacheDB;
+import uk.openvk.android.legacy.databases.base.CacheDatabase;
 import uk.openvk.android.legacy.ui.OvkAlertDialog;
 import uk.openvk.android.legacy.core.activities.base.TranslucentPreferenceActivity;
 import uk.openvk.android.legacy.ui.wrappers.LocaleContextWrapper;
@@ -155,6 +161,34 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(getResources().getString(R.string.app_issues_link)));
                 startActivity(intent);
+                return false;
+            }
+        });
+
+        Preference resetPersonalDb = findPreference("resetPersonalDb");
+        resetPersonalDb.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                try {
+                    deleteDatabase(
+                            CacheDatabase.getCurrentDatabaseName(DebugMenuActivity.this, WallCacheDB.prefix)
+                    );
+                    deleteDatabase(
+                            CacheDatabase.getCurrentDatabaseName(DebugMenuActivity.this, UsersCacheDB.prefix)
+                    );
+                    deleteDatabase(
+                            CacheDatabase.getCurrentDatabaseName(DebugMenuActivity.this, GroupsCacheDB.prefix)
+                    );
+                    deleteDatabase(
+                            CacheDatabase.getCurrentDatabaseName(DebugMenuActivity.this, AudioCacheDB.prefix)
+                    );
+                    Toast.makeText(
+                            DebugMenuActivity.this, getResources().getString(R.string.ok),
+                            Toast.LENGTH_LONG
+                    ).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return false;
             }
         });
@@ -298,7 +332,7 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
     }
 
     @SuppressLint("SimpleDateFormat")
-    public boolean writeLogToFile() {
+    public void writeLogToFile() {
         try {
             OvkApplication ovk = ((OvkApplication) getApplicationContext());
             String isTablet;
@@ -342,7 +376,7 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                         }
                     } else {
                         Global.allowPermissionDialog(this, false);
-                        return false;
+                        return;
                     }
                 } else {
                     if (!file.exists()) {
@@ -395,7 +429,6 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                 Toast.makeText(getApplicationContext(), getResources().getString(
                         R.string.saved_logs_successfully,
                         "OpenVK/App Logs"), Toast.LENGTH_LONG).show();
-                return true;
             } catch (Exception e) {
                 Log.e("OpenVK Legacy", "Could not save log to file: " + e.getMessage());
                 e.printStackTrace();
@@ -405,13 +438,11 @@ public class DebugMenuActivity extends TranslucentPreferenceActivity {
                     Toast.makeText(getApplicationContext(),
                             R.string.debug_on_pre_jellybean, Toast.LENGTH_LONG).show();
                 }
-                return false;
             }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(),
                     R.string.debug_on_pre_jellybean, Toast.LENGTH_LONG).show();
-            return false;
         }
     }
 }
