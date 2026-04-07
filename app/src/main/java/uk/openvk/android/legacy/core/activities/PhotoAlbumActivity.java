@@ -34,7 +34,9 @@ import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -267,12 +269,23 @@ public class PhotoAlbumActivity extends NetworkActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        boolean isTablet = ((OvkApplication) getApplication()).isTablet;
+
+        FrameLayout header = findViewById(R.id.album_header);
+        LinearLayout content = findViewById(R.id.album_content);
+
         if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            findViewById(R.id.album_header).getLayoutParams().height =
-                    (int)(180 * getResources().getDisplayMetrics().scaledDensity);
+            content.setOrientation(LinearLayout.HORIZONTAL);
+            header.getLayoutParams().width =
+                    isTablet ? (int)(384 * getResources().getDisplayMetrics().scaledDensity)
+                            : (int)(240 * getResources().getDisplayMetrics().scaledDensity);
+            header.getLayoutParams().height = LinearLayout.LayoutParams.MATCH_PARENT;
         } else {
-            findViewById(R.id.album_header).getLayoutParams().height =
+            content.setOrientation(LinearLayout.VERTICAL);
+            header.getLayoutParams().height =
                     (int)(240 * getResources().getDisplayMetrics().scaledDensity);
+            header.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
         }
     }
 }

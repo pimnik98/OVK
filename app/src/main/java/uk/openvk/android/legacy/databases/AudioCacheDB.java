@@ -272,7 +272,7 @@ public class AudioCacheDB extends CacheDatabase {
         CacheOpenHelper helper = new CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            Cursor cursor = db.query("tracks",
+            Cursor cursor = db.query("audio",
                     null, "user=0", null, null, null,
                     "lastplay asc");
             cursor.moveToFirst();
@@ -306,7 +306,7 @@ public class AudioCacheDB extends CacheDatabase {
                 if (fromSearchOnly) {
                     db.delete("search_results", null, null);
                 } else {
-                    db.delete("tracks", null, null);
+                    db.delete("audios", null, null);
                 }
                 cachedIDs.clear();
                 Intent intent = new Intent(AudioPlayerService.ACTION_UPDATE_PLAYLIST);

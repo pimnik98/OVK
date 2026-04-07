@@ -23,6 +23,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -274,6 +275,18 @@ public class PhotoViewerActivity extends NetworkActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            ZoomableImageView iv = findViewById(R.id.picture_view);
+            iv.getLayoutParams().width =
+                    getResources().getDisplayMetrics().widthPixels;
+            iv.getLayoutParams().height =
+                    getResources().getDisplayMetrics().heightPixels;
+        }
+    }
+
+    @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             if(item.getItemId() == android.R.id.home) {
@@ -436,6 +449,9 @@ public class PhotoViewerActivity extends NetworkActivity {
                                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
                 setTranslucentStatusBar(1, Color.parseColor("#00000000"));
+            } else {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
