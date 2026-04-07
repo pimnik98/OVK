@@ -165,9 +165,6 @@ public class UsersFragment extends Fragment {
         if(usersAdapter != null) {
             usersAdapter.notifyDataSetChanged();
         }
-        if(usersAdapter != null) {
-            usersAdapter.notifyDataSetChanged();
-        }
     }
 
     public void setScrollingPositions(final Context ctx, final boolean infinity_scroll) {
