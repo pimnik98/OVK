@@ -121,7 +121,7 @@ public class AudioCacheDB extends CacheDatabase {
                 cachedIDs.clear();
             }
             CacheDatabaseTables.createAudioTracksTable(db, clear);
-            String table_name = "tracks";
+            String table_name = "audios";
             if(intoSearchResults) {
                 table_name = "search_results";
             }
@@ -165,7 +165,7 @@ public class AudioCacheDB extends CacheDatabase {
                 cachedIDs.clear();
             }
             CacheDatabaseTables.createAudioTracksTable(db, clear);
-            cursor = db.query("wall_tracks", new String[]{"owner_id", "audio_id", "post_id"},
+            cursor = db.query("wall_audios", new String[]{"owner_id", "audio_id", "post_id"},
                     null, null, null, null, null);
             cursor.moveToFirst();
 
@@ -200,7 +200,7 @@ public class AudioCacheDB extends CacheDatabase {
         SQLiteDatabase db = helper.getWritableDatabase();
         ArrayList<Audio> list = new ArrayList<>();
         try {
-            String table_name = "tracks";
+            String table_name = "audios";
             if(fromSearchResults) {
                 table_name = "search_results";
             }
