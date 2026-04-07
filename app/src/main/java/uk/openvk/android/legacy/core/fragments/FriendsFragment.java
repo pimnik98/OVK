@@ -36,6 +36,7 @@ import android.widget.TabHost;
 import java.util.ArrayList;
 
 import uk.openvk.android.client.OpenVKAPI;
+import uk.openvk.android.client.base.LazyEntity;
 import uk.openvk.android.client.entities.Friend;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
@@ -53,7 +54,7 @@ import uk.openvk.android.legacy.ui.views.base.InfinityRecyclerView;
 
 public class FriendsFragment extends ActiveFragment {
     public String state;
-    private InfinityRecyclerView friendsListView;
+    private RecyclerView friendsListView;
     private ArrayList<Friend> friends;
     private ArrayList<Friend> requests;
     private FriendsListAdapter friendsAdapter;
@@ -62,6 +63,7 @@ public class FriendsFragment extends ActiveFragment {
     private View view;
     private Context activity_ctx;
     private String instance;
+    private InfinityRecyclerViewScrollListener infinityScrollListener = null;
 
     @Nullable
     @Override
@@ -95,31 +97,45 @@ public class FriendsFragment extends ActiveFragment {
 
     public void createAdapter(Context ctx, ArrayList<Friend> friends, String where) {
         if(view != null) {
+
             if (where.equals("friends")) {
-                this.friends = friends;
+                if(this.friends == null)
+                    this.friends = new ArrayList<>();
+
+                this.friends.addAll(friends);
+
+                this.friends.add(new Friend());
+
                 if (friendsAdapter == null) {
-                    friendsAdapter = new FriendsListAdapter(ctx, this, friends);
+                    friendsAdapter = new FriendsListAdapter(ctx, this, this.friends);
                     adjustLayoutSize(ctx, getResources().getConfiguration().orientation);
                     friendsListView.setAdapter(friendsAdapter);
                 } else {
+                    friendsAdapter.setArray(this.friends);
                     friendsAdapter.notifyDataSetChanged();
                 }
             } else {
-                this.requests = friends;
+                if(this.requests == null)
+                    this.requests = friends;
+                else
+                    this.requests.addAll(friends);
+
                 if (requestsAdapter == null) {
                     requestsAdapter = new FriendsRequestsAdapter(ctx, this, requests);
+                    adjustLayoutSize(ctx, getResources().getConfiguration().orientation);
+                    ((RecyclerView) view.findViewById(R.id.requests_view)).setAdapter(requestsAdapter);
                 } else {
+                    requestsAdapter.setArray(this.requests);
                     requestsAdapter.notifyDataSetChanged();
                 }
-                adjustLayoutSize(ctx, getResources().getConfiguration().orientation);
-                ((RecyclerView) view.findViewById(R.id.requests_view)).setAdapter(requestsAdapter);
             }
         }
     }
 
     private void adjustLayoutSize(final Context ctx, int orientation) {
         OvkApplication app = ((OvkApplication)getContext().getApplicationContext());
-        RecyclerView.LayoutManager lm = null;
+        RecyclerView.LayoutManager lm;
+        RecyclerView.LayoutManager rlm;
 
         if(app.isTablet && app.swdp >= 760 && (orientation == Configuration.ORIENTATION_LANDSCAPE)) {
             // Linking WGLM to ListView for Friends tab
@@ -128,9 +144,9 @@ public class FriendsFragment extends ActiveFragment {
             ((RecyclerView) view.findViewById(R.id.friends_listview)).setLayoutManager(lm);
             if(getActivity() instanceof AppActivity) {
                 // Linking WGLM to ListView for Requests tab
-                lm = new WrappedGridLayoutManager(ctx, 3);
-                ((WrappedGridLayoutManager) lm).setOrientation(LinearLayoutManager.VERTICAL);
-                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(lm);
+                rlm = new WrappedGridLayoutManager(ctx, 3);
+                ((WrappedGridLayoutManager) rlm).setOrientation(LinearLayoutManager.VERTICAL);
+                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(rlm);
             }
         } else if(app.isTablet && app.swdp >= 600) {
             // Linking WGLM to ListView for Friends tab
@@ -140,9 +156,9 @@ public class FriendsFragment extends ActiveFragment {
 
             if(getActivity() instanceof AppActivity) {
                 // Linking WGLM to ListView for Requests tab
-                lm = new WrappedGridLayoutManager(ctx, 2);
-                ((WrappedGridLayoutManager) lm).setOrientation(LinearLayoutManager.VERTICAL);
-                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(lm);
+                rlm = new WrappedGridLayoutManager(ctx, 2);
+                ((WrappedGridLayoutManager) rlm).setOrientation(LinearLayoutManager.VERTICAL);
+                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(rlm);
             }
         } else {
             // Linking WGLM to ListView for Friends tab
@@ -152,28 +168,29 @@ public class FriendsFragment extends ActiveFragment {
 
             if(getActivity() instanceof AppActivity) {
                 // Linking WGLM to ListView for Requests tab
-                lm = new WrappedLinearLayoutManager(ctx);
-                ((WrappedLinearLayoutManager) lm).setOrientation(LinearLayoutManager.VERTICAL);
-                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(lm);
+                rlm = new WrappedLinearLayoutManager(ctx);
+                ((WrappedLinearLayoutManager) rlm).setOrientation(LinearLayoutManager.VERTICAL);
+                ((RecyclerView) view.findViewById(R.id.requests_view)).setLayoutManager(rlm);
             }
         }
 
-        InfinityRecyclerViewScrollListener listener = new InfinityRecyclerViewScrollListener(lm) {
+        infinityScrollListener = new InfinityRecyclerViewScrollListener(lm) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 OpenVKAPI ovk_api = null;
-                if(ctx instanceof AppActivity) {
+                if (ctx instanceof AppActivity) {
                     ovk_api = ((AppActivity) ctx).ovk_api;
-                } else if(ctx instanceof FriendsIntentActivity) {
+                } else if (ctx instanceof FriendsIntentActivity) {
                     ovk_api = ((FriendsIntentActivity) ctx).ovk_api;
                 } else {
                     return;
                 }
+
                 Global.loadMoreFriends(ovk_api);
             }
         };
 
-        friendsListView.setOnRecyclerScrollListener(listener);
+        friendsListView.addOnScrollListener(infinityScrollListener);
     }
 
     public int getCount() {
@@ -239,10 +256,6 @@ public class FriendsFragment extends ActiveFragment {
         }
     }
 
-    public void setScrollingPositions(final Context ctx, final boolean infinity_scroll) {
-        friendsListView.setLoading(!infinity_scroll);
-    }
-
     private void setupTabHost(TabHost tabhost, String where) {
         tabhost.setup();
         if (where.equals("friends")) {
@@ -299,12 +312,20 @@ public class FriendsFragment extends ActiveFragment {
         }
     }
 
-    public void loadAPIData(Context ctx, OpenVKAPI ovk_api, boolean infinity_scroll) {
+    public void loadAPIData(Context ctx, OpenVKAPI ovk_api) {
+        if(this.friends != null && this.friends.size() > 0) {
+            int lastEntity = this.friends.size() - 1;
+            if(this.friends.get(lastEntity).getEntityType() == LazyEntity.SLEEPING_ENTITY) {
+                this.friends.remove(lastEntity);
+            }
+        }
         createAdapter(ctx, ovk_api.friends.getFriends(), "friends");
-        ovk_api.friends.getRequests(ovk_api.wrapper);
+
+        if(this.requests == null || this.requests.size() == 0)
+            ovk_api.friends.getRequests(ovk_api.wrapper);
+
         updateTabsCounters(0, ovk_api.friends.count);
         updateTabsCounters(1, ovk_api.account.counters.friends_requests);
-        setScrollingPositions(ctx, infinity_scroll);
     }
 
     @Override

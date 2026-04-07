@@ -204,7 +204,7 @@ public class OvkAPIReceiver extends BroadcastReceiver {
                     if (args != null && args.contains("offset")) {
                         msg.what = HandlerMessages.FRIENDS_GET_MORE;
                         ovk_api.friends.parse(data.getString("response"),
-                                ovk_api.dlman, true, false);
+                                ovk_api.dlman, true, true);
                     } else {
                         assert where != null;
                         if(where.equals("profile_counter")) {

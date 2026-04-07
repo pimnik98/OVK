@@ -46,10 +46,12 @@ public class Friend extends LazyEntity implements Parcelable {
 
     public Friend(JSONObject user) {
         parse(user);
+        entityType = REAL_ENTITY;
     }
 
     public Friend(String response, int position) {
         parse(response, position);
+        entityType = REAL_ENTITY;
     }
 
     public Friend(String first_name, String last_name, long id, boolean verified) {
@@ -58,6 +60,7 @@ public class Friend extends LazyEntity implements Parcelable {
         this.id = id;
         this.verified = verified;
         jsonParser = new JSONParser();
+        entityType = REAL_ENTITY;
     }
 
     protected Friend(Parcel in) {
@@ -83,7 +86,7 @@ public class Friend extends LazyEntity implements Parcelable {
     };
 
     public Friend() {
-
+        entityType = SLEEPING_ENTITY;
     }
 
     public void parse(JSONObject user) {

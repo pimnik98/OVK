@@ -568,8 +568,7 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
         }
 
         public void openWallComments(Context ctx, int position, View view) {
-            OpenVKAPI ovk_api = null;
-            SharedPreferences global_prefs = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(ctx);
+            OpenVKAPI ovk_api;
             if(ctx instanceof AppActivity) {
                 ovk_api = ((AppActivity) ctx).ovk_api;
             } else if(ctx instanceof ProfileIntentActivity) {

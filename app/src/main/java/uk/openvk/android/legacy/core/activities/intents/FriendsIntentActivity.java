@@ -219,7 +219,6 @@ public class FriendsIntentActivity extends NetworkFragmentActivity {
                 } catch (Exception ignored) {
 
                 }
-                friendsFragment.setScrollingPositions(this, true);
             } else if (message == HandlerMessages.FRIEND_AVATARS) {
                 friendsFragment.loadAvatars();
             } else if (message == HandlerMessages.FRIENDS_GET_MORE) {
@@ -227,11 +226,6 @@ public class FriendsIntentActivity extends NetworkFragmentActivity {
                 ovk_api.friends.parse(data.getString("response"), ovk_api.dlman, true, false);
                 ArrayList<Friend> friendsList = ovk_api.friends.getFriends();
                 friendsFragment.createAdapter(this, friendsList, "friends");
-                if(old_friends_size == ovk_api.friends.getFriends().size()) {
-                    friendsFragment.setScrollingPositions(this, false);
-                } else {
-                    friendsFragment.setScrollingPositions(this, true);
-                }
             } else if (message < 0) {
                 setErrorPage(data, message);
             }

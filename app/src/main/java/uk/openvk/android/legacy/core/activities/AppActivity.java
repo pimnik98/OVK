@@ -767,11 +767,10 @@ public class AppActivity extends NetworkFragmentActivity {
                 if (selectedFragment instanceof FriendsFragment) {
                     progressLayout.setVisibility(View.GONE);
                     findViewById(R.id.app_fragment).setVisibility(View.VISIBLE);
-                    ((FriendsFragment) selectedFragment).loadAPIData(this, ovk_api, true);
+                    ((FriendsFragment) selectedFragment).loadAPIData(this, ovk_api);
                 }
             } else if (message == HandlerMessages.FRIENDS_GET_MORE) {
-                boolean infinity_scroll = old_friends_size != ovk_api.friends.getFriends().size();
-                ((FriendsFragment) selectedFragment).loadAPIData(this, ovk_api, infinity_scroll);
+                ((FriendsFragment) selectedFragment).loadAPIData(this, ovk_api);
             } else if(message == HandlerMessages.FRIENDS_ADD) {
                 if(selectedFragment instanceof FriendsFragment) {
                     ovk_api.friends.requests.remove(((FriendsFragment) selectedFragment).requests_cursor_index);
