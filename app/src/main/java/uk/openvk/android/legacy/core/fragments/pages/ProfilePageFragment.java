@@ -24,12 +24,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.RotateAnimation;
-import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.reginald.swiperefresh.CustomSwipeRefreshLayout;
@@ -40,29 +38,26 @@ import java.util.ArrayList;
 
 import dev.tinelix.retro_ab.ActionBar;
 import dev.tinelix.retro_pm.PopupMenu;
+import uk.openvk.android.client.OpenVKAPI;
+import uk.openvk.android.client.entities.User;
+import uk.openvk.android.client.entities.WallPost;
 import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
-import uk.openvk.android.client.OpenVKAPI;
-import uk.openvk.android.client.entities.WallPost;
 import uk.openvk.android.legacy.core.activities.AppActivity;
 import uk.openvk.android.legacy.core.activities.ConversationActivity;
-import uk.openvk.android.legacy.core.activities.base.NetworkActivity;
 import uk.openvk.android.legacy.core.activities.base.NetworkFragmentActivity;
 import uk.openvk.android.legacy.core.activities.intents.ProfileIntentActivity;
-import uk.openvk.android.client.entities.User;
 import uk.openvk.android.legacy.core.fragments.base.ActiveFragment;
-import uk.openvk.android.legacy.core.listeners.OnScrollListener;
 import uk.openvk.android.legacy.databases.WallCacheDB;
-import uk.openvk.android.legacy.ui.views.OvkRefreshableHeaderLayout;
-import uk.openvk.android.legacy.ui.views.base.InfinityNestedScrollView;
-import uk.openvk.android.legacy.ui.views.base.InfinityScrollView;
 import uk.openvk.android.legacy.ui.views.AboutProfileLayout;
+import uk.openvk.android.legacy.ui.views.OvkRefreshableHeaderLayout;
 import uk.openvk.android.legacy.ui.views.ProfileCounterLayout;
 import uk.openvk.android.legacy.ui.views.ProfileHeader;
 import uk.openvk.android.legacy.ui.views.ProfileWallSelector;
 import uk.openvk.android.legacy.ui.views.WallErrorLayout;
 import uk.openvk.android.legacy.ui.views.WallLayout;
+import uk.openvk.android.legacy.ui.views.base.InfinityScrollView;
 
 import static android.view.View.GONE;
 

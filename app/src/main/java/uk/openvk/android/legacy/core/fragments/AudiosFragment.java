@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -55,10 +54,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import uk.openvk.android.client.entities.Audio;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
-import uk.openvk.android.client.entities.Account;
-import uk.openvk.android.client.entities.Audio;
 import uk.openvk.android.legacy.core.activities.AppActivity;
 import uk.openvk.android.legacy.core.activities.AudioPlayerActivity;
 import uk.openvk.android.legacy.core.fragments.base.ActiveFragment;
@@ -78,17 +76,13 @@ import static uk.openvk.android.legacy.services.AudioPlayerService.ACTION_UPDATE
 
 public class AudiosFragment extends ActiveFragment implements AudioPlayerService.AudioPlayerListener {
     private RecyclerView audiosView;
-    private Account account;
     private View view;
-    private String instance;
     private ArrayList<Audio> audios;
     private AudiosListAdapter audiosAdapter;
     private Context parent;
-    private MediaPlayer mediaPlayer;
     public boolean isBoundAP;
     private AudioPlayerReceiver audioPlayerReceiver;
     private AudioPlayerService audioPlayerService;
-    private int currentTrackPos;
     private Intent serviceIntent;
     private ServiceConnection audioPlayerConnection = new ServiceConnection() {
 
@@ -151,7 +145,6 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_audios, container, false);
         audiosView = view.findViewById(R.id.audios_listview);
-        instance = ((OvkApplication) getContext().getApplicationContext()).getCurrentInstance();
         return view;
     }
 
@@ -593,10 +586,6 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
     public void onDeactivated() {
         super.onDeactivated();
         closeSearchItem();
-    }
-
-    public int getCurrentPosition() {
-        return currentTrackPos;
     }
 
     @Override
