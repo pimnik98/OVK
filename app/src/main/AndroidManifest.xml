@@ -184,7 +184,7 @@
 
         <activity
             android:name=".core.activities.intents.AudiosIntentActivity"
-            android:label="@string/photo"
+            android:label="@string/profile_music"
             android:icon="@drawable/ic_ab_app"
             android:theme="@style/BaseStyle"
             android:exported="true"
