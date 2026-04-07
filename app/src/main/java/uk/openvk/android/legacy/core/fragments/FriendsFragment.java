@@ -73,7 +73,7 @@ public class FriendsFragment extends ActiveFragment {
         if(activity_ctx == null) {
             activity_ctx = getActivity();
         }
-        if(activity_ctx.getClass().getSimpleName().equals("AppActivity")) {
+        if(activity_ctx instanceof AppActivity) {
             ((TabSelector) view.findViewById(R.id.selector)).setLength(2);
             setupTabHost(friends_tabhost, "friends_2");
         } else {
