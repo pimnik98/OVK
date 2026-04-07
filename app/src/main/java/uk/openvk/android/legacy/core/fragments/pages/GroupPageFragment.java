@@ -74,25 +74,22 @@ public class GroupPageFragment extends ActiveFragment {
         if(!((OvkApplication) getContext().getApplicationContext()).isTablet)
             p2r_view.setBackgroundColor(Color.parseColor("#313743"));
         if(global_prefs.getString("uiTheme", "blue").equals("Gray")) {
-            view.findViewById(R.id.profile_ext_header)
+            view.findViewById(R.id.group_ext_header)
                     .setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
-            view.findViewById(R.id.about_profile_layout)
+            view.findViewById(R.id.about_group_layout)
                     .setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
 
             p2r_view.setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
-            view.findViewById(R.id.send_direct_msg)
-                    .setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_gray));
-            view.findViewById(R.id.add_to_friends)
+            view.findViewById(R.id.join_to_comm)
                     .setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_gray));
         } else if(global_prefs.getString("uiTheme", "blue").equals("Black")) {
-            view.findViewById(R.id.profile_ext_header)
+            view.findViewById(R.id.group_ext_header)
                     .setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
-            view.findViewById(R.id.about_profile_layout)
+            view.findViewById(R.id.about_group_layout)
                     .setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
             p2r_view.setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
-            view.findViewById(R.id.send_direct_msg)
-                    .setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_black));
-            view.findViewById(R.id.add_to_friends)
+
+            view.findViewById(R.id.join_to_comm)
                     .setBackgroundDrawable(getResources().getDrawable(R.drawable.btn_light_black));
         }
 

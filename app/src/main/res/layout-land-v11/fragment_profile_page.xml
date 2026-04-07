@@ -162,7 +162,8 @@
                     android:text="@string/profile_inactive_deleted"
                     android:textColor="@color/timestamp_color"
                     android:textSize="16sp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:layout_below="@+id/wall_selector"/>
 
             </RelativeLayout>
         </uk.openvk.android.legacy.ui.views.base.InfinityScrollView>
