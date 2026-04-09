@@ -49,8 +49,10 @@
 
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>
-	<string name="today_at">Today at</string>
-	<string name="yesterday_at">Yesterday at</string>
+	<string name="today_lower">today</string>
+	<string name="yesterday_lower">yesterday</string>
+	<string name="today_at">today at</string>
+	<string name="yesterday_at">yesterday at</string>
 	<string name="date_at">at</string>
 
 	<string name="attach_photo">Photo</string>

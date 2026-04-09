@@ -30,13 +30,17 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -79,6 +83,9 @@ public class PhotoViewerActivity extends NetworkActivity {
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
         super.onCreate(savedInstanceState);
 
         instance = ((OvkApplication) getApplicationContext()).getCurrentInstance();
@@ -89,8 +96,14 @@ public class PhotoViewerActivity extends NetworkActivity {
             return;
         }
 
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+        );
+
         setContentView(R.layout.activity_photo_viewer);
         actionBar = findViewById(R.id.actionbar);
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             try {
                 try {
@@ -129,6 +142,7 @@ public class PhotoViewerActivity extends NetworkActivity {
         findViewById(R.id.picture_view).setVisibility(View.GONE);
         findViewById(R.id.progress_layout).setVisibility(View.VISIBLE);
         ((ProgressLayout) findViewById(R.id.progress_layout)).enableDarkTheme(true, 1);
+
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -156,6 +170,42 @@ public class PhotoViewerActivity extends NetworkActivity {
             Log.e(OvkApplication.APP_TAG, "PhotoViewerActivity: Empty token");
             finish();
         }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+                @Override
+                public void onSystemUiVisibilityChange(int i) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                        switch (i) {
+                            case View.SYSTEM_UI_FLAG_LOW_PROFILE:
+                                getActionBar().hide();
+                                break;
+                            case View.SYSTEM_UI_FLAG_HIDE_NAVIGATION:
+                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                                        Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+                                getActionBar().hide();
+                                break;
+                            case View.SYSTEM_UI_FLAG_VISIBLE:
+                            case View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY:
+                                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                getActionBar().show();
+                                break;
+                        }
+                    }
+                }
+            });
+        }
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            );
+        }
     }
 
     @Override
@@ -177,12 +227,13 @@ public class PhotoViewerActivity extends NetworkActivity {
     }
 
     public void receiveState(int message, Bundle data) {
-        if(message == HandlerMessages.ACCESS_DENIED_MARSHMALLOW) {
+        if (message == HandlerMessages.ACCESS_DENIED_MARSHMALLOW) {
             Global.allowPermissionDialog(this, false);
-        } else if(message == HandlerMessages.ORIGINAL_PHOTO) {
+        } else if (message == HandlerMessages.ORIGINAL_PHOTO) {
             bfOptions = new BitmapFactory.Options();
             bfOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
             try {
+                ((ZoomableImageView) findViewById(R.id.picture_view)).enablePinchToZoom(getWindow());
                 Bundle extras = getIntent().getExtras();
                 assert extras != null;
                 bitmap = BitmapFactory.decodeFile(
@@ -190,20 +241,22 @@ public class PhotoViewerActivity extends NetworkActivity {
                                 getCacheDir().getAbsolutePath(), instance, extras.getLong("author_id"),
                                 extras.getLong("photo_id")), bfOptions);
                 int max_size = 2880;
-                if(getResources().getDisplayMetrics().widthPixels <= 720) {
-                    max_size = 1536;
-                } else if(getResources().getDisplayMetrics().widthPixels <= 480) {
-                    max_size = 960;
+                if (getResources().getDisplayMetrics().widthPixels <= 720) {
+                    max_size = 1920;
+                } else if (getResources().getDisplayMetrics().widthPixels <= 480) {
+                    max_size = 1280;
+                }if (getResources().getDisplayMetrics().widthPixels <= 320) {
+                    max_size = 1024;
                 }
 
-                if(bitmap == null)
+                if (bitmap == null)
                     return;
 
-                float aspect_ratio = (float)bitmap.getWidth() / (float)max_size;
-                if(bitmap.getWidth() > max_size || bitmap.getHeight() > max_size) {
+                float aspect_ratio = (float) bitmap.getWidth() / (float) max_size;
+                if (bitmap.getWidth() > max_size || bitmap.getHeight() > max_size) {
                     Bitmap photo_scaled;
-                    int w_scaled = (int)(bitmap.getHeight() / aspect_ratio);
-                    if(bitmap.getWidth() > bitmap.getHeight()) { // Landscape
+                    int w_scaled = (int) (bitmap.getHeight() / aspect_ratio);
+                    if (bitmap.getWidth() > bitmap.getHeight()) { // Landscape
                         photo_scaled = Bitmap.createScaledBitmap(
                                 bitmap,
                                 max_size,
@@ -223,13 +276,11 @@ public class PhotoViewerActivity extends NetworkActivity {
                     ((ZoomableImageView) findViewById(R.id.picture_view)).setImageBitmap(bitmap);
                 }
 
-                ((ZoomableImageView) findViewById(R.id.picture_view)).enablePinchToZoom();
-
                 findViewById(R.id.picture_view).setVisibility(View.VISIBLE);
                 findViewById(R.id.progress_layout).setVisibility(View.GONE);
 
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    if(getActionBar() != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    if (getActionBar() != null) {
                         getActionBar().show();
                     }
                 } else {
@@ -238,27 +289,10 @@ public class PhotoViewerActivity extends NetworkActivity {
                 findViewById(R.id.picture_view).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            if(getActionBar().isShowing()) {
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        enableFullScreenMode();
-                                    }
-                                }, 400);
-                                getActionBar().hide();
-                            } else {
-                                enableFullScreenMode();
-                                handler.postDelayed(new Runnable() {
-                                    @SuppressLint("NewApi")
-                                    @Override
-                                    public void run() {
-                                        getActionBar().show();
-                                    }
-                                }, 200);
-                            }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                            enableFullScreenMode();
                         } else {
-                            if(actionBar.getVisibility() == View.VISIBLE) {
+                            if (actionBar.getVisibility() == View.VISIBLE) {
                                 actionBar.setVisibility(View.GONE);
                             } else {
                                 actionBar.setVisibility(View.VISIBLE);
@@ -269,20 +303,8 @@ public class PhotoViewerActivity extends NetworkActivity {
             } catch (OutOfMemoryError err) {
                 finish();
             }
-        } else if(message == 40000) {
+        } else if (message == 40000) {
             ((ZoomableImageView) findViewById(R.id.picture_view)).rescale();
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            ZoomableImageView iv = findViewById(R.id.picture_view);
-            iv.getLayoutParams().width =
-                    getResources().getDisplayMetrics().widthPixels;
-            iv.getLayoutParams().height =
-                    getResources().getDisplayMetrics().heightPixels;
         }
     }
 
@@ -439,30 +461,57 @@ public class PhotoViewerActivity extends NetworkActivity {
     protected void enableFullScreenMode() {
         if (!isFullScreenMode) {
             //resetTranslucentStatusBar();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                getWindow().getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-                setTranslucentStatusBar(1, Color.parseColor("#00000000"));
-            } else {
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                handler.postDelayed(new Runnable() {
+                    @SuppressLint("NewApi")
+                    @Override
+                    public void run() {
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            getWindow().getDecorView().setSystemUiVisibility(
+                                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setTranslucentStatusBar(1, Color.parseColor("#00000000"));
+                                }
+                            }, 40);
+                        } else {
+                            getWindow().getDecorView().setSystemUiVisibility(
+                                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            );
+                        }
+                    }
+                }, 120);
+                getActionBar().hide();
+            } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
             }
+            isFullScreenMode = true;
         } else {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             setTranslucentStatusBar();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 getWindow().getDecorView().setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+                getWindow().getDecorView().setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                );
+            } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH){
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             }
+            isFullScreenMode = false;
         }
-        isFullScreenMode = !isFullScreenMode;
     }
 
 //    @Override

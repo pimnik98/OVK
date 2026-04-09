@@ -285,7 +285,9 @@ public class NewsfeedAdapter extends RecyclerView.Adapter<NewsfeedAdapter.Holder
 
                     original_poster_name_str = retrivePosterName(item.repost.newsfeed_item);
                     original_poster_name.setText(original_poster_name_str);
-                    original_post_info.setText(Global.formatTimestamp(ctx, item.repost.newsfeed_item.dt.getTime()));
+                    original_post_info.setText(
+                            Global.formatTimestamp(ctx, item.repost.newsfeed_item.dt.getTime())
+                    );
 
                     String repost_text = item.repost.newsfeed_item.text.replaceAll("&lt;", "<")
                             .replaceAll("&gt;", ">")

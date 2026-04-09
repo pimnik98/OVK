@@ -45,8 +45,10 @@
 
     <string name="load_more">Загрузить ещё</string>
 
-    <string name="today">сегодня</string>
-    <string name="yesterday">вчера</string>
+    <string name="today">Сегодня</string>
+    <string name="yesterday">Вчера</string>
+    <string name="today_lower">сегодня</string>
+    <string name="yesterday_lower">вчера</string>
     <string name="today_at">сегодня в</string>
     <string name="yesterday_at">вчера в</string>
     <string name="date_at">в</string>
