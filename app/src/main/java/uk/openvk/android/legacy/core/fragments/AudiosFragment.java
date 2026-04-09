@@ -328,7 +328,7 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
         } else {
             audiosAdapter.notifyDataSetChanged();
         }
-        AudioCacheDB.clear(parent, false);
+        //AudioCacheDB.clear(parent, false);
         AudioCacheDB.fillDatabase(parent, audios, false, false);
     }
 
@@ -350,8 +350,8 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
             audiosView.setLayoutManager(llm);
         }
         audiosView.setAdapter(audiosAdapter);
-        AudioCacheDB.clear(parent, true);
-        AudioCacheDB.fillDatabase(parent, audios, false, true);
+        //AudioCacheDB.clear(parent, true);
+        //AudioCacheDB.fillDatabase(parent, audios, false, true);
     }
 
     public void startAudioPlayerService() {

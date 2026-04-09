@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -38,7 +39,64 @@ public class AudioCacheDB extends CacheDatabase {
     public static Vector<String> cachedIDs = new Vector<>();
     public static Vector<String> cacheReqs = new Vector<>();
     private static Context ctx;
-    public static String prefix = "audio";
+    public static String prefix = "audios";
+
+    public static class CacheOpenHelper extends SQLiteOpenHelper {
+
+        public CacheOpenHelper(Context ctx, String db_name) {
+            super(ctx, db_name, null, 1);
+        }
+
+        public CacheOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+            super(context, name, factory, version);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase database) {
+            CacheDatabaseTables.createAudioTracksTable(database, false);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase database, int oldVer, int newVer) {
+            if (oldVer == 1 && newVer >= oldVer) {
+                // TODO: Add database auto-upgrade to new versions
+                return;
+            }
+            onCreate(database);
+        }
+
+        @Override // android.database.sqlite.SQLiteOpenHelper
+        public SQLiteDatabase getWritableDatabase() {
+            while (true) {
+                try {
+                    SQLiteDatabase db = super.getWritableDatabase();
+                    db.setLockingEnabled(false);
+                    return db;
+                } catch (Exception ex) {
+                    try {
+                        Thread.sleep(100L);
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+
+        @Override // android.database.sqlite.SQLiteOpenHelper
+        public SQLiteDatabase getReadableDatabase() {
+            while (true) {
+                try {
+                    SQLiteDatabase db = super.getReadableDatabase();
+                    db.setLockingEnabled(false);
+                    return db;
+                } catch (Exception ex) {
+                    try {
+                        Thread.sleep(100L);
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+    }
 
     public void putTrack(Context ctx, Audio track, boolean forced, boolean intoSearchResults) {
         CacheOpenHelper helper2 = new CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
@@ -93,7 +151,7 @@ public class AudioCacheDB extends CacheDatabase {
         CacheOpenHelper helper = new CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            String table_name = "tracks";
+            String table_name = "audios";
             if(inSearchResults) {
                 table_name = "search_results";
             }
@@ -110,24 +168,21 @@ public class AudioCacheDB extends CacheDatabase {
         return result;
     }
 
-    public static void fillDatabase(Context ctx2, final ArrayList<Audio> audios,
+    public static void fillDatabase(final Context ctx2, final ArrayList<Audio> audios,
                                     final boolean clear, final boolean intoSearchResults) {
-        final CacheOpenHelper helper = new CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, "audio"));
 
         new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    final AudioCacheDB.CacheOpenHelper helper =
+                            new AudioCacheDB.CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
+                    Cursor cursor = null;
+                    SQLiteDatabase db = helper.getWritableDatabase();
                     try {
-                        Cursor cursor = null;
-                        SQLiteDatabase db = helper.getWritableDatabase();
                         if (clear) {
                             cachedIDs.clear();
                         }
-                        CacheDatabaseTables.createAudioTracksTable(db, clear);
                         String table_name = "audios";
-                        if(intoSearchResults) {
-                            table_name = "search_results";
-                        }
                         cursor = db.query(table_name, new String[]{"owner_id", "audio_id"},
                                 null, null, null, null, null);
                         cursor.moveToFirst();
@@ -149,19 +204,20 @@ public class AudioCacheDB extends CacheDatabase {
                             String track_name = String.format("%s_%s", track.id, track.owner_id);
                             cachedIDs.add(track_name);
                         }
-                        db.close();
-                        helper.close();
                         cursor.close();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                    db.close();
+                    helper.close();
                 }
             }).start();
     }
 
     public static void fillDatabaseFromWall(Context ctx2, ArrayList<Audio> audios,
                                             long post_id, boolean clear) {
-        CacheOpenHelper helper = new CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, "audio"));
+        final AudioCacheDB.CacheOpenHelper helper =
+                new AudioCacheDB.CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
 
         Cursor cursor = null;
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -192,16 +248,17 @@ public class AudioCacheDB extends CacheDatabase {
                 String track_name = String.format("%s_%s", track.id, track.owner_id);
                 cachedIDs.add(track_name);
             }
-            db.close();
             helper.close();
             cursor.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        db.close();
     }
 
     public static ArrayList<Audio> getCachedAudiosList(Context ctx2, boolean fromSearchResults) {
-        CacheOpenHelper helper = new CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
+        final AudioCacheDB.CacheOpenHelper helper =
+                new AudioCacheDB.CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
         SQLiteDatabase db = helper.getWritableDatabase();
         ArrayList<Audio> list = new ArrayList<>();
         try {
@@ -274,7 +331,8 @@ public class AudioCacheDB extends CacheDatabase {
     }
 
     private static void deleteOldTrack(Context ctx) {
-        CacheOpenHelper helper = new CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
+        final AudioCacheDB.CacheOpenHelper helper =
+                new AudioCacheDB.CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
             Cursor cursor = db.query("audios",
@@ -305,14 +363,11 @@ public class AudioCacheDB extends CacheDatabase {
 
     public static void clear(Context ctx, boolean fromSearchOnly) {
         if(getCurrentDatabaseName(ctx, prefix) != null) {
-            CacheOpenHelper helper = new CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
+            final AudioCacheDB.CacheOpenHelper helper =
+                    new AudioCacheDB.CacheOpenHelper(ctx, getCurrentDatabaseName(ctx, prefix));
             SQLiteDatabase db = helper.getWritableDatabase();
             try {
-                if (fromSearchOnly) {
-                    db.delete("search_results", null, null);
-                } else {
-                    db.delete("audios", null, null);
-                }
+                db.delete("audios", null, null);
                 cachedIDs.clear();
                 Intent intent = new Intent(AudioPlayerService.ACTION_UPDATE_PLAYLIST);
                 intent.putExtra("reload_cached_list", true);
@@ -342,7 +397,8 @@ public class AudioCacheDB extends CacheDatabase {
     }
 
     public static ArrayList<Audio> getAudiosListFromWall(Context ctx2, long post_id) {
-        CacheOpenHelper helper = new CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
+        final AudioCacheDB.CacheOpenHelper helper =
+                new AudioCacheDB.CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, prefix));
         SQLiteDatabase db = helper.getWritableDatabase();
         ArrayList<Audio> list = new ArrayList<>();
         try {
