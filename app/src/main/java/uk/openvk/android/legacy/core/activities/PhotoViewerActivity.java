@@ -240,7 +240,7 @@ public class PhotoViewerActivity extends NetworkActivity {
                         String.format("%s/%s/photos_cache/original_photos/original_photo_a%s_%s",
                                 getCacheDir().getAbsolutePath(), instance, extras.getLong("author_id"),
                                 extras.getLong("photo_id")), bfOptions);
-                int max_size = 2880;
+                int max_size = 3328;
                 if (getResources().getDisplayMetrics().widthPixels <= 720) {
                     max_size = 1920;
                 } else if (getResources().getDisplayMetrics().widthPixels <= 480) {
