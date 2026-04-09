@@ -108,9 +108,9 @@ public class AudioPlayerActivity extends NetworkActivity implements
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         if(((OvkApplication) getApplicationContext()).isTablet)
             enableDialogMode();
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio_player);
         TextView title_tv = findViewById(R.id.aplayer_title);
         TextView artist_tv = findViewById(R.id.aplayer_artist);
