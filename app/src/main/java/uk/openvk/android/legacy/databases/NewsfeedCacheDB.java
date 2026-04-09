@@ -285,6 +285,9 @@ public class NewsfeedCacheDB extends CacheDatabase {
                 for (int i = 0; i < wallPosts.size(); i++) {
                     WallPost post = wallPosts.get(i);
 
+                    if(post.getEntityType() == LazyEntity.SLEEPING_ENTITY)
+                        continue;
+
                     if(clear) {
                         ContentValues newsfeed_values = new ContentValues();
                         newsfeed_values.put("post_id", post.post_id);

@@ -248,7 +248,7 @@ public class MainSettingsFragment extends ActivePreferenceFragment {
         }
 
         Preference debug_menu = findPreference("debug_menu");
-        if (BuildConfig.BUILD_TYPE.equals("release")) {
+        if (!OvkApplication.isDebug) {
             others.removePreference(debug_menu);
         } else {
             danger_zone_multiple_tap = 0;
@@ -256,7 +256,7 @@ public class MainSettingsFragment extends ActivePreferenceFragment {
             debug_menu.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    if (instance_prefs.getString("access_token", "").length() > 0) {
+                    if (instance_prefs != null && instance_prefs.getString("access_token", "").length() > 0) {
                         danger_zone_multiple_tap += 1;
                         if (danger_zone_multiple_tap < 15) {
                             Intent intent = new Intent(getContext(), DebugMenuActivity.class);
