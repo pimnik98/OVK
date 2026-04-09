@@ -114,49 +114,49 @@ public class AudioCacheDB extends CacheDatabase {
                                     final boolean clear, final boolean intoSearchResults) {
         final CacheOpenHelper helper = new CacheOpenHelper(ctx2, getCurrentDatabaseName(ctx2, "audio"));
 
-        try {
-            new Thread(new Runnable() {
+        new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Cursor cursor = null;
-                    SQLiteDatabase db = helper.getWritableDatabase();
-                    if (clear) {
-                        cachedIDs.clear();
-                    }
-                    CacheDatabaseTables.createAudioTracksTable(db, clear);
-                    String table_name = "audios";
-                    if(intoSearchResults) {
-                        table_name = "search_results";
-                    }
-                    cursor = db.query(table_name, new String[]{"owner_id", "audio_id"},
-                            null, null, null, null, null);
-                    cursor.moveToFirst();
+                    try {
+                        Cursor cursor = null;
+                        SQLiteDatabase db = helper.getWritableDatabase();
+                        if (clear) {
+                            cachedIDs.clear();
+                        }
+                        CacheDatabaseTables.createAudioTracksTable(db, clear);
+                        String table_name = "audios";
+                        if(intoSearchResults) {
+                            table_name = "search_results";
+                        }
+                        cursor = db.query(table_name, new String[]{"owner_id", "audio_id"},
+                                null, null, null, null, null);
+                        cursor.moveToFirst();
 
-                    for (int i = 0; i < audios.size(); i++) {
-                        Audio track = audios.get(i);
-                        ContentValues values = new ContentValues();
-                        values.put("audio_id", track.id);
-                        values.put("owner_id", track.owner_id);
-                        values.put("title", track.title);
-                        values.put("artist", track.artist);
-                        values.put("duration", track.getDurationInSeconds());
-                        values.put("lastplay", 0);
-                        values.put("user", true);
-                        values.put("lyrics", track.lyrics);
-                        values.put("url", track.url);
-                        values.put("status", track.status);
-                        db.insert(table_name, null, values);
-                        String track_name = String.format("%s_%s", track.id, track.owner_id);
-                        cachedIDs.add(track_name);
+                        for (int i = 0; i < audios.size(); i++) {
+                            Audio track = audios.get(i);
+                            ContentValues values = new ContentValues();
+                            values.put("audio_id", track.id);
+                            values.put("owner_id", track.owner_id);
+                            values.put("title", track.title);
+                            values.put("artist", track.artist);
+                            values.put("duration", track.getDurationInSeconds());
+                            values.put("lastplay", 0);
+                            values.put("user", true);
+                            values.put("lyrics", track.lyrics);
+                            values.put("url", track.url);
+                            values.put("status", track.status);
+                            db.insert(table_name, null, values);
+                            String track_name = String.format("%s_%s", track.id, track.owner_id);
+                            cachedIDs.add(track_name);
+                        }
+                        db.close();
+                        helper.close();
+                        cursor.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                    db.close();
-                    helper.close();
-                    cursor.close();
                 }
             }).start();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     public static void fillDatabaseFromWall(Context ctx2, ArrayList<Audio> audios,

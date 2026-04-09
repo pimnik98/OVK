@@ -257,8 +257,7 @@ public class NewsfeedCacheDB extends CacheDatabase {
     }
 
     public static void putPosts(final Context ctx, final ArrayList<WallPost> wallPosts, final boolean clear) {
-        try {
-            new Thread(new Runnable() {
+        new Thread(new Runnable() {
                 @Override
                 public void run() {
                     NewsfeedCacheDB.CacheOpenHelper posts_helper = new NewsfeedCacheDB.CacheOpenHelper(
@@ -340,9 +339,6 @@ public class NewsfeedCacheDB extends CacheDatabase {
                     groups_helper.close();
                 }
             }).start();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     private static void writePostAuthorsInfo(Context ctx, WallPost post, SQLiteDatabase users_db, SQLiteDatabase groups_db) {
