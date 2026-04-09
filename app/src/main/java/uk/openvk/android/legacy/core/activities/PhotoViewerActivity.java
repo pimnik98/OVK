@@ -240,13 +240,30 @@ public class PhotoViewerActivity extends NetworkActivity {
                         String.format("%s/%s/photos_cache/original_photos/original_photo_a%s_%s",
                                 getCacheDir().getAbsolutePath(), instance, extras.getLong("author_id"),
                                 extras.getLong("photo_id")), bfOptions);
-                int max_size = 3328;
-                if (getResources().getDisplayMetrics().widthPixels <= 720) {
-                    max_size = 1920;
-                } else if (getResources().getDisplayMetrics().widthPixels <= 480) {
-                    max_size = 1280;
-                }if (getResources().getDisplayMetrics().widthPixels <= 320) {
-                    max_size = 1024;
+                int max_size;
+
+                if(((OvkApplication) getApplication()).isTablet) {
+                    if (getResources().getDisplayMetrics().widthPixels >= 1920) {
+                        max_size = 3200;
+                    } else if (getResources().getDisplayMetrics().widthPixels >= 1440) {
+                        max_size = 2560;
+                    } else if (getResources().getDisplayMetrics().widthPixels >= 1024) {
+                        max_size = 2240;
+                    } else {
+                        max_size = 1536;
+                    }
+                } else {
+                    if (getResources().getDisplayMetrics().widthPixels >= 1440) {
+                        max_size = 3600;
+                    } else if (getResources().getDisplayMetrics().widthPixels >= 1024) {
+                        max_size = 3200;
+                    } else if (getResources().getDisplayMetrics().widthPixels >= 720) {
+                        max_size = 2240;
+                    } else if (getResources().getDisplayMetrics().widthPixels >= 480) {
+                        max_size = 1440;
+                    } else {
+                        max_size = 1024;
+                    }
                 }
 
                 if (bitmap == null)

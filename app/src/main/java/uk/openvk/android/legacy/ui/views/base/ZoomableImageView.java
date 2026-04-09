@@ -34,6 +34,7 @@ import android.view.Window;
 import android.widget.ImageView;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
+import uk.openvk.android.legacy.OvkApplication;
 
 @SuppressLint("AppCompatCustomView")
 public class ZoomableImageView extends ImageView {
@@ -109,7 +110,8 @@ public class ZoomableImageView extends ImageView {
     public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
         if(photoAttacher != null) {
-            if (bm.getWidth() < 1536 && bm.getHeight() < 1024) {
+            if (((OvkApplication) getContext().getApplicationContext()).isTablet ||
+                    (bm.getWidth() < 1536 && bm.getHeight() < 1024)) {
                 photoAttacher.setMaximumScale(6);
             } else {
                 photoAttacher.setMaximumScale(8);
