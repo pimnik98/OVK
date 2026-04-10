@@ -333,10 +333,8 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
     @Override
     public void onAudioPlayerError(int what, int extra, int current_track_pos) {
         try {
-            // The main thing is that this workaround should force the AudioPlayerService service
-            // to switch/play audio tracks without fail.
-            if(what == -38 && extra == 0) {
-                setAudioPlayerState(current_track_pos, AudioPlayerService.STATUS_STARTING, "");
+            if(audioPlayerService.getPlaybackFailedAttempts() < 5) {
+                setAudioPlayerState(current_track_pos, AudioPlayerService.STATUS_GOTO_NEXT, "");
             } else {
                 Toast.makeText(
                         this,

@@ -222,13 +222,17 @@ public class NotificationManager {
         if(track == null) {
             remoteViews.setTextViewText(R.id.title, ctx.getResources().getString(R.string.player_done));
             remoteViews.setTextViewText(R.id.content, "");
-            remoteViews.setViewVisibility(R.id.prev, View.GONE);
-            remoteViews.setViewVisibility(R.id.next, View.GONE);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                remoteViews.setViewVisibility(R.id.prev, View.GONE);
+                remoteViews.setViewVisibility(R.id.next, View.GONE);
+            }
         } else {
             remoteViews.setTextViewText(R.id.title, track.title);
             remoteViews.setTextViewText(R.id.content, track.artist);
-            remoteViews.setViewVisibility(R.id.prev, View.VISIBLE);
-            remoteViews.setViewVisibility(R.id.next, View.VISIBLE);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                remoteViews.setViewVisibility(R.id.prev, View.VISIBLE);
+                remoteViews.setViewVisibility(R.id.next, View.VISIBLE);
+            }
         }
         PendingIntent playPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PLAYING);
         PendingIntent pausePendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PAUSED);
@@ -286,6 +290,8 @@ public class NotificationManager {
         if(notification == null || notification.contentView == null) return;
 
         if(track == null) return;
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
 
         notification.contentView.setTextViewText(R.id.title, track.title);
         notification.contentView.setTextViewText(R.id.content, track.artist);

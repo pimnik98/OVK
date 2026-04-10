@@ -22,7 +22,6 @@ package uk.openvk.android.legacy.services;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
@@ -35,7 +34,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +42,6 @@ import java.util.List;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.client.entities.Audio;
 import uk.openvk.android.legacy.R;
-import uk.openvk.android.legacy.core.listeners.AudioPlayerListener;
 import uk.openvk.android.legacy.databases.AudioCacheDB;
 import uk.openvk.android.legacy.utils.NotificationManager;
 
@@ -105,6 +102,10 @@ public class AudioPlayerService extends Service implements
 
     public boolean isPrepared() {
         return isPrepared;
+    }
+
+    public int getPlaybackFailedAttempts() {
+        return errorCount;
     }
 
     public class AudioPlayerBinder extends Binder {
@@ -307,6 +308,8 @@ public class AudioPlayerService extends Service implements
             if(errorCount > 5) {
                 notifyPlayerStatus(AudioPlayerService.STATUS_FAILED);
                 stopSelf();
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    stopForeground(true);
                 return;
             }
 
