@@ -434,7 +434,7 @@ public class AudioPlayerService extends Service implements
             );
         }
 
-        if(status == AudioPlayerService.STATUS_PLAYING) {
+        if(status == AudioPlayerService.STATUS_PLAYING && notifManager != null) {
             notifManager.updateAudioPlayerNotification(0x64FF, notification, playlist[currentTrackPos]);
         }
     }
