@@ -23,6 +23,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -31,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -328,6 +330,12 @@ public class AudioPlayerService extends Service implements
     }
 
     private void startPlaylistFromPosition(int track_position) {
+        SharedPreferences global_prefs =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        boolean useProxy = global_prefs.getBoolean("useProxy", false);
+        String proxy_type = global_prefs.getString("proxyType",  "");
+
         try {
             if(playlist[track_position].id == 0) {
                 track_position++;
