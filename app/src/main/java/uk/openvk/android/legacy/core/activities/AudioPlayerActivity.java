@@ -247,6 +247,8 @@ public class AudioPlayerActivity extends NetworkActivity implements
             this.playerStatus = status;
             if(currentTrack.lyrics > 0 && currentTrack.lyrics_text == null)
                 ovk_api.audios.getLyrics(ovk_api.wrapper, currentTrack.lyrics);
+            else
+                lyrics_tv.setVisibility(View.GONE);
         }
         switch (status) {
             case AudioPlayerService.STATUS_PLAYING:
