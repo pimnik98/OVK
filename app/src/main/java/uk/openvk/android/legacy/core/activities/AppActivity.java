@@ -82,6 +82,7 @@ import uk.openvk.android.legacy.core.fragments.VideosFragment;
 import uk.openvk.android.legacy.core.listeners.AccountsUpdateListener;
 import uk.openvk.android.legacy.databases.NewsfeedCacheDB;
 import uk.openvk.android.legacy.receivers.LongPollReceiver;
+import uk.openvk.android.legacy.services.AudioPlayerService;
 import uk.openvk.android.legacy.services.LongPollService;
 import uk.openvk.android.legacy.ui.FragmentNavigator;
 import uk.openvk.android.legacy.ui.list.adapters.AccountSlidingMenuAdapter;
@@ -209,7 +210,8 @@ public class AppActivity extends NetworkFragmentActivity {
                     unregisterReceiver(lpReceiver);
                 }
                 if(notifMan != null) notifMan.clearAudioPlayerNotification();
-                exitApplication();
+                if(!getAudioPlayerService().isPlaying())
+                    exitApplication();
             } else {
                 if (selectedFragment instanceof AudiosFragment)
                     ((AudiosFragment) selectedFragment).closeSearchItem();

@@ -591,6 +591,7 @@
 	<string name="videos_of_me">Відео зі мною</string>
 	<string name="videos_by_user">Відеозаписи %s</string>
 	<string name="now_playing">Відтворюється</string>
+    <string name="player_done">Поки що нічого не відтворює</string>
 	<string name="group_inv_accept">Вступити</string>
 	<string name="group_inv_decline">Відхилити</string>
 	<string name="group_inv_event_accept">Піду</string>

@@ -19,6 +19,7 @@
 
 package uk.openvk.android.legacy.services;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.List;
 
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.client.entities.Audio;
+import uk.openvk.android.legacy.R;
 import uk.openvk.android.legacy.core.listeners.AudioPlayerListener;
 import uk.openvk.android.legacy.databases.AudioCacheDB;
 import uk.openvk.android.legacy.utils.NotificationManager;
@@ -80,6 +83,8 @@ public class AudioPlayerService extends Service implements
     private int playerStatus;
     private double bufferLength;
     private int errorCount;
+    private Notification notification;
+    private NotificationManager notifManager;
 
     public AudioPlayerService() {
 
@@ -140,6 +145,24 @@ public class AudioPlayerService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (intent == null) {
+                    stopForeground(true);
+                    stopSelf();
+                    return START_NOT_STICKY;
+                } else {
+                    if(notification == null) {
+                        notifManager = new NotificationManager(
+                                this, false, false, false, ""
+                        );
+                        notification = notifManager.createAudioPlayerNotification(
+                                this, R.drawable.ic_audio_play, "audio_player", null
+                        );
+                        startForeground(0x64FF, notification);
+                    }
+                }
+            }
+
             Bundle data = intent.getExtras();
             if (data != null) {
                 String action = data.getString("action");
@@ -251,7 +274,7 @@ public class AudioPlayerService extends Service implements
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     private void createMediaPlayer() {
@@ -407,6 +430,10 @@ public class AudioPlayerService extends Service implements
                     action, playerStatus, currentTrackPos, intent.getExtras()
             );
         }
+
+        if(status == AudioPlayerService.STATUS_PLAYING) {
+            notifManager.updateAudioPlayerNotification(0x64FF, notification, playlist[currentTrackPos]);
+        }
     }
 
     public void notifyPlayerStatus() {
@@ -414,7 +441,7 @@ public class AudioPlayerService extends Service implements
         String action = AudioPlayerService.ACTION_UPDATE_CURRENT_TRACKPOS;
         intent.setAction(action);
         intent.putExtra("status", this.playerStatus);
-        intent.putExtra("track_position", currentTrackPos);
+        intent.putExtra("track_pos", currentTrackPos);
         sendBroadcast(intent);
         for(int i = 0; i < listeners.size(); i++) {
             listeners.get(i).onReceiveCurrentTrackPosition(currentTrackPos, playerStatus);
@@ -429,6 +456,7 @@ public class AudioPlayerService extends Service implements
             intent.putExtra("progress", mp.getCurrentPosition());
             intent.putExtra("duration", mp.getDuration());
             intent.putExtra("buffer_length", bufferLength);
+            intent.putExtra("track_pos", currentTrackPos);
             sendBroadcast(intent);
             for (int i = 0; i < listeners.size(); i++) {
                 listeners.get(i).onUpdateSeekbarPosition(

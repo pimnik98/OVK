@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -218,33 +219,44 @@ public class NotificationManager {
     public Notification createAudioPlayerNotification(Context ctx, int icon, String channel_id, Audio track) {
         Notification notification;
         RemoteViews remoteViews = new RemoteViews(ctx.getPackageName(), R.layout.audio_notification);
-        remoteViews.setTextViewText(R.id.title, track.title);
-        remoteViews.setTextViewText(R.id.content, track.artist);
+        if(track == null) {
+            remoteViews.setTextViewText(R.id.title, ctx.getResources().getString(R.string.player_done));
+            remoteViews.setTextViewText(R.id.content, "");
+            remoteViews.setViewVisibility(R.id.prev, View.GONE);
+            remoteViews.setViewVisibility(R.id.next, View.GONE);
+        } else {
+            remoteViews.setTextViewText(R.id.title, track.title);
+            remoteViews.setTextViewText(R.id.content, track.artist);
+            remoteViews.setViewVisibility(R.id.prev, View.VISIBLE);
+            remoteViews.setViewVisibility(R.id.next, View.VISIBLE);
+        }
         PendingIntent playPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PLAYING);
         PendingIntent pausePendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PAUSED);
         PendingIntent prevPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_GOTO_PREVIOUS);
         PendingIntent nextPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_GOTO_NEXT);
         // Clickable notifications working with Android Honeycomb and above
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            switch (track.status) {
-                case 3:
-                    remoteViews.setOnClickPendingIntent(R.id.playpause, playPendingIntent);
-                    remoteViews.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_play);
-                    break;
-                default:
-                    remoteViews.setOnClickPendingIntent(R.id.playpause, pausePendingIntent);
-                    remoteViews.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_pause);
-                    break;
-            }
+        if(track != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                switch (track.status) {
+                    case 3:
+                        remoteViews.setOnClickPendingIntent(R.id.playpause, playPendingIntent);
+                        remoteViews.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_play);
+                        break;
+                    default:
+                        remoteViews.setOnClickPendingIntent(R.id.playpause, pausePendingIntent);
+                        remoteViews.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_pause);
+                        break;
+                }
 
-            remoteViews.setOnClickPendingIntent(R.id.prev, prevPendingIntent);
-            remoteViews.setOnClickPendingIntent(R.id.next, nextPendingIntent);
-        } else {
-            switch (track.status) {
-                case 3:
-                    remoteViews.setImageViewResource(R.id.player_status, R.drawable.ic_audio_panel_pause);
-                default:
-                    remoteViews.setImageViewResource(R.id.player_status, R.drawable.ic_audio_panel_play);
+                remoteViews.setOnClickPendingIntent(R.id.prev, prevPendingIntent);
+                remoteViews.setOnClickPendingIntent(R.id.next, nextPendingIntent);
+            } else {
+                switch (track.status) {
+                    case 3:
+                        remoteViews.setImageViewResource(R.id.player_status, R.drawable.ic_audio_panel_pause);
+                    default:
+                        remoteViews.setImageViewResource(R.id.player_status, R.drawable.ic_audio_panel_play);
+                }
             }
         }
 
@@ -268,6 +280,40 @@ public class NotificationManager {
                 notification.contentView = remoteViews;
         }
         return notification;
+    }
+
+    public void updateAudioPlayerNotification(int id, Notification notification, Audio track) {
+        if(notification == null || notification.contentView == null) return;
+
+        if(track == null) return;
+
+        notification.contentView.setTextViewText(R.id.title, track.title);
+        notification.contentView.setTextViewText(R.id.content, track.artist);
+        notification.contentView.setViewVisibility(R.id.prev, View.VISIBLE);
+        notification.contentView.setViewVisibility(R.id.next, View.VISIBLE);
+
+        PendingIntent playPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PLAYING);
+        PendingIntent pausePendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PAUSED);
+        PendingIntent prevPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_GOTO_PREVIOUS);
+        PendingIntent nextPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_GOTO_NEXT);
+
+        switch (track.status) {
+            case 3:
+                notification.contentView.setOnClickPendingIntent(R.id.playpause, playPendingIntent);
+                notification.contentView.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_play);
+                break;
+            default:
+                notification.contentView.setOnClickPendingIntent(R.id.playpause, pausePendingIntent);
+                notification.contentView.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_pause);
+                break;
+        }
+
+        notification.contentView.setOnClickPendingIntent(R.id.prev, prevPendingIntent);
+        notification.contentView.setOnClickPendingIntent(R.id.next, nextPendingIntent);
+        android.app.NotificationManager manager =
+                (android.app.NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        if(manager != null)
+            manager.notify(id, notification);
     }
 
     private PendingIntent setAudioPlayerControls(Context ctx, int status) {

@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-sdk tools:overrideLibrary="com.seppius.i18n.plurals,com.reginald.swiperefresh"/>
 
@@ -466,10 +467,12 @@
         </receiver>
 
         <!--suppress AndroidDomInspection -->
-        <service android:name=".services.LongPollService" android:enabled="true" android:exported="true"/>
+        <service android:name=".services.LongPollService" android:enabled="true" android:exported="true"
+            android:foregroundServiceType="dataSync"/>
 
         <!--suppress AndroidDomInspection -->
-        <service android:name=".services.AudioPlayerService" android:enabled="true" android:exported="true"/>
+        <service android:name=".services.AudioPlayerService" android:enabled="true" android:exported="true"
+            android:foregroundServiceType="mediaPlayback"/>
 
         <service android:name="uk.openvk.android.legacy.services.AuthenticatorService"
             android:exported="false">

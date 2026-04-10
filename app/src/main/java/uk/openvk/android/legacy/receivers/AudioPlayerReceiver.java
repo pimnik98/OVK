@@ -54,7 +54,7 @@ public class AudioPlayerReceiver extends BroadcastReceiver {
                     switch (action) {
                         case AudioPlayerService.ACTION_PLAYER_CONTROL:
                             int status = data.getInt("status");
-                            int track_pos = data.getInt("track_position");
+                            int track_pos = data.getInt("track_pos");
                             if (audiosFragment != null) {
                                 audiosFragment.receivePlayerStatus(action, status, track_pos, data);
                             } else if (ctx instanceof AudioPlayerActivity) {
@@ -63,8 +63,7 @@ public class AudioPlayerReceiver extends BroadcastReceiver {
                             break;
                         case AudioPlayerService.ACTION_UPDATE_CURRENT_TRACKPOS:
                             status = data.getInt("status");
-                            track_pos = data.getInt("track_position");
-                            track_pos = data.getInt("track_position");
+                            track_pos = data.getInt("track_pos");
                             if (audiosFragment != null) {
                                 audiosFragment.updateCurrentTrackPosition(track_pos, status);
                             } else if (ctx instanceof AudioPlayerActivity) {

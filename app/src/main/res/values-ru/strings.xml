@@ -576,6 +576,7 @@
 	<string name="videos_of_me">Видео со мной</string>
 	<string name="videos_by_user">Видеозаписи %s</string>
 	<string name="now_playing">Воспроизводится</string>
+    <string name="player_done">Пока ничего не играет</string>
 	<string name="group_inv_accept">Вступить</string>
 	<string name="group_inv_decline">Отклонить</string>
 	<string name="group_inv_event_accept">Пойду</string>
