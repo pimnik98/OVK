@@ -186,6 +186,9 @@ public class AudioPlayerActivity extends NetworkActivity implements
     public void receivePlayerStatus(String action, int status, int track_pos, Bundle data) {
         ImageView play_button = findViewById(R.id.aplayer_play);
         playerStatus = status;
+        if(timer != null)
+            timer.cancel();
+
         if(action.equals(AudioPlayerService.ACTION_PLAYER_CONTROL)) {
             switch (status) {
                 case AudioPlayerService.STATUS_PLAYING:
@@ -193,9 +196,11 @@ public class AudioPlayerActivity extends NetworkActivity implements
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            if(audioPlayerService != null && audioPlayerService.getMediaPlayer() != null) {
-                                if(audioPlayerService.isPrepared())
+                            if (audioPlayerService != null && audioPlayerService.getMediaPlayer() != null) {
+                                if (audioPlayerService.isPrepared() && audioPlayerService.isPlaying())
                                     handler.sendEmptyMessage(0);
+                                else
+                                    cancel();
                             } else {
                                 cancel();
                             }
@@ -205,18 +210,6 @@ public class AudioPlayerActivity extends NetworkActivity implements
                     break;
                 case AudioPlayerService.STATUS_PAUSED:
                     play_button.setImageDrawable(getResources().getDrawable(R.drawable.ic_audio_panel_play));
-                    try {
-                        timer.cancel();
-                    } catch (Exception ignored) {
-
-                    }
-                    break;
-                default:
-                    try {
-                        timer.cancel();
-                    } catch (Exception ignored) {
-
-                    }
                     break;
             }
         }
