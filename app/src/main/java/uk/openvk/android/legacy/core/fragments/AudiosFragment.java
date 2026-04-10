@@ -84,6 +84,7 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
     private AudioPlayerReceiver audioPlayerReceiver;
     private AudioPlayerService audioPlayerService;
     private Intent serviceIntent;
+    private int playAttempts;
     private ServiceConnection audioPlayerConnection = new ServiceConnection() {
 
         public void onServiceDisconnected(ComponentName name) {
@@ -407,9 +408,15 @@ public class AudiosFragment extends ActiveFragment implements AudioPlayerService
                 AppActivity activity = ((AppActivity) parent);
                 if (status == AudioPlayerService.STATUS_STARTING) {
                     activity.notifMan.createAudioPlayerChannel();
+                } else if(status == AudioPlayerService.STATUS_FAILED) {
+                    Toast.makeText(
+                            getContext(),
+                            getResources().getString(R.string.audio_play_error),
+                            Toast.LENGTH_LONG).show();
                 }
-                if (status != AudioPlayerService.STATUS_STOPPED) {
-                    if(!audios.get(track_position).equals(ap_title.getText())) {
+
+                if (status != AudioPlayerService.STATUS_STOPPED && status != AudioPlayerService.STATUS_FAILED) {
+                    if (!audios.get(track_position).equals(ap_title.getText())) {
                         activity.notifMan.buildAudioPlayerNotification(
                                 getContext(), audios, track_position
                         );

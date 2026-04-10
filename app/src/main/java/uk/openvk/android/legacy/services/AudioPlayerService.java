@@ -73,12 +73,13 @@ public class AudioPlayerService extends Service implements
     public static final int STATUS_REPEATING = 1007;
     public static final int STATUS_SHUFFLE = 1008;
     public static final int STATUS_SEEKING = 1009;
+    public static final int STATUS_FAILED = 1010;
     List<AudioPlayerListener> listeners = new ArrayList<>();
 
     private Audio[] playlist;
     private int playerStatus;
     private double bufferLength;
-    private int error_count;
+    private int errorCount;
 
     public AudioPlayerService() {
 
@@ -157,6 +158,7 @@ public class AudioPlayerService extends Service implements
                             break;
                         case "PLAYER_START":
                             isPlaying = false;
+                            errorCount = 0;
                             String from = data.getString("from");
                             int position = data.getInt("position");
                             currentTrackPos = position;
@@ -279,6 +281,12 @@ public class AudioPlayerService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         try {
+            if(errorCount > 5) {
+                notifyPlayerStatus(AudioPlayerService.STATUS_FAILED);
+                stopSelf();
+                return;
+            }
+
             if (mediaPlayer.getDuration() > 0) {
                 if (currentTrackPos < playlist.length - 1) {
                     int position = currentTrackPos + 1;
@@ -313,6 +321,7 @@ public class AudioPlayerService extends Service implements
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
         Log.e(OvkApplication.APS_TAG, String.format("Invalid track stream (w: %s, x: %s)", what, extra));
+        errorCount++;
         if((what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == MediaPlayer.MEDIA_ERROR_IO)
                 || what == -38) {
             for(int i = 0; i < listeners.size(); i++) {

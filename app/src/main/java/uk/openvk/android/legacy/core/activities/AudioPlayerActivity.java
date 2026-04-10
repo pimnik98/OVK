@@ -345,7 +345,6 @@ public class AudioPlayerActivity extends NetworkActivity implements
 
     @Override
     public void onAudioPlayerError(int what, int extra, int currentTrackPos) {
-        Audio track = audio_tracks.get(currentTrackPos);
         timer.cancel();
     }
 
