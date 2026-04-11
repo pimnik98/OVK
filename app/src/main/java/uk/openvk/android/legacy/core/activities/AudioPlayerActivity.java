@@ -66,10 +66,14 @@ public class AudioPlayerActivity extends NetworkActivity implements
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(audioPlayerService != null) {
-                audioPlayerService.notifyPlayerStatus();
-                audioPlayerService.notifySeekbarStatus();
-            }
+            updateCurrentTrackPosition(
+                    audioPlayerService.getCurrentTrackPosision(), AudioPlayerService.STATUS_PLAYING
+            );
+            updateSeekbarPosition(
+                    audioPlayerService.getMediaPlayer().getCurrentPosition(),
+                    audioPlayerService.getMediaPlayer().getDuration(),
+                    ((SeekBar) findViewById(R.id.aplayer_progress)).getSecondaryProgress()
+            );
         }
     };
     private ServiceConnection audioPlayerConnection = new ServiceConnection() {
@@ -79,6 +83,11 @@ public class AudioPlayerActivity extends NetworkActivity implements
             isBoundAP = false;
             audioPlayerService = null;
             mediaPlayer = null;
+            if(timer != null) {
+                timer.cancel();
+                timer.purge();
+                timer = null;
+            }
         }
 
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -89,14 +98,10 @@ public class AudioPlayerActivity extends NetworkActivity implements
             mediaPlayer = audioPlayerService.getMediaPlayer();
             audioPlayerService.addListener(AudioPlayerActivity.this);
             audioPlayerService.notifyPlayerStatus();
-            audioPlayerService.notifySeekbarStatus();
-            if(audioPlayerService.isPlaying()) {
+            if(audioPlayerService.isPlaying())
                 receivePlayerStatus(
                         AudioPlayerService.ACTION_PLAYER_CONTROL,
-                        AudioPlayerService.STATUS_PLAYING,
-                        currentTrackPos,
-                        null);
-            }
+                        AudioPlayerService.STATUS_PLAYING);
         }
     };
     private ArrayList<Audio> audio_tracks;
@@ -124,24 +129,35 @@ public class AudioPlayerActivity extends NetworkActivity implements
         findViewById(R.id.aplayer_prev).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(audioPlayerService.isPrepared())
-                    setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_GOTO_PREVIOUS);
+                if(audioPlayerService.isPrepared()) {
+                    if(currentTrackPos > 0) {
+                        setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_GOTO_PREVIOUS);
+                        updateCurrentTrackPosition(currentTrackPos - 1, AudioPlayerService.STATUS_PLAYING);
+                        updateSeekbarPosition(0, 0, 0);
+                    }
+                }
             }
         });
         findViewById(R.id.aplayer_next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(audioPlayerService.isPrepared())
+                if(audioPlayerService.isPrepared()) {
                     setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_GOTO_NEXT);
+                    updateCurrentTrackPosition(currentTrackPos + 1, AudioPlayerService.STATUS_PLAYING);
+                    updateSeekbarPosition(0, 0, 0);
+                }
             }
         });
         findViewById(R.id.aplayer_play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(playerStatus == AudioPlayerService.STATUS_PAUSED)
+                if(playerStatus == AudioPlayerService.STATUS_PAUSED) {
                     setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_PLAYING);
-                else
+                    updateCurrentTrackPosition(currentTrackPos, AudioPlayerService.STATUS_PLAYING);
+                    receivePlayerStatus(AudioPlayerService.ACTION_PLAYER_CONTROL, AudioPlayerService.STATUS_PLAYING);
+                } else {
                     setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_PAUSED);
+                }
             }
         });
         audio_tracks = AudioCacheDB.getCachedAudiosList(this, fromSearch);
@@ -183,11 +199,14 @@ public class AudioPlayerActivity extends NetworkActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    public void receivePlayerStatus(String action, int status, int track_pos, Bundle data) {
+    public void receivePlayerStatus(String action, int status) {
         ImageView play_button = findViewById(R.id.aplayer_play);
         playerStatus = status;
-        if(timer != null)
+        if(timer != null) {
             timer.cancel();
+            timer.purge();
+            timer = null;
+        }
 
         if(action.equals(AudioPlayerService.ACTION_PLAYER_CONTROL)) {
             switch (status) {
@@ -199,10 +218,15 @@ public class AudioPlayerActivity extends NetworkActivity implements
                             if (audioPlayerService != null && audioPlayerService.getMediaPlayer() != null) {
                                 if (audioPlayerService.isPrepared() && audioPlayerService.isPlaying())
                                     handler.sendEmptyMessage(0);
-                                else
+                                else {
                                     cancel();
+                                    timer.purge();
+                                    timer = null;
+                                }
                             } else {
                                 cancel();
+                                timer.purge();
+                                timer = null;
                             }
                         }
                     }, 0, 200);
@@ -314,7 +338,6 @@ public class AudioPlayerActivity extends NetworkActivity implements
 
     @Override
     protected void onDestroy() {
-        timer.cancel();
         unbindService(audioPlayerConnection);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onDestroy();
@@ -322,7 +345,7 @@ public class AudioPlayerActivity extends NetworkActivity implements
 
     @Override
     public void onChangeAudioPlayerStatus(String action, int status, int track_pos, Bundle data) {
-        receivePlayerStatus(action, status, track_pos, data);
+        receivePlayerStatus(action, status);
     }
 
     @Override
@@ -333,12 +356,16 @@ public class AudioPlayerActivity extends NetworkActivity implements
     @Override
     public void onUpdateSeekbarPosition(int position, int duration, double buffer_length) {
         if(!isFocusedSeekBar)
-            updateSeekbarPosition(position, duration, buffer_length);
+            receivePlayerStatus(AudioPlayerService.ACTION_PLAYER_CONTROL, AudioPlayerService.STATUS_PLAYING);
     }
 
     @Override
     public void onAudioPlayerError(int what, int extra, int currentTrackPos) {
-        timer.cancel();
+        if(timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
     }
 
     @SuppressLint("DefaultLocale")

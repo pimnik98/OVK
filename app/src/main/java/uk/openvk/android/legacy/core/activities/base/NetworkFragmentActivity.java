@@ -300,7 +300,7 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
         bindAudioPlayer();
     }
 
-    protected AudioPlayerService getAudioPlayerService() {
+    public AudioPlayerService getAudioPlayerService() {
         return audioPlayerService;
     }
 
@@ -335,7 +335,7 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
         try {
             if(audioPlayerService.getPlaybackFailedAttempts() < 5) {
                 setAudioPlayerState(current_track_pos, AudioPlayerService.STATUS_GOTO_NEXT, "");
-            } else {
+            } else if(audioPlayerService.getPlaybackFailedAttempts() < 6){
                 Toast.makeText(
                         this,
                         getResources().getString(R.string.audio_play_error),

@@ -58,7 +58,7 @@ public class AudioPlayerReceiver extends BroadcastReceiver {
                             if (audiosFragment != null) {
                                 audiosFragment.receivePlayerStatus(action, status, track_pos, data);
                             } else if (ctx instanceof AudioPlayerActivity) {
-                                ((AudioPlayerActivity) ctx).receivePlayerStatus(action, status, track_pos, data);
+                                ((AudioPlayerActivity) ctx).receivePlayerStatus(action, status);
                             }
                             break;
                         case AudioPlayerService.ACTION_UPDATE_CURRENT_TRACKPOS:

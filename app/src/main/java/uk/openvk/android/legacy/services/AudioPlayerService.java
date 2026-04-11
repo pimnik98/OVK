@@ -108,6 +108,10 @@ public class AudioPlayerService extends Service implements
         return errorCount;
     }
 
+    public int getAudioPlayerState() {
+        return playerStatus;
+    }
+
     public class AudioPlayerBinder extends Binder {
         public AudioPlayerListener listener;
         public AudioPlayerService getService() {
@@ -182,6 +186,7 @@ public class AudioPlayerService extends Service implements
                             break;
                         case "PLAYER_START":
                             isPlaying = false;
+                            isPrepared = false;
                             errorCount = 0;
                             String from = data.getString("from");
                             int position = data.getInt("position");
@@ -210,6 +215,8 @@ public class AudioPlayerService extends Service implements
                             break;
                         case "PLAYER_START_FROM_WALL":
                             isPlaying = false;
+                            isPrepared = false;
+                            errorCount = 0;
                             position = data.getInt("position");
                             currentTrackPos = position;
                             notifyPlayerStatus(AudioPlayerService.STATUS_STARTING);
@@ -243,6 +250,8 @@ public class AudioPlayerService extends Service implements
                             break;
                         case "PLAYER_PREVIOUS":
                             isPlaying = false;
+                            isPrepared = false;
+                            errorCount = 0;
                             if(currentTrackPos > 0) {
                                 currentTrackPos--;
                                 startPlaylistFromPosition(currentTrackPos);
@@ -254,6 +263,8 @@ public class AudioPlayerService extends Service implements
                             break;
                         case "PLAYER_NEXT":
                             isPlaying = false;
+                            isPrepared = false;
+                            errorCount = 0;
                             if(currentTrackPos < playlist.length - 1) {
                                 currentTrackPos++;
                                 startPlaylistFromPosition(currentTrackPos);
@@ -387,6 +398,7 @@ public class AudioPlayerService extends Service implements
                         notifyPlayerStatus(STATUS_PLAYING);
                         isPlaying = true;
                         isPrepared = true;
+                        errorCount = 0;
                     }
                 });
                 mp.setOnCompletionListener(this);
@@ -426,7 +438,7 @@ public class AudioPlayerService extends Service implements
         String action = AudioPlayerService.ACTION_PLAYER_CONTROL;
         intent.setAction(action);
         intent.putExtra("status", status);
-        intent.putExtra("track_position", currentTrackPos);
+        intent.putExtra("track_pos", currentTrackPos);
         sendBroadcast(intent);
         for(int i = 0; i < listeners.size(); i++) {
             listeners.get(i).onChangeAudioPlayerStatus(
@@ -452,19 +464,21 @@ public class AudioPlayerService extends Service implements
     }
 
     public void notifySeekbarStatus() {
-        if(isPlaying) {
-            Intent intent = new Intent();
-            String action = AudioPlayerService.ACTION_UPDATE_SEEKPOS;
-            intent.setAction(action);
-            intent.putExtra("progress", mp.getCurrentPosition());
-            intent.putExtra("duration", mp.getDuration());
-            intent.putExtra("buffer_length", bufferLength);
-            intent.putExtra("track_pos", currentTrackPos);
-            sendBroadcast(intent);
-            for (int i = 0; i < listeners.size(); i++) {
-                listeners.get(i).onUpdateSeekbarPosition(
-                        mp.getCurrentPosition(), mp.getDuration(), bufferLength
-                );
+        if(isPrepared) {
+            if(isPlaying && mp.isPlaying()) {
+                Intent intent = new Intent();
+                String action = AudioPlayerService.ACTION_UPDATE_SEEKPOS;
+                intent.setAction(action);
+                intent.putExtra("progress", mp.getCurrentPosition());
+                intent.putExtra("duration", mp.getDuration());
+                intent.putExtra("buffer_length", bufferLength);
+                intent.putExtra("track_pos", currentTrackPos);
+                sendBroadcast(intent);
+                for (int i = 0; i < listeners.size(); i++) {
+                    listeners.get(i).onUpdateSeekbarPosition(
+                            mp.getCurrentPosition(), mp.getDuration(), bufferLength
+                    );
+                }
             }
         }
     }

@@ -285,27 +285,35 @@ public class AudiosFragment extends ActiveFragment {
         this.parent = ctx;
         this.audios = audios;
 
-        if(currentPlayerState == AudioPlayerService.STATUS_PLAYING
-                || currentPlayerState == AudioPlayerService.STATUS_PAUSED) {
-            Audio audio = audios.get(currentTrackPos);
-            int status = 0;
-            switch(currentPlayerState) {
-                case STATUS_PLAYING:
-                    status = 2;
-                    break;
-                case STATUS_PAUSED:
-                    status = 3;
-                    break;
-            }
-            audio.status = status;
-            this.audios.set(currentTrackPos, audio);
-            showBottomPlayer(audio);
-        }
-
         OvkApplication app = ((OvkApplication)getContext().getApplicationContext());
 
-        if(getActivity() instanceof NetworkFragmentActivity)
-            ((NetworkFragmentActivity) getActivity()).bindAudioPlayer();
+        if(getActivity() instanceof NetworkFragmentActivity) {
+            if(!((NetworkFragmentActivity) getActivity()).checkIsBoundAudioPlayer())
+                ((NetworkFragmentActivity) getActivity()).bindAudioPlayer();
+            else {
+                AudioPlayerService service = ((NetworkFragmentActivity) getActivity()).getAudioPlayerService();
+                if(service != null) {
+                    currentPlayerState = service.getAudioPlayerState();
+                    currentTrackPos = service.getCurrentTrackPosision();
+                    if (currentPlayerState == AudioPlayerService.STATUS_PLAYING
+                            || currentPlayerState == AudioPlayerService.STATUS_PAUSED) {
+                        Audio audio = audios.get(currentTrackPos);
+                        int status = 0;
+                        switch (currentPlayerState) {
+                            case STATUS_PLAYING:
+                                status = 2;
+                                break;
+                            case STATUS_PAUSED:
+                                status = 3;
+                                break;
+                        }
+                        audio.status = status;
+                        this.audios.set(currentTrackPos, audio);
+                        showBottomPlayer(audio);
+                    }
+                }
+            }
+        }
 
         if (audiosAdapter == null) {
             LinearLayout bottom_player_view = view.findViewById(R.id.audio_player_bar);
