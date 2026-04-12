@@ -300,7 +300,7 @@ public class ProfilePageFragment extends ActiveFragment {
             closetHighNumber = 1000;
 
         ratingProgress.setMax(100);
-        ratingProgress.setProgress((int)((rating / closetHighNumber) * 100));
+        ratingProgress.setProgress((int)(((float)rating / closetHighNumber) * 100));
         ratingCount.setText(String.format("%s %%", rating));
     }
 
