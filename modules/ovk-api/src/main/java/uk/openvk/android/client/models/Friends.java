@@ -75,9 +75,9 @@ public class Friends implements Parcelable {
 
     public void parse(String response, DownloadManager downloadManager, boolean downloadPhoto, boolean clear) {
         try {
-            if(clear) {
+            if(clear)
                 this.friends.clear();
-            }
+
             JSONObject json = jsonParser.parseJSON(response).getJSONObject("response");
             if(json != null) {
                 count = json.getInt("count");
@@ -85,6 +85,8 @@ public class Friends implements Parcelable {
                 ArrayList<Photo> avatars;
                 avatars = new ArrayList<Photo>();
                 for (int i = 0; i < users.length(); i++) {
+                    if(users.getJSONObject(i).getLong("id") == 0)
+                        continue;
                     Friend friend = new Friend(users.getJSONObject(i));
                     Photo photoAttachment = new Photo();
                     photoAttachment.url = friend.avatar_url;

@@ -921,14 +921,14 @@ public class AppActivity extends NetworkFragmentActivity {
             } else if(message == HandlerMessages.OVK_CHECK_HTTP) {
                 if(selectedFragment instanceof MainSettingsFragment) {
                     ((MainSettingsFragment) selectedFragment).setConnectionType(
-                            HandlerMessages.OVK_CHECK_HTTP, ovk_api.wrapper.proxy_connection);
+                            HandlerMessages.OVK_CHECK_HTTP, ovk_api.wrapper.proxyEnabled);
                     ovk_api.ovk.getVersion(ovk_api.wrapper);
                     ovk_api.ovk.aboutInstance(ovk_api.wrapper);
                 }
             } else if(message == HandlerMessages.OVK_CHECK_HTTPS) {
                 if(selectedFragment instanceof MainSettingsFragment) {
                     ((MainSettingsFragment) selectedFragment).setConnectionType(HandlerMessages.OVK_CHECK_HTTPS,
-                            ovk_api.wrapper.proxy_connection);
+                            ovk_api.wrapper.proxyEnabled);
                     ovk_api.ovk.getVersion(ovk_api.wrapper);
                     ovk_api.ovk.aboutInstance(ovk_api.wrapper);
                 }

@@ -63,6 +63,7 @@ public class FriendsFragment extends ActiveFragment {
     private View view;
     private Context activity_ctx;
     private String instance;
+    private int previousListCount;
     private InfinityRecyclerViewScrollListener infinityScrollListener = null;
 
     @Nullable
@@ -82,8 +83,13 @@ public class FriendsFragment extends ActiveFragment {
             ((TabSelector) view.findViewById(R.id.selector)).setLength(1);
             setupTabHost(friends_tabhost, "friends");
         }
-        ((TabSelector) view.findViewById(R.id.selector)).setTabTitle(0, getResources().getString(R.string.friends));
-        ((TabSelector) view.findViewById(R.id.selector)).setTabTitle(1, getResources().getString(R.string.friend_requests));
+        ((TabSelector) view.findViewById(R.id.selector)).setTabTitle(
+                0, getResources().getString(R.string.friends)
+        );
+        ((TabSelector) view.findViewById(R.id.selector)).setTabTitle(
+                1, getResources().getString(R.string.friend_requests)
+        );
+
         ((TabSelector) view.findViewById(R.id.selector)).setup(friends_tabhost, new
                 View.OnClickListener() {
             @Override
@@ -96,8 +102,13 @@ public class FriendsFragment extends ActiveFragment {
     }
 
     public void createAdapter(Context ctx, ArrayList<Friend> friends, String where) {
-        if(view != null) {
 
+        if(friends.size() == 0) {
+            friendsAdapter.notifyDataSetChanged();
+            return;
+        }
+
+        if(view != null) {
             if (where.equals("friends")) {
                 if(this.friends == null)
                     this.friends = new ArrayList<>();
@@ -114,6 +125,8 @@ public class FriendsFragment extends ActiveFragment {
                     friendsAdapter.setArray(this.friends);
                     friendsAdapter.notifyDataSetChanged();
                 }
+
+                previousListCount = friends.size();
             } else {
                 if(this.requests == null)
                     this.requests = friends;
@@ -177,16 +190,18 @@ public class FriendsFragment extends ActiveFragment {
         infinityScrollListener = new InfinityRecyclerViewScrollListener(lm) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                OpenVKAPI ovk_api = null;
-                if (ctx instanceof AppActivity) {
-                    ovk_api = ((AppActivity) ctx).ovk_api;
-                } else if (ctx instanceof FriendsIntentActivity) {
-                    ovk_api = ((FriendsIntentActivity) ctx).ovk_api;
-                } else {
-                    return;
-                }
+                if(previousListCount > 0) {
+                    OpenVKAPI ovk_api = null;
+                    if (ctx instanceof AppActivity) {
+                        ovk_api = ((AppActivity) ctx).ovk_api;
+                    } else if (ctx instanceof FriendsIntentActivity) {
+                        ovk_api = ((FriendsIntentActivity) ctx).ovk_api;
+                    } else {
+                        return;
+                    }
 
-                Global.loadMoreFriends(ovk_api);
+                    Global.loadMoreFriends(ovk_api);
+                }
             }
         };
 
@@ -222,6 +237,7 @@ public class FriendsFragment extends ActiveFragment {
             }
             friendsAdapter.notifyDataSetChanged();
         }
+
         if(requests != null) {
             for (int i = 0; i < requests.size(); i++) {
                 try {
@@ -248,12 +264,11 @@ public class FriendsFragment extends ActiveFragment {
     }
 
     public void refresh() {
-        if(friendsAdapter != null) {
+        if(friendsAdapter != null)
             friendsAdapter.notifyDataSetChanged();
-        }
-        if(requestsAdapter != null) {
+
+        if(requestsAdapter != null)
             requestsAdapter.notifyDataSetChanged();
-        }
     }
 
     private void setupTabHost(TabHost tabhost, String where) {
@@ -290,9 +305,9 @@ public class FriendsFragment extends ActiveFragment {
         if(counter == 0) {
             if(count > 0) {
                 selector.setTabTitle(0,
-                        String.format(
-                                "%s (%s)",
-                                getResources().getString(R.string.friends), count
+                        Global.getPluralQuantityString(
+                                getContext(),
+                                R.plurals.friends_tab_all, count
                         )
                 );
             } else {
@@ -315,9 +330,8 @@ public class FriendsFragment extends ActiveFragment {
     public void loadAPIData(Context ctx, OpenVKAPI ovk_api) {
         if(this.friends != null && this.friends.size() > 0) {
             int lastEntity = this.friends.size() - 1;
-            if(this.friends.get(lastEntity).getEntityType() == LazyEntity.SLEEPING_ENTITY) {
+            if(this.friends.get(lastEntity).getEntityType() == LazyEntity.SLEEPING_ENTITY)
                 this.friends.remove(lastEntity);
-            }
         }
         createAdapter(ctx, ovk_api.friends.getFriends(), "friends");
 
@@ -325,7 +339,9 @@ public class FriendsFragment extends ActiveFragment {
             ovk_api.friends.getRequests(ovk_api.wrapper);
 
         updateTabsCounters(0, ovk_api.friends.count);
-        updateTabsCounters(1, ovk_api.account.counters.friends_requests);
+        /* it's buggy
+         * updateTabsCounters(1, ovk_api.account.counters.friends_requests);
+         */
     }
 
     @Override
