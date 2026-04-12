@@ -275,19 +275,24 @@ public class ProfilePageFragment extends ActiveFragment {
     }
 
     private void setProfileRatingProgress(long rating) {
-        int closetHighNumber = 100;
+        long closetHighNumber = 100;
+        long rating2;
 
         ProgressBar ratingProgress = view.findViewById(R.id.rating_progress);
         TextView ratingCount = view.findViewById(R.id.rating_count);
 
-        if(rating >= 100000000)
-            closetHighNumber = 1000000000;
+        if(rating >= 10000000000L)
+            closetHighNumber = 100000000000L;  // 100,000,000,000 => 100B
+        else if(rating >= 1000000000)
+            closetHighNumber = 10000000000L;   //  10,000,000,000 =>  10B
+        else if(rating >= 100000000)
+            closetHighNumber = 1000000000;     //   1,000,000,000 =>   1B
         else if(rating >= 10000000)
-            closetHighNumber = 100000000;
+            closetHighNumber = 100000000;      //     100,000,000 => 100M
         else if(rating >= 1000000)
-            closetHighNumber = 10000000;
+            closetHighNumber = 10000000;       //      10,000,000 =>  10M
         else if(rating >= 100000)
-            closetHighNumber = 1000000;
+            closetHighNumber = 1000000;        //       1,000,000 =>   1M
         else if(rating >= 10000)
             closetHighNumber = 100000;
         else if(rating >= 1000)
@@ -295,8 +300,8 @@ public class ProfilePageFragment extends ActiveFragment {
         else if(rating >= 100)
             closetHighNumber = 1000;
 
-        ratingProgress.setMax(closetHighNumber);
-        ratingProgress.setProgress(((int)rating));
+        ratingProgress.setMax(100);
+        ratingProgress.setProgress((int)((rating / closetHighNumber) * 100));
         ratingCount.setText(String.format("%s %%", rating));
     }
 
