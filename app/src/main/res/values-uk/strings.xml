@@ -546,6 +546,7 @@
 	<string name="profile_books">Улюблені книги</string>
 	<string name="profile_quotations">Улюблені цитати</string>
 	<string name="profile_about">Про себе</string>
+    <string name="profile_regdate">Дата реєстрації</string>
 	<string name="profile_info_relatives">Родичі</string>
 	<string name="profile_relative_sibling_m">Брат</string>
 	<string name="profile_relative_sibling_f">Сестра</string>

@@ -32,18 +32,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Date;
 
+import uk.openvk.android.client.entities.User;
+import uk.openvk.android.legacy.Global;
 import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
 import uk.openvk.android.legacy.ui.list.adapters.PublicPageAboutAdapter;
 import uk.openvk.android.legacy.ui.list.items.PublicPageAboutItem;
 
 public class AboutProfileLayout extends LinearLayout {
-    private String interests;
-    private String music;
-    private String movies;
-    private String tv;
-    private String books;
+    private ArrayList<PublicPageAboutItem> items;
 
     public AboutProfileLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -86,46 +85,55 @@ public class AboutProfileLayout extends LinearLayout {
 
     }
 
-    public void setInterests(String interests, String music, String movies, String tv, String books) {
-        this.interests = interests;
-        this.music = music;
-        this.movies = movies;
-        this.tv = tv;
-        this.books = books;
-        ArrayList<PublicPageAboutItem> items = new ArrayList<>();
-        if(this.interests != null && this.music != null && this.movies != null && this.tv != null
-                && this.books != null) {
-            if(this.interests.length() > 0) {
-                items.add(new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_interests), interests));
-            }
-            if(this.music.length() > 0) {
-                items.add(new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_music), music));
-            }
-            if(this.movies.length() > 0) {
-                items.add(new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_movies), movies));
-            }
-            if(this.tv.length() > 0) {
-                items.add(new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_tv), tv));
-            }
-            if(this.books.length() > 0) {
-                items.add(new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_books), books));
-            }
-            RecyclerView about_rv = findViewById(R.id.about_rv);
-            PublicPageAboutAdapter aboutAdapter = new PublicPageAboutAdapter(getContext(), items);
-            about_rv.setLayoutManager(new LinearLayoutManager(getContext()));
-            about_rv.setAdapter(aboutAdapter);
-            findViewById(R.id.about_profile).setVisibility(VISIBLE);
-            if(aboutAdapter.getItemCount() == 0) {
-                findViewById(R.id.about_profile).setVisibility(VISIBLE);
-                findViewById(R.id.about_rv).setVisibility(GONE);
-                findViewById(R.id.no_info).setVisibility(VISIBLE);
-            }
-        } else {
+    public void setInterests(User user) {
+
+        if(items == null)
+            items = new ArrayList<>();
+
+        if(user.interests.length() > 0)
+            items.add(
+                    new PublicPageAboutItem(
+                            getResources().getString(R.string.profile_interests), user.interests
+                    )
+            );
+
+        if(user.music.length() > 0)
+            items.add(
+                new PublicPageAboutItem(
+                        getResources().getString(R.string.profile_music), user.music
+                )
+            );
+
+        if(user.movies.length() > 0)
+            items.add(
+                    new PublicPageAboutItem(
+                            getResources().getString(R.string.profile_movies), user.movies
+                    )
+            );
+
+        if(user.tv.length() > 0)
+            items.add(
+                    new PublicPageAboutItem(
+                            getResources().getString(R.string.profile_tv), user.tv
+                    )
+            );
+
+        if(user.books.length() > 0)
+            items.add(
+                    new PublicPageAboutItem(
+                        getResources().getString(R.string.profile_books), user.books
+                    )
+            );
+    }
+
+    public void setProfileInfoAdapter() {
+        RecyclerView about_rv = findViewById(R.id.about_rv);
+        PublicPageAboutAdapter aboutAdapter = new PublicPageAboutAdapter(getContext(), items);
+        about_rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        about_rv.setAdapter(aboutAdapter);
+        findViewById(R.id.about_profile).setVisibility(VISIBLE);
+
+        if(aboutAdapter.getItemCount() == 0) {
             findViewById(R.id.about_profile).setVisibility(VISIBLE);
             findViewById(R.id.about_rv).setVisibility(GONE);
             findViewById(R.id.no_info).setVisibility(VISIBLE);
@@ -133,5 +141,17 @@ public class AboutProfileLayout extends LinearLayout {
     }
 
     public void setContacts(String city) {
+    }
+
+    public void setRegistrationDate(Date regdate) {
+        if(items == null)
+            items = new ArrayList<>();
+
+        items.add(
+                new PublicPageAboutItem(
+                        getResources().getString(R.string.profile_regdate),
+                        Global.formatTimestamp(getContext(), regdate.getTime())
+                )
+        );
     }
 }

@@ -529,6 +529,7 @@
 	<string name="profile_books">Любимые книги</string>
 	<string name="profile_quotations">Любимые цитаты</string>
 	<string name="profile_about">О себе</string>
+    <string name="profile_regdate">Дата регистрации</string>
 	<string name="profile_info_relatives">Родственники</string>
 	<string name="profile_relative_sibling_m">Брат</string>
 	<string name="profile_relative_sibling_f">Сестра</string>

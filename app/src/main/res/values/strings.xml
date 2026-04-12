@@ -520,6 +520,7 @@
 	<string name="profile_books">Favorite books</string>
 	<string name="profile_quotations">Favorite quotes</string>
 	<string name="profile_about">About</string>
+	<string name="profile_regdate">Registration date</string>
 	<string name="profile_info_relatives">Relatives</string>
 	<string name="profile_relative_sibling_m">Brother</string>
 	<string name="profile_relative_sibling_f">Sister</string>

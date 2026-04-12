@@ -27,6 +27,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -230,15 +231,21 @@ public class ProfilePageFragment extends ActiveFragment {
         header.setProfileName(String.format("%s %s  ", user.first_name, user.last_name));
         header.setOnline(user.online);
         header.setStatus(user.status);
-        header.setLastSeen(user.sex, user.ls_date, user.ls_platform);
         header.setVerified(user.verified, getContext());
+        header.setLastSeen(user.sex, user.ls_date, user.ls_platform);
+        setProfileRatingProgress(user.rating);
+
         (view.findViewById(R.id.wall_error_layout)).setVisibility(GONE);
         if (user.deactivated == null) {
-            ((AboutProfileLayout) view.findViewById(R.id.about_profile_layout)).setBirthdate("");
-            ((AboutProfileLayout) view.findViewById(R.id.about_profile_layout)).setStatus(user.status);
-            ((AboutProfileLayout) view.findViewById(R.id.about_profile_layout)).setInterests(
-                    user.interests, user.music, user.movies, user.tv, user.books);
-            ((AboutProfileLayout) view.findViewById(R.id.about_profile_layout)).setContacts(user.city);
+            AboutProfileLayout layout = view.findViewById(R.id.about_profile_layout);
+
+            layout.setBirthdate("");
+            layout.setStatus(user.status);
+            layout.setInterests(user);
+            layout.setRegistrationDate(user.regdate);
+            layout.setContacts(user.city);
+            layout.setProfileInfoAdapter();
+
             header.findViewById(R.id.profile_head_highlight).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -254,6 +261,9 @@ public class ProfilePageFragment extends ActiveFragment {
                     }
                 }
             });
+
+            setProfileRatingProgress(user.rating);
+
             ((ProfileWallSelector) view.findViewById(R.id.wall_selector)).setUserName(user.first_name);
         } else {
             view.findViewById(R.id.profile_counters).setVisibility(GONE);
@@ -262,6 +272,32 @@ public class ProfilePageFragment extends ActiveFragment {
             view.findViewById(R.id.send_direct_msg).setVisibility(GONE);
         }
         adjustLayout(getContext().getResources().getConfiguration().orientation);
+    }
+
+    private void setProfileRatingProgress(long rating) {
+        int closetHighNumber = 100;
+
+        ProgressBar ratingProgress = view.findViewById(R.id.rating_progress);
+        TextView ratingCount = view.findViewById(R.id.rating_count);
+
+        if(rating >= 100000000)
+            closetHighNumber = 1000000000;
+        else if(rating >= 10000000)
+            closetHighNumber = 100000000;
+        else if(rating >= 1000000)
+            closetHighNumber = 10000000;
+        else if(rating >= 100000)
+            closetHighNumber = 1000000;
+        else if(rating >= 10000)
+            closetHighNumber = 100000;
+        else if(rating >= 1000)
+            closetHighNumber = 10000;
+        else if(rating >= 100)
+            closetHighNumber = 1000;
+
+        ratingProgress.setMax(closetHighNumber);
+        ratingProgress.setProgress(((int)rating));
+        ratingCount.setText(String.format("%s %%", rating));
     }
 
     public void toggleExtendedInfo() {
@@ -517,9 +553,8 @@ public class ProfilePageFragment extends ActiveFragment {
         if(ovk_api.user.deactivated == null) {
             ovk_api.user.downloadAvatar(ovk_api.dlman, global_prefs.getString("photos_quality", ""));
             loadWallFromCache(ctx, ovk_api, ovk_api.user.id);
-            if(ovk_api.user.counters != null) {
+            if(ovk_api.user.counters != null)
                 setCounters(user);
-            }
         } else {
             hideTabSelector();
             getHeader().hideExpandArrow();
