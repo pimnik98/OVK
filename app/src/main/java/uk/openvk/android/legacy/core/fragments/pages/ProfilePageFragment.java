@@ -299,9 +299,13 @@ public class ProfilePageFragment extends ActiveFragment {
         else if(rating >= 100)
             closetHighNumber = 1000;
 
-        ratingProgress.setMax(100);
-        ratingProgress.setProgress((int)(((float)rating / closetHighNumber) * 100));
-        ratingCount.setText(String.format("%s %%", rating));
+        if(rating > 0) {
+            ratingProgress.setMax(100);
+            ratingProgress.setProgress((int) (((float) rating / closetHighNumber) * 100));
+            ratingCount.setText(String.format("%s %%", rating));
+        } else {
+            view.findViewById(R.id.rating_layout).setVisibility(GONE);
+        }
     }
 
     public void toggleExtendedInfo() {

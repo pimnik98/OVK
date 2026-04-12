@@ -147,11 +147,13 @@ public class AboutProfileLayout extends LinearLayout {
         if(items == null)
             items = new ArrayList<>();
 
-        items.add(
-                new PublicPageAboutItem(
-                        getResources().getString(R.string.profile_regdate),
-                        Global.formatTimestamp(getContext(), regdate.getTime())
-                )
-        );
+        if(regdate != null) {
+            items.add(
+                    new PublicPageAboutItem(
+                            getResources().getString(R.string.profile_regdate),
+                            Global.formatTimestamp(getContext(), regdate.getTime())
+                    )
+            );
+        }
     }
 }

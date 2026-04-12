@@ -65,6 +65,7 @@
                         android:id="@+id/about_profile_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
                         android:visibility="gone" />
 
                     <LinearLayout
@@ -119,7 +120,9 @@
                         android:id="@+id/rating_layout"
                         android:layout_width="match_parent"
                         android:layout_height="24dp"
-                        android:layout_margin="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:layout_weight="1"
                         tools:ignore="InefficientWeight">
 
