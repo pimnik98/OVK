@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
+import uk.openvk.android.legacy.OvkApplication;
 import uk.openvk.android.legacy.R;
 import uk.openvk.android.legacy.ui.list.adapters.PublicPageAboutAdapter;
 import uk.openvk.android.legacy.ui.list.items.PublicPageAboutItem;
@@ -56,12 +57,14 @@ public class AboutProfileLayout extends LinearLayout {
         layoutParams.height = LayoutParams.WRAP_CONTENT;
         view.setLayoutParams(layoutParams);
         SharedPreferences global_prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        if(global_prefs.getString("uiTheme", "blue").equals("Gray")) {
-            view.findViewById(R.id.profile_ext_header)
-                    .setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
-        } else if(global_prefs.getString("uiTheme", "blue").equals("Black")) {
-            view.findViewById(R.id.profile_ext_header)
-                    .setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
+        if(!((OvkApplication) getContext().getApplicationContext()).isTablet) {
+            if (global_prefs.getString("uiTheme", "blue").equals("Gray")) {
+                view.findViewById(R.id.profile_ext_header)
+                        .setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
+            } else if (global_prefs.getString("uiTheme", "blue").equals("Black")) {
+                view.findViewById(R.id.profile_ext_header)
+                        .setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
+            }
         }
     }
 

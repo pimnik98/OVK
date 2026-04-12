@@ -58,10 +58,13 @@ public class ProfileHeader extends RelativeLayout {
         layoutParams.width = RelativeLayout.LayoutParams.MATCH_PARENT;
         view.setLayoutParams(layoutParams);
         SharedPreferences global_prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        if(global_prefs.getString("uiTheme", "blue").equals("Gray")) {
-            view.setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
-        } else if(global_prefs.getString("uiTheme", "blue").equals("Black")) {
-            view.setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
+
+        if(!((OvkApplication) getContext().getApplicationContext()).isTablet) {
+            if (global_prefs.getString("uiTheme", "blue").equals("Gray")) {
+                view.setBackgroundColor(getResources().getColor(R.color.color_gray_v3));
+            } else if (global_prefs.getString("uiTheme", "blue").equals("Black")) {
+                view.setBackgroundColor(getResources().getColor(R.color.color_gray_v2));
+            }
         }
     }
 
