@@ -276,7 +276,6 @@ public class ProfilePageFragment extends ActiveFragment {
 
     private void setProfileRatingProgress(long rating) {
         long closetHighNumber = 100;
-        long rating2;
 
         ProgressBar ratingProgress = view.findViewById(R.id.rating_progress);
         TextView ratingCount = view.findViewById(R.id.rating_count);
