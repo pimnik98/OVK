@@ -239,12 +239,14 @@ public class ProfilePageFragment extends ActiveFragment {
         if (user.deactivated == null) {
             AboutProfileLayout layout = view.findViewById(R.id.about_profile_layout);
 
-            layout.setBirthdate("");
-            layout.setStatus(user.status);
-            layout.setInterests(user);
-            layout.setRegistrationDate(user.regdate);
-            layout.setContacts(user.city);
-            layout.setProfileInfoAdapter();
+            if(layout.getProfileFieldsCount() == 0) {
+                layout.setBirthdate("");
+                layout.setStatus(user.status);
+                layout.setInterests(user);
+                layout.setRegistrationDate(user.regdate);
+                layout.setContacts(user.city);
+                layout.setProfileInfoAdapter();
+            }
 
             header.findViewById(R.id.profile_head_highlight).setOnClickListener(new View.OnClickListener() {
                 @Override

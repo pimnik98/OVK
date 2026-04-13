@@ -65,6 +65,7 @@ public class FriendsFragment extends ActiveFragment {
     private String instance;
     private int previousListCount;
     private InfinityRecyclerViewScrollListener infinityScrollListener = null;
+    private long userId;
 
     @Nullable
     @Override
@@ -101,7 +102,9 @@ public class FriendsFragment extends ActiveFragment {
         return view;
     }
 
-    public void createAdapter(Context ctx, ArrayList<Friend> friends, String where) {
+    public void createAdapter(Context ctx, long userId, ArrayList<Friend> friends, String where) {
+
+        this.userId = userId;
 
         if(friends.size() == 0) {
             friendsAdapter.notifyDataSetChanged();
@@ -190,7 +193,7 @@ public class FriendsFragment extends ActiveFragment {
         infinityScrollListener = new InfinityRecyclerViewScrollListener(lm) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if(previousListCount > 0) {
+                if(previousListCount > 0 && getCount() > 0) {
                     OpenVKAPI ovk_api = null;
                     if (ctx instanceof AppActivity) {
                         ovk_api = ((AppActivity) ctx).ovk_api;
@@ -200,7 +203,7 @@ public class FriendsFragment extends ActiveFragment {
                         return;
                     }
 
-                    Global.loadMoreFriends(ovk_api);
+                    Global.loadMoreFriends(userId, ovk_api);
                 }
             }
         };
@@ -327,15 +330,16 @@ public class FriendsFragment extends ActiveFragment {
         }
     }
 
-    public void loadAPIData(Context ctx, OpenVKAPI ovk_api) {
+    public void loadAPIData(Context ctx, long userId, OpenVKAPI ovk_api) {
         if(this.friends != null && this.friends.size() > 0) {
             int lastEntity = this.friends.size() - 1;
             if(this.friends.get(lastEntity).getEntityType() == LazyEntity.SLEEPING_ENTITY)
                 this.friends.remove(lastEntity);
         }
-        createAdapter(ctx, ovk_api.friends.getFriends(), "friends");
+        createAdapter(ctx, userId, ovk_api.friends.getFriends(), "friends");
 
-        if(this.requests == null || this.requests.size() == 0)
+        if((this.requests == null || this.requests.size() == 0) &&
+                ovk_api.user.id == ovk_api.account.id)
             ovk_api.friends.getRequests(ovk_api.wrapper);
 
         updateTabsCounters(0, ovk_api.friends.count);

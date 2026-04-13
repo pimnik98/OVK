@@ -156,4 +156,11 @@ public class AboutProfileLayout extends LinearLayout {
             );
         }
     }
+
+    public int getProfileFieldsCount() {
+        if(items == null)
+            return 0;
+        else
+            return items.size();
+    }
 }
