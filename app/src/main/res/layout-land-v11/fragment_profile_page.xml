@@ -64,13 +64,14 @@
                         android:id="@+id/about_profile_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:paddingBottom="8dip"
                         android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/actions_layout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_marginBottom="4dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
@@ -103,12 +104,12 @@
                         android:id="@+id/friend_status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="4dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="4dp"
                         android:gravity="center_horizontal"
                         android:text="@string/friend_status_friend"
                         android:textColor="#bdffffff"
@@ -119,9 +120,10 @@
                         android:id="@+id/rating_layout"
                         android:layout_width="match_parent"
                         android:layout_height="24dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="4dp"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
+                        android:layout_marginTop="4dp"
                         android:layout_weight="1"
                         tools:ignore="InefficientWeight">
 
