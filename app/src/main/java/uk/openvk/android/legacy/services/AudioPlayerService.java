@@ -44,6 +44,7 @@ import uk.openvk.android.client.entities.Audio;
 import uk.openvk.android.legacy.R;
 import uk.openvk.android.legacy.databases.AudioCacheDB;
 import uk.openvk.android.legacy.utils.NotificationManager;
+import uk.openvk.android.legacy.utils.media.ProxifiedMediaPlayer;
 
 public class AudioPlayerService extends Service implements
         MediaPlayer.OnBufferingUpdateListener,
@@ -54,7 +55,7 @@ public class AudioPlayerService extends Service implements
     private int currentTrackPos;
     private AudioPlayerBinder binder = new AudioPlayerBinder();
     private boolean isRunning = false;
-    private MediaPlayer mp;
+    private ProxifiedMediaPlayer mp;
     private boolean isPlaying;
     private boolean isPrepared;
     private boolean isStarted;
@@ -87,7 +88,7 @@ public class AudioPlayerService extends Service implements
 
     }
 
-    public MediaPlayer getMediaPlayer() {
+    public ProxifiedMediaPlayer getMediaPlayer() {
         return mp;
     }
 
@@ -294,7 +295,8 @@ public class AudioPlayerService extends Service implements
         if(mp != null) {
             mp.reset();
         } else {
-            mp = new MediaPlayer();
+            mp = new ProxifiedMediaPlayer(this);
+
             if (Build.VERSION.SDK_INT >= 26)
                 mp.setAudioAttributes(
                         new AudioAttributes
