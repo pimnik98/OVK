@@ -27,7 +27,7 @@ public class ProxifiedMediaPlayer extends MediaPlayer {
     public void setDataSource(String path) throws
             IOException, IllegalArgumentException, IllegalStateException, SecurityException {
         if(globalPrefs.getBoolean("useProxy", false) &&
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             if(proxyType.equals("selfeco-relay")) {
                 super.setDataSource(String.format("http://%s/?goto=%s", proxyAddress,
                         URLEncoder.encode(path)
