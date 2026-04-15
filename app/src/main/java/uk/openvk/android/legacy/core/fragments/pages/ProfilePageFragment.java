@@ -480,16 +480,16 @@ public class ProfilePageFragment extends ActiveFragment {
 
         if(getActivity() instanceof AppActivity) {
             friends_counter.setCounter(
-                    getActivity(), user.counters.friends_count, friends_pqs, "friends"
+                    getActivity(), user.counters.friends_count, friends_pqs, 0
             );
             photos_counter.setCounter(
-                    getActivity(), user.counters.photos_count, photos_pqs, "photos"
+                    getActivity(), user.counters.photos_count, photos_pqs, 1
             );
             videos_counter.setCounter(
-                    getActivity(), user.counters.videos_count, videos_pqs, "videos"
+                    getActivity(), user.counters.videos_count, videos_pqs, 2
             );
             audios_counter.setCounter(
-                    user.counters.audios_count, audios_pqs, "audios"
+                    getActivity(), user.counters.audios_count, audios_pqs, 3
             );
         } else {
             friends_counter.setCounter(

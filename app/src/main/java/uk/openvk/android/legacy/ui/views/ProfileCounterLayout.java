@@ -154,24 +154,15 @@ public class ProfileCounterLayout extends LinearLayout {
         ((TextView) findViewById(R.id.profile_counter_title)).setText(label);
     }
 
-    public void setCounter(final Context ctx, long count, String label, final String fragment) {
-        this.action = action;
-        if(action != null) {
-            findViewById(R.id.counter).setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(ctx instanceof AppActivity) {
-                        FragmentNavigator fn = ((AppActivity) ctx).getFragmentNavigator();
-                        if(fn != null) {
-                            FragmentTransaction ft =
-                                    ((AppActivity) ctx).getSupportFragmentManager().beginTransaction();
-                            fn.navigateTo(fragment, ft);
-                            ft.commit();
-                        }
-                    }
+    public void setCounter(final Context ctx, long count, String label, final int sectionNum) {
+        findViewById(R.id.counter).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ctx instanceof AppActivity) {
+                    ((AppActivity) ctx).onSlidingMenuItemClicked(sectionNum, false);
                 }
-            });
-        }
+            }
+        });
         ((TextView) findViewById(R.id.profile_counter_value)).setText(String.valueOf(count));
         ((TextView) findViewById(R.id.profile_counter_title)).setText(label);
     }
