@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v7.preference.PreferenceManager;
 
 import java.io.IOException;
@@ -23,8 +24,10 @@ public class ProxifiedMediaPlayer extends MediaPlayer {
     }
 
     @Override
-    public void setDataSource(String path) throws IOException, IllegalArgumentException, IllegalStateException, SecurityException {
-        if(globalPrefs.getBoolean("useProxy", false)) {
+    public void setDataSource(String path) throws
+            IOException, IllegalArgumentException, IllegalStateException, SecurityException {
+        if(globalPrefs.getBoolean("useProxy", false) &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if(proxyType.equals("selfeco-relay")) {
                 super.setDataSource(String.format("http://%s/?goto=%s", proxyAddress,
                         URLEncoder.encode(path)

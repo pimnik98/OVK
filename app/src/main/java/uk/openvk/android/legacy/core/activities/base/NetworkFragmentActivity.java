@@ -272,7 +272,7 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
         isBoundAP = false;
     }
 
-    public void setAudioPlayerState(int position, int status, String from) {
+    public void setAudioPlayerState(int position, int status) {
         String action = "";
         switch (status) {
             case AudioPlayerService.STATUS_STARTING:
@@ -292,11 +292,10 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
         audioPlayerIntent.putExtra("action", action);
         if(status == AudioPlayerService.STATUS_STARTING) {
             audioPlayerIntent.putExtra("position", position);
-            if(from.length() > 0)
-                audioPlayerIntent.putExtra("from", from);
         }
         Log.d(OvkApplication.APP_TAG, "Setting AudioPlayerService state");
 
+        startService(audioPlayerIntent);
         bindAudioPlayer();
     }
 
@@ -333,14 +332,10 @@ public class NetworkFragmentActivity extends TranslucentFragmentActivity
     @Override
     public void onAudioPlayerError(int what, int extra, int current_track_pos) {
         try {
-            if(audioPlayerService.getPlaybackFailedAttempts() < 5) {
-                setAudioPlayerState(current_track_pos, AudioPlayerService.STATUS_GOTO_NEXT, "");
-            } else if(audioPlayerService.getPlaybackFailedAttempts() < 6){
-                Toast.makeText(
-                        this,
-                        getResources().getString(R.string.audio_play_error),
-                        Toast.LENGTH_LONG).show();
-            }
+            Toast.makeText(
+                    this,
+                    getResources().getString(R.string.audio_play_error),
+                    Toast.LENGTH_LONG).show();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

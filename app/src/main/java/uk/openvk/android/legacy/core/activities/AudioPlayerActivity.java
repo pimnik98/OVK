@@ -132,7 +132,8 @@ public class AudioPlayerActivity extends NetworkActivity implements
                 if(audioPlayerService.isPrepared()) {
                     if(currentTrackPos > 0) {
                         setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_GOTO_PREVIOUS);
-                        updateCurrentTrackPosition(currentTrackPos - 1, AudioPlayerService.STATUS_PLAYING);
+                        currentTrackPos--;
+                        updateCurrentTrackPosition(currentTrackPos, AudioPlayerService.STATUS_PLAYING);
                         updateSeekbarPosition(0, 0, 0);
                     }
                 }
@@ -143,7 +144,8 @@ public class AudioPlayerActivity extends NetworkActivity implements
             public void onClick(View view) {
                 if(audioPlayerService.isPrepared()) {
                     setAudioPlayerState(currentTrackPos, AudioPlayerService.STATUS_GOTO_NEXT);
-                    updateCurrentTrackPosition(currentTrackPos + 1, AudioPlayerService.STATUS_PLAYING);
+                    currentTrackPos++;
+                    updateCurrentTrackPosition(currentTrackPos, AudioPlayerService.STATUS_PLAYING);
                     updateSeekbarPosition(0, 0, 0);
                 }
             }
@@ -251,22 +253,22 @@ public class AudioPlayerActivity extends NetworkActivity implements
             return;
         Audio currentTrack = audio_tracks.get(track_pos);
         ovk_api.audios.fillList(audio_tracks);
-        if(currentTrackPos != track_pos) {
-            TextView title_tv = findViewById(R.id.aplayer_title);
-            TextView artist_tv = findViewById(R.id.aplayer_artist);
-            TextView lyrics_tv = findViewById(R.id.audio_player_lyrics);
-            title_tv.setText(currentTrack.title);
-            artist_tv.setText(currentTrack.artist);
-            lyrics_tv.setText("");
-            title_tv.setSelected(true);
-            artist_tv.setSelected(true);
-            this.currentTrackPos = track_pos;
-            this.playerStatus = status;
-            if(currentTrack.lyrics > 0 && currentTrack.lyrics_text == null)
-                ovk_api.audios.getLyrics(ovk_api.wrapper, currentTrack.lyrics);
-            else
-                lyrics_tv.setVisibility(View.GONE);
-        }
+        TextView title_tv = findViewById(R.id.aplayer_title);
+        TextView artist_tv = findViewById(R.id.aplayer_artist);
+        TextView lyrics_tv = findViewById(R.id.audio_player_lyrics);
+        title_tv.setText(currentTrack.title);
+        artist_tv.setText(currentTrack.artist);
+        lyrics_tv.setText("");
+        title_tv.setSelected(true);
+        artist_tv.setSelected(true);
+        this.currentTrackPos = track_pos;
+        this.playerStatus = status;
+
+        if(currentTrack.lyrics > 0 && currentTrack.lyrics_text == null)
+            ovk_api.audios.getLyrics(ovk_api.wrapper, currentTrack.lyrics);
+        else
+            lyrics_tv.setVisibility(View.GONE);
+
         switch (status) {
             case AudioPlayerService.STATUS_PLAYING:
                 play_button.setImageDrawable(getResources().getDrawable(R.drawable.ic_audio_panel_pause));

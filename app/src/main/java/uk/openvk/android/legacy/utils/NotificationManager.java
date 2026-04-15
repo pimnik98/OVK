@@ -196,12 +196,10 @@ public class NotificationManager {
 
             notification = builder.build();
 
-            if(ledIndicate) {
+            if(ledIndicate)
                 notification.defaults = Notification.DEFAULT_LIGHTS;
-            }
-            if(vibrate) {
+            if(vibrate)
                 notification.defaults = Notification.DEFAULT_VIBRATE;
-            }
 
             if(playSound) {
                 notification.defaults = Notification.DEFAULT_SOUND;
@@ -222,17 +220,13 @@ public class NotificationManager {
         if(track == null) {
             remoteViews.setTextViewText(R.id.title, ctx.getResources().getString(R.string.player_done));
             remoteViews.setTextViewText(R.id.content, "");
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                remoteViews.setViewVisibility(R.id.prev, View.GONE);
-                remoteViews.setViewVisibility(R.id.next, View.GONE);
-            }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                remoteViews.setViewVisibility(R.id.player_control, View.GONE);
         } else {
             remoteViews.setTextViewText(R.id.title, track.title);
             remoteViews.setTextViewText(R.id.content, track.artist);
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                remoteViews.setViewVisibility(R.id.prev, View.VISIBLE);
-                remoteViews.setViewVisibility(R.id.next, View.VISIBLE);
-            }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                remoteViews.setViewVisibility(R.id.player_control, View.VISIBLE);
         }
         PendingIntent playPendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PLAYING);
         PendingIntent pausePendingIntent = setAudioPlayerControls(ctx, AudioPlayerService.STATUS_PAUSED);
@@ -251,7 +245,7 @@ public class NotificationManager {
                         remoteViews.setImageViewResource(R.id.playpause, R.drawable.ic_audio_panel_pause);
                         break;
                 }
-
+                remoteViews.setViewVisibility(R.id.player_control, View.VISIBLE);
                 remoteViews.setOnClickPendingIntent(R.id.prev, prevPendingIntent);
                 remoteViews.setOnClickPendingIntent(R.id.next, nextPendingIntent);
             } else {
@@ -293,6 +287,7 @@ public class NotificationManager {
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
 
+        notification.contentView.setViewVisibility(R.id.player_control, View.VISIBLE);
         notification.contentView.setTextViewText(R.id.title, track.title);
         notification.contentView.setTextViewText(R.id.content, track.artist);
         notification.contentView.setViewVisibility(R.id.prev, View.VISIBLE);

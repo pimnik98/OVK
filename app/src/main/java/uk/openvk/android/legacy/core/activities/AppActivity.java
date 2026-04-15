@@ -1205,4 +1205,8 @@ public class AppActivity extends NetworkFragmentActivity {
         float dp = getResources().getDisplayMetrics().scaledDensity;
         return width / dp;
     }
+
+    public FragmentNavigator getFragmentNavigator() {
+        return fn;
+    }
 }

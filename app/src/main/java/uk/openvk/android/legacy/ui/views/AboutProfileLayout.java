@@ -43,6 +43,7 @@ import uk.openvk.android.legacy.ui.list.items.PublicPageAboutItem;
 
 public class AboutProfileLayout extends LinearLayout {
     private ArrayList<PublicPageAboutItem> items;
+    private PublicPageAboutAdapter aboutAdapter;
 
     public AboutProfileLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -126,11 +127,21 @@ public class AboutProfileLayout extends LinearLayout {
             );
     }
 
+    public void clear() {
+        items.clear();
+        if(aboutAdapter != null)
+            aboutAdapter.notifyDataSetChanged();
+    }
+
     public void setProfileInfoAdapter() {
         RecyclerView about_rv = findViewById(R.id.about_rv);
-        PublicPageAboutAdapter aboutAdapter = new PublicPageAboutAdapter(getContext(), items);
-        about_rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        about_rv.setAdapter(aboutAdapter);
+        if(aboutAdapter == null) {
+            aboutAdapter = new PublicPageAboutAdapter(getContext(), items);
+            about_rv.setLayoutManager(new LinearLayoutManager(getContext()));
+            about_rv.setAdapter(aboutAdapter);
+        } else
+            aboutAdapter.notifyDataSetChanged();
+
         findViewById(R.id.about_profile).setVisibility(VISIBLE);
 
         if(aboutAdapter.getItemCount() == 0) {

@@ -137,6 +137,7 @@ public class ProfilePageFragment extends ActiveFragment {
                 ovk_api.users.get(ovk_api.wrapper, ids);
             }
         });
+
         if(!((OvkApplication) getContext().getApplicationContext()).isTablet) {
             p2r_view.setBackgroundColor(Color.parseColor("#313743"));
             if (global_prefs.getString("uiTheme", "blue").equals("Gray")) {
@@ -239,14 +240,15 @@ public class ProfilePageFragment extends ActiveFragment {
         if (user.deactivated == null) {
             AboutProfileLayout layout = view.findViewById(R.id.about_profile_layout);
 
-            if(layout.getProfileFieldsCount() == 0) {
-                layout.setBirthdate("");
-                layout.setStatus(user.status);
-                layout.setInterests(user);
-                layout.setRegistrationDate(user.regdate);
-                layout.setContacts(user.city);
-                layout.setProfileInfoAdapter();
-            }
+            if(layout.getProfileFieldsCount() > 0)
+                layout.clear();
+
+            layout.setBirthdate("");
+            layout.setStatus(user.status);
+            layout.setInterests(user);
+            layout.setRegistrationDate(user.regdate);
+            layout.setContacts(user.city);
+            layout.setProfileInfoAdapter();
 
             header.findViewById(R.id.profile_head_highlight).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -452,45 +454,57 @@ public class ProfilePageFragment extends ActiveFragment {
         ProfileCounterLayout videos_counter = new ProfileCounterLayout(getContext());
         ProfileCounterLayout audios_counter = new ProfileCounterLayout(getContext());
 
-        friends_counter.setCounter(
-                user.counters.friends_count,
-                Global.getPluralQuantityString(
-                        getContext(),
-                        R.plurals.profile_friends,
-                        Global.getEndNumberFromLong(user.counters.friends_count)
-                ),
-                "openvk://ovk/friends" + user.id
+        String friends_pqs = Global.getPluralQuantityString(
+                getContext(),
+                R.plurals.profile_friends,
+                Global.getEndNumberFromLong(user.counters.friends_count)
         );
 
-        photos_counter.setCounter(
-                user.counters.photos_count,
-                Global.getPluralQuantityString(
-                        getContext(),
-                        R.plurals.profile_photos,
-                        Global.getEndNumberFromLong(user.counters.photos_count)
-                ),
-                "openvk://ovk/photos" + user.id
+        String photos_pqs = Global.getPluralQuantityString(
+                getContext(),
+                R.plurals.profile_photos,
+                Global.getEndNumberFromLong(user.counters.photos_count)
         );
 
-        videos_counter.setCounter(
-                user.counters.videos_count,
-                Global.getPluralQuantityString(
-                        getContext(),
-                        R.plurals.profile_videos,
-                        Global.getEndNumberFromLong(user.counters.videos_count)
-                ),
-                "openvk://ovk/videos" + user.id
+        String videos_pqs = Global.getPluralQuantityString(
+                getContext(),
+                R.plurals.profile_videos,
+                Global.getEndNumberFromLong(user.counters.videos_count)
         );
 
-        audios_counter.setCounter(
-                user.counters.audios_count,
-                Global.getPluralQuantityString(
-                        getContext(),
-                        R.plurals.profile_audios,
-                        Global.getEndNumberFromLong(user.counters.audios_count)
-                ),
-                "openvk://ovk/audios" + user.id
+        String audios_pqs = Global.getPluralQuantityString(
+                getContext(),
+                R.plurals.profile_audios,
+                Global.getEndNumberFromLong(user.counters.audios_count)
         );
+
+        if(getActivity() instanceof AppActivity) {
+            friends_counter.setCounter(
+                    getActivity(), user.counters.friends_count, friends_pqs, "friends"
+            );
+            photos_counter.setCounter(
+                    getActivity(), user.counters.photos_count, photos_pqs, "photos"
+            );
+            videos_counter.setCounter(
+                    getActivity(), user.counters.videos_count, videos_pqs, "videos"
+            );
+            audios_counter.setCounter(
+                    user.counters.audios_count, audios_pqs, "audios"
+            );
+        } else {
+            friends_counter.setCounter(
+                    user.counters.friends_count, friends_pqs, "openvk://ovk/friends" + user.id
+            );
+            photos_counter.setCounter(
+                    user.counters.photos_count, photos_pqs, "openvk://ovk/photos" + user.id
+            );
+            videos_counter.setCounter(
+                    user.counters.videos_count, videos_pqs, "openvk://ovk/videos" + user.id
+            );
+            audios_counter.setCounter(
+                    user.counters.audios_count, audios_pqs, "openvk://ovk/audios" + user.id
+            );
+        }
 
         FlowLayout row = view.findViewById(R.id.profile_counters);
         if(row.getChildCount() > 0)
@@ -557,9 +571,9 @@ public class ProfilePageFragment extends ActiveFragment {
         updateLayout(ovk_api, wm);
         setDMButtonListener(ctx, ovk_api.user.id, wm);
         setAddToFriendsButtonListener(ctx, ovk_api.user.id, ovk_api.user);
-        if(ovk_api.user.id == ovk_api.account.id) {
+        if(ovk_api.user.id == ovk_api.account.id)
             hideHeaderButtons(ctx, wm);
-        }
+
         if(ovk_api.user.deactivated == null) {
             ovk_api.user.downloadAvatar(ovk_api.dlman, global_prefs.getString("photos_quality", ""));
             loadWallFromCache(ctx, ovk_api, ovk_api.user.id);
@@ -598,6 +612,7 @@ public class ProfilePageFragment extends ActiveFragment {
             wall_error.setErrorText(getResources().getString(R.string.no_news));
             wall_error.setVisibility(View.VISIBLE);
         }
+
         ProfileWallSelector selector = view.findViewById(R.id.wall_selector);
         selector.findViewById(R.id.profile_wall_post_btn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -704,11 +719,9 @@ public class ProfilePageFragment extends ActiveFragment {
                     placeholder_lp.width = InfinityScrollView.LayoutParams.MATCH_PARENT;
                 }
             } else {
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    placeholder_lp.width = 500 * dp;
-                } else {
-                    placeholder_lp.width = InfinityScrollView.LayoutParams.MATCH_PARENT;
-                }
+                placeholder_lp.width =
+                        orientation == Configuration.ORIENTATION_LANDSCAPE ?
+                                500 * dp : InfinityScrollView.LayoutParams.MATCH_PARENT;
             }
             placeholder_lp.gravity = Gravity.CENTER_HORIZONTAL;
             placeholder.setLayoutParams(placeholder_lp);
